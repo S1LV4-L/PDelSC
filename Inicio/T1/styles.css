@@ -1,0 +1,94 @@
+body {
+    font-family:
+        "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+        "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    background-color: #f7f8f0;
+}
+
+h1 {
+    font-family:
+        "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans",
+        Arial, sans-serif;
+    padding-top: 2%;
+    margin-bottom: 1%;
+}
+
+p {
+    text-align: center;
+}
+
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: linear-gradient(#9cd5ff, #7aaace);
+    text-align: center;
+    color: #000000;
+    z-index: 9999;
+}
+
+h2 {
+    margin: 0;
+    padding-left: 1%;
+}
+
+h3 {
+    margin: 0;
+    padding-bottom: 2vh;
+    text-align: center;
+}
+
+h4 {
+    padding-top: 2vh;
+    padding-bottom: 2vh;
+    text-align: center;
+    color: rgb(53, 53, 53);
+    font-size: clamp(0.9rem, 2vw, 1.2rem);
+}
+
+hr {
+    margin: 0;
+    padding: 0;
+}
+
+img {
+    padding: 0%;
+    margin: 0%;
+    transition: 5s ease;
+    border: none;
+}
+
+img:hover {
+    cursor: pointer;
+    border: 3px solid #355872;
+    border-radius: 5px;
+}
+
+#progressbar {
+    margin: 0 auto;
+    padding: 0;
+    width: 99%;
+}
+
+#pageProgress {
+    padding: 0;
+    margin: 0;
+    height: 7px;
+    width: 90vw;
+    background-color: rgb(202, 202, 202);
+    border-color: rgb(36, 177, 243);
+    border-radius: 3px;
+}
+
+#pageProgress::-webkit-progress-value {
+    background-color: #355872;
+    border-radius: 3px;
+}
+
+#pageProgress::-webkit-progress-bar {
+    background-color: rgb(202, 202, 202);
+    border-radius: 3px;
+}
