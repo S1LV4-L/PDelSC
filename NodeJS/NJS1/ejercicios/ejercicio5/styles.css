@@ -1,6 +1,7 @@
 table {
     border-collapse: collapse;
     width: 40%;
+    min-width: 280px; /* evita que se achique demasiado en pantallas medianas*/
     margin: 20px auto;
     font-family: Arial, sans-serif;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
@@ -19,4 +20,16 @@ td {
 
 th, td {
     border: 1px solid #ddd;
+}
+
+@media (max-width: 320px) {     /* se aplica solo cuando el ancho de pantalla es 320px o menos */
+    table {
+        width: 100%;       
+        min-width: unset;
+        font-size: 12px;   
+    }
+ 
+    th, td {
+        padding: 6px 4px;  
+    }
 }
