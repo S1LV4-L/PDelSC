@@ -10,8 +10,6 @@ const server = createServer(async (req, res) => {
 
   // req.url contiene la ruta que pide el navegador, por ejemplo:
   // "/" es index.html
-  // "/script.js": archivo JS
-  // "/styles.css": archivo CSS
   // para que funcione el terminal tiene que estar en la carpeta donde estan esos archivos, antes de ejecutar node server.js
 
   try {
