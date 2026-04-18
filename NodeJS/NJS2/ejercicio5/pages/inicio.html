@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Inicio</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+        <link rel="icon" type="image/x-icon" href="https://uxwing.com/wp-content/themes/uxwing/download/weather/weather-icon.png">
+    </head>
+    <body
+        class="bg-body-secondary"
+        style="padding-top: 70px; user-select: none"
+    >
+        <div id="menu"></div>
+
+        <div class="container mb-4">
+            <div class="row align-items-center">
+                <div class="col">
+                    <p class="mb-1 fs-5 opacity-75">Hoy</p>
+                    <h1 class="display-4 fw-bold mb-0">{{estado}}</h1>
+                </div>
+
+                <div class="col-auto">
+                    <span style="font-size: 5rem">{{emoji_estado}}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <h2 class="mb-4">Datos del momento</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <p class="text-muted mb-1">🌡️ Temperatura</p>
+                            <h3 class="fw-bold">{{temperatura}}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <p class="text-muted mb-1">💧 Humedad</p>
+                            <h3 class="fw-bold text-success">{{humedad}}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <p class="text-muted mb-1">🔵 Presión</p>
+                            <h3
+                                class="fw-bold text-purple"
+                                style="color: #6f42c1"
+                            >
+                                {{presion}}
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container mt-5">
+            <hr />
+        </div>
+
+        <div class="container mt-4 mb-5">
+            <h2 class="mb-4">Explorar</h2>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <a href="pronostico.html" class="card text-decoration-none text-dark h-100 p-3">
+                        <div class="fs-4 mb-1">📅 Pronóstico semanal</div>
+                        <p class="mb-0 text-muted">
+                            Consultá el clima estimado para los próximos días.
+                        </p>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="mapa.html" class="card text-decoration-none text-dark h-100 p-3">
+                        <div class="fs-4 mb-1">🗺️ Mapa del clima</div>
+                        <p class="mb-0 text-muted">
+                            Visualizá las condiciones climáticas.
+                        </p>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="datos-extra.html" class="card text-decoration-none text-dark h-100 p-3">
+                        <div class="fs-4 mb-1">📊 Datos extra</div>
+                        <p class="mb-0 text-muted">
+                            Revisá los datos sobre índice UV, visibilidad, etc.
+                        </p>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    </body>
+</html>
