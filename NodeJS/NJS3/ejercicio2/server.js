@@ -8,6 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use("/scripts", express.static(path.join(__dirname, "scripts")));
+app.use("/styles", express.static(path.join(__dirname, "styles")));
 app.use("/pages", express.static(path.join(__dirname, "pages")));
 
 app.get("/", (req, res) => {

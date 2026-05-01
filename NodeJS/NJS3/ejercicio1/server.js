@@ -7,8 +7,10 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Servir la carpeta scripts (JS)
+// Servir la carpeta scripts y css
 app.use("/scripts", express.static(path.join(__dirname, "scripts")));
+app.use("/styles", express.static(path.join(__dirname, "styles")));
+
 
 // Ruta principal → enviar el HTML manualmente
 app.get("/", (req, res) => {

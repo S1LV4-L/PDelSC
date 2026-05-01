@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ejercicio 6</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+
+<body class="py-4 px-2 bg-dark text-light">
+    <div class="container">
+        <h3 class="mb-3 text-uppercase fw-semibold">
+            Formulario de registro
+        </h3>
+
+        <form id="formulario" class="needs-validation" novalidate>
+
+            <!-- Nombre y Apellido -->
+            <div class="row g-3 mb-3">
+                <div class="col-12 col-sm-6">
+                    <label for="nombre" class="form-label">Nombre</label>
+                    <input type="text" class="form-control" id="nombre" pattern="[A-Za-zÀ-ÿ\s]+" required>
+                    <div class="invalid-feedback">Ingrese su nombre</div>
+                </div>
+
+                <div class="col-12 col-sm-6">
+                    <label for="apellido" class="form-label">Apellido</label>
+                    <input type="text" class="form-control" id="apellido" pattern="[A-Za-zÀ-ÿ\s]+" required>
+                    <div class="invalid-feedback">Ingrese su apellido</div>
+                </div>
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+                <label for="email" class="form-label">Correo electrónico</label>
+                <input type="email" class="form-control" id="email" required>
+                <div class="invalid-feedback">Ingrese un email válido</div>
+            </div>
+
+            <!-- Edad -->
+            <div class="mb-3">
+                <label for="edad" class="form-label">Edad</label>
+                <input type="number" class="form-control" id="edad" min="1" max="120" required>
+                <div class="invalid-feedback">Edad entre 1 y 120</div>
+            </div>
+
+            <!-- País -->
+            <div class="mb-3">
+                <label for="pais" class="form-label">País</label>
+                <select class="form-select" id="pais" required>
+                    <option value="">Seleccione un país</option>
+                    <option value="Argentina">Argentina</option>
+                    <option value="México">México</option>
+                    <option value="España">España</option>
+                    <option value="Colombia">Colombia</option>
+                    <option value="Chile">Chile</option>
+                    <option value="Uruguay">Uruguay</option>
+                </select>
+                <div class="invalid-feedback">Seleccione un país</div>
+            </div>
+
+            <!-- Género -->
+            <div class="mb-3">
+                <label class="form-label text-light">Género</label>
+                <div class="d-flex gap-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="genero" value="Masculino">
+                        <label class="form-check-label text-light">Masculino</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="genero" value="Femenino">
+                        <label class="form-check-label text-light">Femenino</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Intereses -->
+            <div class="mb-4">
+                <label class="form-label text-light">Intereses</label>
+
+                <div class="row g-2">
+                    <div class="col-6">
+                        <div class="form-check">
+                            <input class="form-check-input interes" type="checkbox" id="tecnologia">
+                            <label class="form-check-label text-light" for="tecnologia">Tecnología</label>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <div class="form-check">
+                            <input class="form-check-input interes" type="checkbox" id="deportes">
+                            <label class="form-check-label text-light" for="deportes">Deportes</label>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <div class="form-check">
+                            <input class="form-check-input interes" type="checkbox" id="musica">
+                            <label class="form-check-label text-light" for="musica">Música</label>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <div class="form-check">
+                            <input class="form-check-input interes" type="checkbox" id="viajes">
+                            <label class="form-check-label text-light" for="viajes">Viajes</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- mensaje de error -->
+                <div id="errorIntereses" class="text-danger small mt-2"></div>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-outline-light fw-semibold">
+                    Registrarse
+                </button>
+            </div>
+        </form>
+
+        <div id="contenedor" class="mt-4"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="../scripts/script.js" defer></script>
+</body>
+</html>

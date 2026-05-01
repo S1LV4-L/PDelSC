@@ -26,7 +26,8 @@ document.getElementById("btn5").addEventListener("click", () => {
 
     if (img.src.includes("dreamstime")) {
         img.src = "https://png.pngtree.com/png-vector/20230923/ourlarge/pngtree-example-document-illustrative-model-png-image_10125820.png";
-    } else {
+    }
+    else if(img.src.includes("pngtree")) {
         img.src = "https://thumbs.dreamstime.com/b/sello-del-ejemplo-28420393.jpg";
     }
 });
