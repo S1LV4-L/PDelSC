@@ -1,0 +1,26 @@
+[data-bs-theme="light"] .form-control,
+[data-bs-theme="light"] .form-select {
+    background-color: #fff;
+    border-color: #6c757d;
+    color: #212529;
+}
+
+[data-bs-theme="light"] .form-control:focus,
+[data-bs-theme="light"] .form-select:focus {
+    border-color: #495057;
+    box-shadow: 0 0 0 0.25rem rgba(108, 117, 125, 0.35);
+}
+
+[data-bs-theme="light"] .form-check-input {
+    background-color: #fff;
+    border-color: #6c757d;
+}
+
+[data-bs-theme="light"] .form-check-input:checked {
+    background-color: #495057;
+    border-color: #495057;
+}
+
+[data-bs-theme="light"] .invalid-feedback {
+    color: #b02a37;
+}
