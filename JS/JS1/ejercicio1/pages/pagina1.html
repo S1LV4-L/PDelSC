@@ -11,51 +11,46 @@
 <body class="py-4 px-2">
     <div class="container">
 
-        <!-- ✅ Botón de modo oscuro/claro -->
         <div class="d-flex justify-content-end mb-3">
-            <button id="btnTema" class="btn btn-outline-secondary btn-sm">
-                🌙 Modo claro
-            </button>
+            <button id="btnTema" class="btn btn-outline-secondary btn-sm">🌙 Modo claro</button>
         </div>
 
-        <h3 class="mb-3 text-uppercase fw-semibold">
-            Formulario de registro
-        </h3>
+        <h3 class="mb-3 text-body-emphasis bs-emphasis-color text-uppercase fw-semibold">Formulario de registro</h3>
 
-        <form id="formulario" class="needs-validation" novalidate>
+        <form id="formulario">
 
             <!-- Nombre y Apellido -->
             <div class="row g-3 mb-3">
                 <div class="col-12 col-sm-6">
                     <label for="nombre" class="form-label">Nombre</label>
-                    <input type="text" class="form-control" id="nombre" pattern="[A-Za-zÀ-ÿ\s]+" required>
-                    <div class="invalid-feedback">Ingrese su nombre</div>
+                    <input type="text" class="form-control" id="nombre">
+                    <div id="errorNombre" class="error-msg text-danger small mt-1"></div>
                 </div>
                 <div class="col-12 col-sm-6">
                     <label for="apellido" class="form-label">Apellido</label>
-                    <input type="text" class="form-control" id="apellido" pattern="[A-Za-zÀ-ÿ\s]+" required>
-                    <div class="invalid-feedback">Ingrese su apellido</div>
+                    <input type="text" class="form-control" id="apellido">
+                    <div id="errorApellido" class="error-msg text-danger small mt-1"></div>
                 </div>
             </div>
 
-            <!-- Email -->
-            <div class="mb-3">
-                <label for="email" class="form-label">Correo electrónico</label>
-                <input type="email" class="form-control" id="email" required>
-                <div class="invalid-feedback">Ingrese un email válido</div>
-            </div>
-
-            <!-- Edad -->
-            <div class="mb-3">
-                <label for="edad" class="form-label">Edad</label>
-                <input type="number" class="form-control" id="edad" min="1" max="120" required>
-                <div class="invalid-feedback">Edad entre 1 y 120</div>
+            <!-- Email y Edad -->
+             <div class="row g-3 mb-3">
+                <div class="col-12 col-sm-6">
+                    <label for="email" class="form-label">Correo electrónico</label>
+                    <input type="email" class="form-control" id="email">
+                    <div id="errorEmail" class="error-msg text-danger small mt-1"></div>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <label for="edad" class="form-label">Edad</label>
+                    <input type="number" class="form-control" id="edad">
+                    <div id="errorEdad" class="error-msg text-danger small mt-1"></div>
+                </div>
             </div>
 
             <!-- País -->
             <div class="mb-3">
                 <label for="pais" class="form-label">País</label>
-                <select class="form-select" id="pais" required>
+                <select class="form-select" id="pais">
                     <option value="">Seleccione un país</option>
                     <option value="Argentina">Argentina</option>
                     <option value="México">México</option>
@@ -64,7 +59,7 @@
                     <option value="Chile">Chile</option>
                     <option value="Uruguay">Uruguay</option>
                 </select>
-                <div class="invalid-feedback">Seleccione un país</div>
+                <div id="errorPais" class="error-msg text-danger small mt-1"></div>
             </div>
 
             <!-- Género -->
@@ -80,6 +75,7 @@
                         <label class="form-check-label">Femenino</label>
                     </div>
                 </div>
+                <div id="errorGenero" class="error-msg text-danger small mt-1"></div>
             </div>
 
             <!-- Intereses -->
@@ -111,11 +107,11 @@
                         </div>
                     </div>
                 </div>
-                <div id="errorIntereses" class="text-danger small mt-2"></div>
+                <div id="errorIntereses" class="error-msg text-danger small mt-2"></div>
             </div>
 
             <div class="d-grid">
-                <button type="submit" class="btn btn-outline-secondary fw-semibold">
+                <button type="submit" class="btn btn-outline-success fw-semibold">
                     Registrarse
                 </button>
             </div>

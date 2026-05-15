@@ -90,9 +90,9 @@ form.addEventListener("submit", (e) => {
 
     // --- Si no hay errores, mostrar resultado ---
     const resultado = `
-        <div class="card text-bg-secondary mb-2">
+        <div class="card bg-secondary bg-opacity-10 mb-2">
             <div class="card-body">
-                <h5 class="card-title">${nombre}</h5>
+                <h5 class="card-title text-body-emphasis">${nombre}</h5>
                 <p class="card-text"><strong>Categoría:</strong> ${categoria}</p>
                 <p class="card-text"><strong>Ambiente:</strong> ${ambiente}</p>
                 <p class="card-text"><strong>Jugadores:</strong> ${cantidadMin} – ${cantidadMax}</p>

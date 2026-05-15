@@ -5,62 +5,91 @@ const form = document.getElementById("formulario");
 
 form.addEventListener("submit", (e) => {
     e.preventDefault();
-
     const contenedor = document.getElementById("contenedor");
-    const errorIntereses = document.getElementById("errorIntereses");
 
-    // ✅ Ya no se limpia el contenedor para conservar resultados anteriores
-    errorIntereses.textContent = "";
+    document.querySelectorAll(".error-msg").forEach(el => el.textContent = ""); // Limpiar errores anteriores
 
-    if (!form.checkValidity()) {
-        form.classList.add("was-validated");
-        return;
-    }
-
-    const checkboxes = document.querySelectorAll(".interes:checked");
-
-    if (checkboxes.length === 0) {
-        errorIntereses.textContent = "Seleccione al menos un interés";
-        return;
-    }
-
-    // getElementById
+    // Leer valores
     const nombre = document.getElementById("nombre").value.trim();
     const apellido = document.getElementById("apellido").value.trim();
-
-    // form.elements (acceso por colección del formulario)
     const email = form.elements["email"].value.trim();
     const edad = form.elements["edad"].value;
     const pais = form.elements["pais"].value;
-
-    // FormData (captura todos los campos como mapa clave/valor)
     const formData = new FormData(form);
-    const generoSeleccionado = formData.get("genero");
+    const genero = formData.get("genero");
+    const checkboxes = document.querySelectorAll(".interes:checked");
 
-    if (!generoSeleccionado) {
-        form.classList.add("was-validated");
-        return;
+    // Validaciones
+    let hayErrores = false;
+
+    if (!nombre) {
+        document.getElementById("errorNombre").textContent = "Ingrese su nombre";
+        hayErrores = true;
+    }
+    else if (!/^[A-Za-zÀ-ÿ\s]+$/.test(nombre)) {
+        document.getElementById("errorNombre").textContent = "Solo se permiten letras";
+        hayErrores = true;
     }
 
-    const intereses = [];
-    checkboxes.forEach(cb => {
-        intereses.push(cb.nextElementSibling.textContent);
-    });
+    if (!apellido) {
+        document.getElementById("errorApellido").textContent = "Ingrese su apellido";
+        hayErrores = true;
+    }
+    else if (!/^[A-Za-zÀ-ÿ\s]+$/.test(apellido)) {
+        document.getElementById("errorApellido").textContent = "Solo se permiten letras";
+        hayErrores = true;
+    }
 
-    let resultado = `
-        <div class="card text-bg-secondary mb-2">
+    if (!email) {
+        document.getElementById("errorEmail").textContent = "Ingrese su email";
+        hayErrores = true;
+    }
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        document.getElementById("errorEmail").textContent = "Ingrese un email válido";
+        hayErrores = true;
+    }
+
+    if (!edad) {
+        document.getElementById("errorEdad").textContent = "Ingrese su edad";
+        hayErrores = true;
+    }
+    else if (edad < 1 || edad > 120) {
+        document.getElementById("errorEdad").textContent = "Debe estar entre 1 y 120";
+        hayErrores = true;
+    }
+
+    if (!pais) {
+        document.getElementById("errorPais").textContent = "Seleccione un país";
+        hayErrores = true;
+    }
+
+    if (!genero) {
+        document.getElementById("errorGenero").textContent = "Seleccione un género";
+        hayErrores = true;
+    }
+
+    if (checkboxes.length === 0) {
+        document.getElementById("errorIntereses").textContent = "Seleccione al menos un interés";
+        hayErrores = true;
+    }
+
+    if (hayErrores) return;
+
+    const intereses = [...checkboxes].map(cb => cb.nextElementSibling.textContent); // convierte el nodeList de los cb en un array y guarda el textContent
+
+    const resultado = `
+        <div class="card bg-secondary bg-opacity-10 mb-2">
             <div class="card-body">
-                <h5 class="card-title">Datos Personales</h5>
+                <h5 class="card-title text-body-emphasis">Datos Personales</h5>
                 <p class="card-text"><strong>Nombre:</strong> ${nombre} ${apellido}</p>
                 <p class="card-text"><strong>Email:</strong> ${email}</p>
                 <p class="card-text"><strong>Edad:</strong> ${edad}</p>
                 <p class="card-text"><strong>País:</strong> ${pais}</p>
-                <p class="card-text"><strong>Género:</strong> ${generoSeleccionado}</p>
+                <p class="card-text"><strong>Género:</strong> ${genero}</p>
                 <p class="card-text"><strong>Intereses:</strong> ${intereses.join(", ")}</p>
             </div>
         </div>
     `;
 
-    // Inserta la nueva card al final sin eliminar las anteriores
-    contenedor.insertAdjacentHTML("beforeend", resultado);
+    contenedor.insertAdjacentHTML("beforeend", resultado); //inserta el resultado dentro del contenedor, despues del último hijo (beforeend)
 });

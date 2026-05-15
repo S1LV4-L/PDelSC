@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ejercicio 6</title>
+    <title>Ejercicio 3</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="../styles/estilos.css"/>
 </head>
@@ -12,14 +12,10 @@
     <div class="container">
 
         <div class="d-flex justify-content-end mb-3">
-            <button id="btnTema" class="btn btn-outline-secondary btn-sm">
-                🌙 Modo claro
-            </button>
+            <button id="btnTema" class="btn btn-outline-secondary btn-sm">🌙 Modo claro</button>
         </div>
 
-        <h3 class="mb-3 text-uppercase fw-semibold">
-            Formulario de deporte
-        </h3>
+        <h3 class="mb-3 text-body-emphasis text-uppercase fw-semibold">Formulario (almacen de datos)</h3>
 
         <form id="formulario">
 
@@ -56,24 +52,52 @@
                 <label class="form-label">Sexo</label>
                 <div class="d-flex gap-4">
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="genero" value="Masculino">
+                        <input class="form-check-input" type="radio" name="sexo" value="Masculino">
                         <label class="form-check-label">Masculino</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="genero" value="Femenino">
+                        <input class="form-check-input" type="radio" name="sexo" value="Femenino">
                         <label class="form-check-label">Femenino</label>
                     </div>
                 </div>
                 <div id="errorSexo" class="error-msg text-danger small mt-1"></div>
             </div>
 
-            <!-- Documento -->
-            <div class="mb-3">
-                <label for="documento" class="form-label">Documento</label>
-                <input type="number" class="form-control" id="documento" name="documento">
-                <div id="errorDocumento" class="error-msg text-danger small mt-1"></div>
+            <!-- Documento y Nacionalidad -->
+            <div class="row g-3 mb-3">
+                <div class="col-12 col-sm-6">
+                    <label for="documento" class="form-label">Documento</label>
+                    <input type="number" class="form-control" id="documento" name="documento">
+                    <div id="errorDocumento" class="error-msg text-danger small mt-1"></div>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <label for="nacionalidad" class="form-label">Nacionalidad</label>
+                    <select class="form-select" id="nacionalidad" name="nacionalidad">
+                        <option value="">Seleccione su nacionalidad</option>
+                        <option value="Argentina">Argentina</option>
+                        <option value="Chile">Chile</option>
+                        <option value="Uruguay">Uruguay</option>
+                        <option value="Italia">Italia</option>
+                        <option value="España">España</option>
+                    </select>
+                    <div id="errorNacionalidad" class="error-msg text-danger small mt-1"></div>
+                </div>
             </div>
-            
+
+            <!-- Telefono y Email -->
+            <div class="row g-3 mb-3">
+                <div class="col-12 col-sm-6">
+                    <label for="telefono" class="form-label">Teléfono</label>
+                    <input type="number" class="form-control" id="telefono" name="telefono">
+                    <div id="errorTelefono" class="error-msg text-danger small mt-1"></div>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <label for="email" class="form-label">E-Mail</label>
+                    <input type="email" class="form-control" id="email" name="email">
+                    <div id="errorEmail" class="error-msg text-danger small mt-1"></div>
+                </div>
+            </div>
+
             <!-- Estado civil -->
             <div class="mb-3">
                 <label for="estadoCivil" class="form-label">Estado Civil</label>
@@ -84,42 +108,36 @@
                     <option value="Divorciado">Divorciado/a</option>
                     <option value="Viudo">Viudo/a</option>
                 </select>
-                <div id="errorNivel" class="error-msg text-danger small mt-1"></div>
+                <div id="errorEstadoCivil" class="error-msg text-danger small mt-1"></div>
             </div>
 
-            <!-- Nacionalidad -->
+            <!-- Hijos -->
             <div class="mb-3">
-                <label for="nacionalidad" class="form-label">Nacionalidad</label>
-                <select class="form-select" id="nacionalidad" name="nacionalidad">
-                    <option value="">Seleccione su nacionalidad</option>
-                    <option value="Argentina">Argentina</option>
-                    <option value="Chile">Chile</option>
-                    <option value="Uruguay">Uruguay</option>
-                    <option value="Italia">Italia</option>
-                    <option value="España">España</option>
-                </select>
-                <div id="errorNacionalidad" class="error-msg text-danger small mt-1"></div>
-            </div>
-
-            <!-- Telefono y EMail -->
-            <div class="row g-3 mb-3">
-                <div class="col-12 col-sm-6">
-                    <label for="telefono" class="form-label">Telefono</label>
-                    <input type="number" class="form-control" id="telefono">
-                    <div id="errorNombre" class="error-msg text-danger small mt-1"></div>
+                <label class="form-label">Hijos</label>
+                <div class="d-flex gap-4 align-items-center">
+                    <div class="form-check">
+                        <!-- ambos radios con el mismo name="hijos" -->
+                        <input class="form-check-input" type="radio" name="hijos" value="Si">
+                        <label class="form-check-label">Si</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="hijos" value="No" checked>
+                        <label class="form-check-label">No</label>
+                    </div>
+                    <!-- input de cantidad oculto por defecto -->
+                    <div id="cantHijos" class="d-none">
+                        <input type="number" class="form-control form-control-sm" 
+                               id="cantidadHijos" name="cantidadHijos" 
+                               min="1" placeholder="¿Cuántos?">
+                    </div>
                 </div>
-                <div class="col-12 col-sm-6">
-                    <label for="Email" class="form-label">E-Mail</label>
-                    <input type="email" class="form-control" id="Email">
-                    <div id="errorApellido" class="error-msg text-danger small mt-1"></div>
-                </div>
+                <div id="errorHijos" class="error-msg text-danger small mt-1"></div>
             </div>
 
             <div class="d-grid">
-                <button type="submit" class="btn btn-outline-secondary fw-semibold">
-                    Registrar
-                </button>
+                <button type="submit" class="btn btn-outline-success fw-semibold">Registrar</button>
             </div>
+            <p id="mensaje"></p>
         </form>
 
         <div id="contenedor" class="mt-4"></div>
