@@ -1,59 +1,147 @@
-// Btn 1: Elimina el último elemento de un array de animales.
-document.getElementById("btn1").addEventListener("dblclick", () => {
-    const registro = document.getElementById("registro");
+const registro = document.getElementById("registro");
 
-    let animales = ["perro", "gato", "pez", "pato"];
+const soloLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+([a-zA-ZáéíóúÁÉÍÓÚñÑ ]*[a-zA-ZáéíóúÁÉÍÓÚñÑ]+)?$/;
 
-    animales.pop(animales[animales.length - 1])
-    registro.appendChild(crearMensajeRegistro("animales (ahora)", animales));
-}, { once: true });
+// Form 1: Elimina el último elemento de un array de animales.
+let animales = [];
+const input1 = document.getElementById("input1");
+const sbmt1  = document.getElementById("sbmt1");
+const btn1   = document.getElementById("btn1");
 
+document.getElementById("form1").addEventListener("submit", (e) => {
+    e.preventDefault();
 
-// Btn 2: Quita el último producto de una lista de compras y muestra cuál fue eliminado.
-const btn2 = document.getElementById("btn2");
-btn2.addEventListener("mouseover", () => {
-    const registro = document.getElementById("registro");
+    const valor = input1.value.trim();
 
-    let listaDeCompras = ["pan", "harina", "detergente", "azucar"];
-    registro.appendChild(crearMensajeRegistro("listaDeCompras (antes)", listaDeCompras));
-
-    listaDeCompras.pop(listaDeCompras[listaDeCompras.length - 1])
-    registro.appendChild(crearMensajeRegistro("listaDeCompras (ahora)", listaDeCompras));
-}, { once: true });
-
-
-// Btn 3: Usa un bucle while para vaciar un array con pop().
-const btn3 = document.getElementById("btn3");
-btn3.addEventListener("contextmenu", () => {
-    const registro = document.getElementById("registro");
-    let numeros = [1, 2, 3, 4, 5, 6];
-    
-    registro.appendChild(crearMensajeRegistro("numeros (antes)", numeros));
-
-    while(numeros.length > 0){
-        let i=0;
-        numeros.pop(numeros[i]);
-        i++;
+    if (valor === "") {
+        mostrarError("Ingresá un animal.");
+        return;
     }
 
-    registro.appendChild(crearMensajeRegistro("numeros (ahora)", numeros));
-}, { once: true });
+    if (!soloLetras.test(valor)) {
+        mostrarError("El animal solo puede contener letras.");
+        return;
+    }
+
+    animales.push(valor);
+    mostrarResultado("animales[]", animales);
+    input1.value = "";
+});
+
+btn1.addEventListener("click", () => {
+    if (animales.length === 0) {
+        mostrarError("El array de animales ya está vacío.");
+        return;
+    }
+
+    const eliminado = animales.pop();
+    mostrarResultado(`animales[]`, animales);
+});
 
 
-function crearMensajeRegistro(label, valor) {
-    const mensaje = document.createElement("p");
-    const texto1 = document.createElement("strong");
-    texto1.textContent = label + ": ";
+// Form 2: Quita el último producto de una lista de compras y muestra cuál fue eliminado.
+let listaDeCompras = [];
+const input2 = document.getElementById("input2");
+const btn2   = document.getElementById("btn2");
 
-    const contenido = Array.isArray(valor) ? valor.join(", ") : valor;
+document.getElementById("form2").addEventListener("submit", (e) => {
+    e.preventDefault();
 
-    const valorSpan = document.createElement("span");
-    valorSpan.textContent = contenido;
+    const valor = input2.value.trim();
 
-    mensaje.appendChild(texto1);
-    mensaje.append(" '");
-    mensaje.appendChild(valorSpan);
-    mensaje.append("'");
+    if (valor === "") {
+        mostrarError("Ingresá un producto.");
+        return;
+    }
 
-    return mensaje;
+    if (!soloLetras.test(valor)) {
+        mostrarError("El producto solo puede contener letras.");
+        return;
+    }
+
+    listaDeCompras.push(valor);
+    mostrarResultado("listaDeCompras[]", listaDeCompras);
+    input2.value = "";
+});
+
+btn2.addEventListener("click", () => {
+    if (listaDeCompras.length === 0) {
+        mostrarError("La lista de compras ya está vacía.");
+        return;
+    }
+
+    const eliminado = listaDeCompras.pop();
+    mostrarResultado(`listaDeCompras[] (eliminado: '${eliminado}')`, listaDeCompras);
+});
+
+
+// Form 3: Usa un bucle while para vaciar un array con pop().
+let numeros = [];
+const input3 = document.getElementById("input3");
+const btn3   = document.getElementById("btn3");
+
+document.getElementById("form3").addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const raw = input3.value.trim();
+
+    if (raw === "") {
+        mostrarError("Ingresá un número.");
+        return;
+    }
+
+    const num = Number(raw);
+
+    if (isNaN(num)) {
+        mostrarError("Solo se permiten números.");
+        return;
+    }
+
+    numeros.push(num);
+    mostrarResultado("numeros[]", numeros);
+    input3.value = "";
+});
+
+btn3.addEventListener("click", () => {
+    if (numeros.length === 0) {
+        mostrarError("El array de números ya está vacío.");
+        return;
+    }
+
+    mostrarResultado("numeros[] (antes de vaciar)", numeros);
+
+    while (numeros.length > 0) {
+        numeros.pop();
+    }
+
+    mostrarResultado("numeros[] (después de vaciar)", numeros);
+});
+
+
+function mostrarResultado(label, valor) {
+    const p = document.createElement("p");
+    p.className = "mb-1";
+
+    const etiqueta = document.createElement("strong");
+    etiqueta.textContent = label + ": ";
+
+    const contenido = Array.isArray(valor) ? valor.join(", ") : valor; //valor.join(", "): si es array, une todos los elementos con ", "valor: si no es array (string o número), lo usa directamente
+
+    const span = document.createElement("span");
+    span.textContent = "'" + contenido + "'";
+
+    p.appendChild(etiqueta);
+    p.appendChild(span);
+    registro.appendChild(p);
+    registro.scrollTop = registro.scrollHeight;
+}
+
+function mostrarError(msg) {
+    const p = document.createElement("p");
+    p.className = "text-danger mb-1";
+    p.textContent = msg;
+    registro.appendChild(p);
+    registro.scrollTop = registro.scrollHeight;
+
+    setTimeout(() => p.remove(), 3000);
 }

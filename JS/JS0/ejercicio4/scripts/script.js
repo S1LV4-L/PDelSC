@@ -1,66 +1,136 @@
-// Btn 1: Quita el primer número de un array de enteros.
-document.getElementById("btn1").addEventListener("dblclick", () => {
-    const registro = document.getElementById("registro");
+const registro = document.getElementById("registro");
 
-    let numeros = [1, 2, 3, 4, 5, 6];
-    registro.appendChild(crearMensajeRegistro("numeros (antes)", numeros));
+const soloLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+([a-zA-ZáéíóúÁÉÍÓÚñÑ ]*[a-zA-ZáéíóúÁÉÍÓÚñÑ]+)?$/;
 
-    numeros.shift();
+// Form 1: Quita el primer número de un array de enteros.
+let numeros = [];
+const input1 = document.getElementById("input1");
+const btn1   = document.getElementById("btn1");
 
-    registro.appendChild(crearMensajeRegistro("numeros (ahora)", numeros));
-}, { once: true });
+document.getElementById("form1").addEventListener("submit", (e) => {
+    e.preventDefault();
 
-// Btn 2: Elimina el primer mensaje de un array de mensajes de chat.
-const btn2 = document.getElementById("btn2");
-btn2.addEventListener("mouseover", () => {
-    const registro = document.getElementById("registro");
+    const raw = input1.value.trim();
 
-    let mensajesDelChat = ["Hola", "Como estas?", "Bien"];
-    registro.appendChild(crearMensajeRegistro("mensajesDelChat (antes)", mensajesDelChat));
+    if (raw === "") {
+        mostrarError("Ingresá un número entero.");
+        return;
+    }
 
-    mensajesDelChat.shift();
+    const num = Number(raw);
 
-    registro.appendChild(crearMensajeRegistro("mensajesDelChat (ahora)", mensajesDelChat));
-}, { once: true });
+    if (!Number.isInteger(num)) {
+        mostrarError("Solo se permiten números enteros.");
+        return;
+    }
 
+    numeros.push(num);
+    mostrarResultado("numeros[]", numeros);
+    input1.value = "";
+});
 
-// Btn 2: Usa shift() para simular una cola de atención al cliente.
-const btn3 = document.getElementById("btn3");
-btn3.addEventListener("contextmenu", () => {
-    const registro = document.getElementById("registro");
+btn1.addEventListener("click", () => {
+    if (numeros.length === 0) {
+        mostrarError("El array de números ya está vacío.");
+        return;
+    }
 
-    let colaClientes = ["Pedro", "Carlos", "Juan"];
-
-    registro.appendChild(
-        crearMensajeRegistro("colaClientes (antes)", colaClientes)
-    );
-
-    let atendido = colaClientes.shift();
-
-    registro.appendChild(
-        crearMensajeRegistro("Cliente atendido", atendido)
-    );
-
-    registro.appendChild(
-        crearMensajeRegistro("colaClientes (ahora)", colaClientes)
-    );
-}, { once: true });
+    const eliminado = numeros.shift();
+    mostrarResultado(`numeros[] (eliminado: '${eliminado}')`, numeros);
+});
 
 
-function crearMensajeRegistro(label, valor) {
-    const mensaje = document.createElement("p");
-    const texto1 = document.createElement("strong");
-    texto1.textContent = label + ": ";
+// Form 2: Elimina el primer mensaje de un array de mensajes de chat.
+let mensajesDelChat = [];
+const input2 = document.getElementById("input2");
+const btn2   = document.getElementById("btn2");
+
+document.getElementById("form2").addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const valor = input2.value.trim();
+
+    if (valor === "") {
+        mostrarError("Ingresá un mensaje.");
+        return;
+    }
+
+    mensajesDelChat.push(valor);
+    mostrarResultado("mensajesDelChat[]", mensajesDelChat);
+    input2.value = "";
+});
+
+btn2.addEventListener("click", () => {
+    if (mensajesDelChat.length === 0) {
+        mostrarError("El chat ya está vacío.");
+        return;
+    }
+
+    const eliminado = mensajesDelChat.shift();
+    mostrarResultado(`mensajesDelChat[] (eliminado: '${eliminado}')`, mensajesDelChat);
+});
+
+
+// Form 3: Usa shift() para simular una cola de atención al cliente.
+let colaClientes = [];
+const input3 = document.getElementById("input3");
+const btn3   = document.getElementById("btn3");
+
+document.getElementById("form3").addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const valor = input3.value.trim();
+
+    if (valor === "") {
+        mostrarError("Ingresá un cliente.");
+        return;
+    }
+
+    if (!soloLetras.test(valor)) {
+        mostrarError("El nombre solo puede contener letras.");
+        return;
+    }
+
+    colaClientes.push(valor);
+    mostrarResultado("colaClientes[]", colaClientes);
+    input3.value = "";
+});
+
+btn3.addEventListener("click", () => {
+    if (colaClientes.length === 0) {
+        mostrarError("La cola de clientes ya está vacía.");
+        return;
+    }
+
+    const atendido = colaClientes.shift();
+    mostrarResultado(`Cliente atendido`, atendido);
+    mostrarResultado(`colaClientes[]`, colaClientes);
+});
+
+
+function mostrarResultado(label, valor) {
+    const p = document.createElement("p");
+    p.className = "mb-1";
+
+    const etiqueta = document.createElement("strong");
+    etiqueta.textContent = label + ": ";
 
     const contenido = Array.isArray(valor) ? valor.join(", ") : valor;
+    const span = document.createElement("span");
+    span.textContent = "'" + contenido + "'";
 
-    const valorSpan = document.createElement("span");
-    valorSpan.textContent = contenido;
+    p.appendChild(etiqueta);
+    p.appendChild(span);
+    registro.appendChild(p);
+    registro.scrollTop = registro.scrollHeight;
+}
 
-    mensaje.appendChild(texto1);
-    mensaje.append(" '");
-    mensaje.appendChild(valorSpan);
-    mensaje.append("'");
+function mostrarError(msg) {
+    const p = document.createElement("p");
+    p.className = "text-danger mb-1";
+    p.textContent = msg;
+    registro.appendChild(p);
+    registro.scrollTop = registro.scrollHeight;
 
-    return mensaje;
+    setTimeout(() => p.remove(), 3000);
 }

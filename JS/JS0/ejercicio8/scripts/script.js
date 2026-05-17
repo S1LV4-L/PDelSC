@@ -1,69 +1,139 @@
-// Btn 1: Comprueba si un array contiene la palabra "admin".
-document.getElementById("btn1").addEventListener("dblclick", () => {
-    const registro = document.getElementById("registro");
+const registro = document.getElementById("registro");
 
-    let usuarios = ["user1", "user2", "user3", "user4", "admin"];
-    registro.appendChild(crearMensajeRegistro("usuarios[]", usuarios));
-
-    let buscar = "admin";
-
-    usuarios.includes(buscar) ?
-    registro.appendChild(crearMensajeRegistro("usuarios[] si contiene la palabra", buscar)) :
-    registro.appendChild(crearMensajeRegistro("usuarios[] no contiene la palabra", buscar));
-
-}, { once: true });
+const soloLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+([a-zA-ZáéíóúÁÉÍÓÚñÑ ]*[a-zA-ZáéíóúÁÉÍÓÚñÑ]+)?$/;
 
 
-// Btn 2: Dado un array de colores, indica si existe "verde".
-const btn2 = document.getElementById("btn2");
-btn2.addEventListener("mouseover", () => {
-    const registro = document.getElementById("registro");
+// Form 1: Comprueba si un array contiene la palabra "admin".
+let usuarios = [];
+const input1 = document.getElementById("input1");
+const btn1   = document.getElementById("btn1");
 
-    let colores = ["rojo", "azul", "naranja", "blanco"];
-    registro.appendChild(crearMensajeRegistro("colores[]", colores));
+document.getElementById("form1").addEventListener("submit", (e) => {
+    e.preventDefault();
 
-    let buscar = "verde";
+    const valor = input1.value.trim();
 
-    colores.includes(buscar) ?
-    registro.appendChild(crearMensajeRegistro("En colores[] si existe la palabra", buscar)) :
-    registro.appendChild(crearMensajeRegistro("En colores[] no existe la palabra", buscar));
-}, { once: true });
+    if (valor === "") {
+        mostrarError("Ingresá un usuario.");
+        return;
+    }
+
+    if (!isNaN(valor)) {
+        mostrarError("El usuario no puede contener solo números.");
+        return;
+    }
+
+    usuarios.push(valor);
+    mostrarResultado("usuarios[]", usuarios);
+    input1.value = "";
+});
+
+btn1.addEventListener("click", () => {
+    if (usuarios.length === 0) {
+        mostrarError("Agregá al menos un usuario antes de comprobar.");
+        return;
+    }
+
+    const buscar = "admin";
+    const encontrado = usuarios.map(u => u.toLowerCase()).includes(buscar);
+
+    encontrado
+        ? mostrarResultado(`usuarios[] sí contiene '${buscar}'`, usuarios)
+        : mostrarResultado(`usuarios[] no contiene '${buscar}'`, usuarios);
+});
 
 
-// Btn 3: Verifica si un número está presente antes de sumarlo al array.
-const btn3 = document.getElementById("btn3");
-btn3.addEventListener("contextmenu", () => {
-    const registro = document.getElementById("registro");
+// Form 2: Dado un array de colores, indica si existe "verde".
+let colores = [];
+const input2 = document.getElementById("input2");
+const btn2   = document.getElementById("btn2");
 
-    let numeros = [10, 20, 30];
-    let nuevo = 40;
+document.getElementById("form2").addEventListener("submit", (e) => {
+    e.preventDefault();
 
-    registro.appendChild(crearMensajeRegistro("numeros[]", numeros));
+    const valor = input2.value.trim();
 
-    if (!numeros.includes(nuevo)) {
-        numeros.push(nuevo);
-        registro.appendChild(crearMensajeRegistro("El numero fue agregado correctamente a numeros[]", numeros));
+    if (valor === "") {
+        mostrarError("Ingresá un color.");
+        return;
+    }
+
+    if (!soloLetras.test(valor)) {
+        mostrarError("El color solo puede contener letras.");
+        return;
+    }
+
+    colores.push(valor);
+    mostrarResultado("colores[]", colores);
+    input2.value = "";
+});
+
+btn2.addEventListener("click", () => {
+    if (colores.length === 0) {
+        mostrarError("Agregá al menos un color antes de buscar.");
+        return;
+    }
+
+    const buscar = "verde";
+    const encontrado = colores.map(c => c.toLowerCase()).includes(buscar);
+
+    encontrado
+        ? mostrarResultado(`En colores[] sí existe '${buscar}'`, colores)
+        : mostrarResultado(`En colores[] no existe '${buscar}'`, colores);
+});
+
+
+// Form 3: Verifica si un número está presente antes de sumarlo al array.
+let numeros = [];
+const input3 = document.getElementById("input3");
+const btn3   = document.getElementById("btn3");
+
+document.getElementById("form3").addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const raw = input3.value.trim();
+
+    if (raw === "") {
+        mostrarError("Ingresá un número.");
+        return;
+    }
+
+    if (numeros.includes(raw)) {
+        mostrarResultado(`numeros[] ya contiene el número ${raw}`, numeros);
+        return;
     }
     else{
-        registro.appendChild(crearMensajeRegistro("En numeros[] ya existe el numero", numeros));
+        numeros.push(raw);
+        mostrarResultado("numeros[]", numeros);
     }
-}, { once: true });
+
+    input3.value = "";
+});
 
 
-function crearMensajeRegistro(label, valor) {
-    const mensaje = document.createElement("p");
-    const texto1 = document.createElement("strong");
-    texto1.textContent = label + ": ";
+function mostrarResultado(label, valor) {
+    const p = document.createElement("p");
+    p.className = "mb-1";
+
+    const etiqueta = document.createElement("strong");
+    etiqueta.textContent = label + ": ";
 
     const contenido = Array.isArray(valor) ? valor.join(", ") : valor;
+    const span = document.createElement("span");
+    span.textContent = "'" + contenido + "'";
 
-    const valorSpan = document.createElement("span");
-    valorSpan.textContent = contenido;
+    p.appendChild(etiqueta);
+    p.appendChild(span);
+    registro.appendChild(p);
+    registro.scrollTop = registro.scrollHeight;
+}
 
-    mensaje.appendChild(texto1);
-    mensaje.append(" '");
-    mensaje.appendChild(valorSpan);
-    mensaje.append("'");
+function mostrarError(msg) {
+    const p = document.createElement("p");
+    p.className = "text-danger mb-1";
+    p.textContent = msg;
+    registro.appendChild(p);
+    registro.scrollTop = registro.scrollHeight;
 
-    return mensaje;
+    setTimeout(() => p.remove(), 3000);
 }

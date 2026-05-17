@@ -1,60 +1,110 @@
-// Btn 1: Agrega tres colores al principio de un array vacío.
-document.getElementById("btn1").addEventListener("dblclick", () => {
-    const registro = document.getElementById("registro");
+const registro = document.getElementById("registro");
 
-    let colores = [];
-    registro.appendChild(crearMensajeRegistro("colores (antes)", colores));
+const soloLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+([a-zA-ZáéíóúÁÉÍÓÚñÑ ]*[a-zA-ZáéíóúÁÉÍÓÚñÑ]+)?$/;
 
-    colores.unshift("Rojo");
-    colores.unshift("Verde");
-    colores.unshift("Azul");
+// Form 1: Agrega tres colores al principio de un array vacío.
+let colores = [];
+const input1 = document.getElementById("input1");
 
-    registro.appendChild(crearMensajeRegistro("colores (ahora)", colores));
-}, { once: true });
+document.getElementById("form1").addEventListener("submit", (e) => {
+    e.preventDefault();
 
+    const valor = input1.value.trim();
 
-// Btn 2: Dado un array de tareas, agrega una nueva tarea urgente al principio.
-const btn2 = document.getElementById("btn2");
-btn2.addEventListener("mouseover", () => {
-    const registro = document.getElementById("registro");
+    if (valor === "") {
+        mostrarError("Ingresá un color.");
+        return;
+    }
 
-    let tareas = ["tarea1", "tarea2", "tarea3"];
-    registro.appendChild(crearMensajeRegistro("tareas (antes)", tareas));
+    if (!soloLetras.test(valor)) {
+        mostrarError("El color solo puede contener letras.");
+        return;
+    }
 
-    tareas.unshift("(urgente) tarea4");
-
-    registro.appendChild(crearMensajeRegistro("tareas (ahora)", tareas));
-}, { once: true });
-
-
-// Btn 3: Inserta el nombre de un usuario al principio de un array de usuarios conectados.
-const btn3 = document.getElementById("btn3");
-btn3.addEventListener("contextmenu", () => {
-    const registro = document.getElementById("registro");
-
-    let usuariosConectados = ["Pedro", "Carlos", "Juan"];
-    registro.appendChild(crearMensajeRegistro("usuariosConectados (antes)", usuariosConectados));
-
-    usuariosConectados.unshift("John");
-
-    registro.appendChild(crearMensajeRegistro("usuariosConectados (ahora)", usuariosConectados));
-}, { once: true });
+    colores.unshift(valor);
+    mostrarResultado("colores[]", colores);
+    input1.value = "";
+});
 
 
-function crearMensajeRegistro(label, valor) {
-    const mensaje = document.createElement("p");
-    const texto1 = document.createElement("strong");
-    texto1.textContent = label + ": ";
+// Form 2: Dado un array de tareas, agrega una nueva tarea urgente al principio.
+let tareas = ["tarea de ejemplo 1", "tarea de ejemplo 2", "tarea de ejemplo 3"];
+const input2 = document.getElementById("input2");
+
+function validarString(texto) {
+  // Al menos 3 letras y que no sea solo números
+  const regex = /^(?!\d+$)(?=(?:.*[a-zA-Z]){3,}).*$/;
+  return regex.test(texto);
+}
+
+document.getElementById("form2").addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const valor = input2.value.trim();
+
+    if (valor === "") {
+        mostrarError("Ingresá una tarea.");
+        return;
+    }
+    if (!validarString(valor)){
+        mostrarError("La tarea debe contener por lo menos 3 letras y no ser únicamente números");
+        return;
+    }
+
+    tareas.unshift(valor);
+    mostrarResultado("tareas[]", tareas);
+    input2.value = "";
+});
+
+
+// Form 3: Inserta el nombre de un usuario al principio de un array de usuarios conectados.
+let usuariosConectados = ["Pedro", "Carlos", "Juan"];
+const input3 = document.getElementById("input3");
+
+document.getElementById("form3").addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const valor = input3.value.trim();
+
+    if (valor === "") {
+        mostrarError("Ingresá un nombre.");
+        return;
+    }
+
+    if (!soloLetras.test(valor)) {
+        mostrarError("El nombre solo puede contener letras.");
+        return;
+    }
+
+    usuariosConectados.unshift(valor);
+    mostrarResultado("usuariosConectados[]", usuariosConectados);
+    input3.value = "";
+});
+
+
+function mostrarResultado(label, valor) {
+    const p = document.createElement("p");
+    p.className = "mb-1";
+
+    const etiqueta = document.createElement("strong");
+    etiqueta.textContent = label + ": ";
 
     const contenido = Array.isArray(valor) ? valor.join(", ") : valor;
+    const span = document.createElement("span");
+    span.textContent = "'" + contenido + "'";
 
-    const valorSpan = document.createElement("span");
-    valorSpan.textContent = contenido;
+    p.appendChild(etiqueta);
+    p.appendChild(span);
+    registro.appendChild(p);
+    registro.scrollTop = registro.scrollHeight;
+}
 
-    mensaje.appendChild(texto1);
-    mensaje.append(" '");
-    mensaje.appendChild(valorSpan);
-    mensaje.append("'");
+function mostrarError(msg) {
+    const p = document.createElement("p");
+    p.className = "text-danger mb-1";
+    p.textContent = msg;
+    registro.appendChild(p);
+    registro.scrollTop = registro.scrollHeight;
 
-    return mensaje;
+    setTimeout(() => p.remove(), 3000);
 }

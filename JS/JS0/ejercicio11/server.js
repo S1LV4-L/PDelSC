@@ -9,6 +9,7 @@ const __dirname = path.dirname(__filename);
 
 app.use("/scripts", express.static(path.join(__dirname, "scripts")));
 app.use("/pages", express.static(path.join(__dirname, "pages")));
+app.use("/styles", express.static(path.join(__dirname, "styles")));
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "pages", "pagina1.html"));
