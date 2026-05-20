@@ -9,26 +9,22 @@ const deportes = [];
 form.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    // --- Limpiar errores anteriores ---
-    document.querySelectorAll(".error-msg").forEach(el => el.textContent = "");
+    document.querySelectorAll(".error-msg").forEach(el => el.textContent = ""); // Limpiar errores anteriores
 
-    // --- Leer valores ---
-    // getElementById
+    // Leer valores
     const nombre = document.getElementById("nombre").value.trim();
 
-    // form.elements
     const cantidadMin = form.elements["cantidadMin"].value;
     const cantidadMax = form.elements["cantidadMax"].value;
     const nivel = form.elements["nivel"].value;
-    const duracion = form.elements["duracion"].value;
+    const duracion = form.elements["duracion"].selectedOptions[0].text;
 
-    // FormData
     const formData = new FormData(form);
     const categoria = formData.get("categoria");
     const ambiente = formData.get("ambiente");
     const genero = formData.get("genero");
 
-    // --- Validar y mostrar errores ---
+    // Validar y mostrar errores
     let hayErrores = false;
 
     if (!nombre) {
@@ -70,7 +66,7 @@ form.addEventListener("submit", (e) => {
         hayErrores = true;
     }
 
-    // Validación de duración agregada
+    // Validación de duración
     if (!duracion) {
         document.getElementById("errorDuracion").textContent = "Seleccione una duración";
         hayErrores = true;
@@ -84,11 +80,9 @@ form.addEventListener("submit", (e) => {
     if (hayErrores) return;
 
     const deporte = { nombre, categoria, ambiente, cantidadMin, cantidadMax, nivel, duracion, genero };
-
-    // Guardar en el array
     deportes.push(deporte);
 
-    // --- Si no hay errores, mostrar resultado ---
+    // Si no hay errores muestra el resultado
     const resultado = `
         <div class="card bg-secondary bg-opacity-10 mb-2">
             <div class="card-body">
@@ -104,4 +98,5 @@ form.addEventListener("submit", (e) => {
     `;
 
     contenedor.insertAdjacentHTML("beforeend", resultado);
+    form.reset();
 });
