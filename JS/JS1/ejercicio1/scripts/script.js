@@ -10,12 +10,12 @@ form.addEventListener("submit", (e) => {
     document.querySelectorAll(".error-msg").forEach(el => el.textContent = ""); // Limpiar errores anteriores
 
     // Leer valores
-    const nombre = document.getElementById("nombre").value.trim();
+    const nombre = document.getElementById("nombre").value.trim();      //getElementById
     const apellido = document.getElementById("apellido").value.trim();
-    const email = form.elements["email"].value.trim();
+    const email = form.elements["email"].value.trim();                  //form.elements
     const edad = form.elements["edad"].value;
     const pais = form.elements["pais"].value;
-    const formData = new FormData(form);
+    const formData = new FormData(form);                                //formData
     const genero = formData.get("genero");
     const checkboxes = document.querySelectorAll(".interes:checked");
 
