@@ -2,31 +2,35 @@ import { initNightDayButton } from "../modules/nightDayButton.js";
 initNightDayButton();
 
 const form = document.getElementById("formulario");
+const registros = []; // Array para guardar registros y validar duplicados
+
+// Botón scroll top
+const btnScrollTop = document.getElementById("btnScrollTop");
+btnScrollTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
 form.addEventListener("submit", (e) => {
     e.preventDefault();
     const contenedor = document.getElementById("contenedor");
 
-    document.querySelectorAll(".error-msg").forEach(el => el.textContent = ""); // Limpiar errores anteriores
+    document.querySelectorAll(".error-msg").forEach(el => el.textContent = "");
 
-    // Leer valores
-    const nombre = document.getElementById("nombre").value.trim();      //getElementById
+    const nombre = document.getElementById("nombre").value.trim();
     const apellido = document.getElementById("apellido").value.trim();
-    const email = form.elements["email"].value.trim();                  //form.elements
+
+    const email = form.elements["email"].value.trim();
     const edad = form.elements["edad"].value;
     const pais = form.elements["pais"].value;
-    const formData = new FormData(form);                                //formData
+    
+    const formData = new FormData(form);
     const genero = formData.get("genero");
     const checkboxes = document.querySelectorAll(".interes:checked");
 
-    // Validaciones
     let hayErrores = false;
 
     if (!nombre) {
         document.getElementById("errorNombre").textContent = "Ingrese su nombre";
         hayErrores = true;
-    }
-    else if (!/^[A-Za-zÀ-ÿ\s]+$/.test(nombre)) {
+    } else if (!/^[A-Za-zÀ-ÿ\s]+$/.test(nombre)) {
         document.getElementById("errorNombre").textContent = "Solo se permiten letras";
         hayErrores = true;
     }
@@ -34,8 +38,7 @@ form.addEventListener("submit", (e) => {
     if (!apellido) {
         document.getElementById("errorApellido").textContent = "Ingrese su apellido";
         hayErrores = true;
-    }
-    else if (!/^[A-Za-zÀ-ÿ\s]+$/.test(apellido)) {
+    } else if (!/^[A-Za-zÀ-ÿ\s]+$/.test(apellido)) {
         document.getElementById("errorApellido").textContent = "Solo se permiten letras";
         hayErrores = true;
     }
@@ -43,8 +46,7 @@ form.addEventListener("submit", (e) => {
     if (!email) {
         document.getElementById("errorEmail").textContent = "Ingrese su email";
         hayErrores = true;
-    }
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         document.getElementById("errorEmail").textContent = "Ingrese un email válido";
         hayErrores = true;
     }
@@ -52,8 +54,7 @@ form.addEventListener("submit", (e) => {
     if (!edad) {
         document.getElementById("errorEdad").textContent = "Ingrese su edad";
         hayErrores = true;
-    }
-    else if (edad < 1 || edad > 120) {
+    } else if (edad < 1 || edad > 120) {
         document.getElementById("errorEdad").textContent = "Debe estar entre 1 y 120";
         hayErrores = true;
     }
@@ -75,7 +76,22 @@ form.addEventListener("submit", (e) => {
 
     if (hayErrores) return;
 
-    const intereses = [...checkboxes].map(cb => cb.nextElementSibling.textContent); // convierte el nodeList de los cb en un array y guarda el textContent
+    // Validación de duplicados por nombre + apellido + email
+    const duplicado = registros.some(r =>
+        r.nombre.toLowerCase() === nombre.toLowerCase() &&
+        r.apellido.toLowerCase() === apellido.toLowerCase() &&
+        r.email.toLowerCase() === email.toLowerCase()
+    );
+
+    if (duplicado) {
+        document.getElementById("errorEmail").textContent = "Esta persona ya fue registrada";
+        return;
+    }
+
+    const intereses = [...checkboxes].map(cb => cb.nextElementSibling.textContent);
+
+    // Guardar en el array
+    registros.push({ nombre, apellido, email, edad, pais, genero, intereses });
 
     const resultado = `
         <div class="card bg-secondary bg-opacity-10 mb-2">
@@ -91,5 +107,9 @@ form.addEventListener("submit", (e) => {
         </div>
     `;
 
-    contenedor.insertAdjacentHTML("beforeend", resultado); //inserta el resultado dentro del contenedor, despues del último hijo (beforeend)
+    contenedor.insertAdjacentHTML("beforeend", resultado);
+    form.reset();
+
+    // Mostrar botón scroll top si hay al menos 1 registro
+    btnScrollTop.classList.toggle("d-none", registros.length === 0);
 });

@@ -12,3 +12,14 @@
     border-color: #495057;
     box-shadow: 0 0 0 0.25rem rgba(108, 117, 125, 0.35);
 }
+
+body {
+    min-height: 100vh;
+    user-select: none;
+}
+
+@media (min-width: 992px) {    
+    .layout-principal {
+        height: calc(100dvh - 57px); /* 57px = altura del navbar */
+    }
+}

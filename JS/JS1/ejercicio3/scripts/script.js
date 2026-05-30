@@ -5,11 +5,11 @@ const form = document.getElementById("formulario");
 const contenedor = document.getElementById("contenedor");
 const mensaje = document.getElementById("mensaje");
 
-const registros = JSON.parse(localStorage.getItem("registros")) || []; // Cargar registros desde localStorage
+const registros = JSON.parse(localStorage.getItem("registros")) || [];
 
-renderizarTodo(); // Renderizar registros guardados al cargar la página
+renderizarTodo();
 
-document.querySelectorAll('input[name="hijos"]').forEach(radio => { // Mostrar u ocultar cantidad de hijos según el radio seleccionado
+document.querySelectorAll('input[name="hijos"]').forEach(radio => {
     radio.addEventListener("change", () => {
         const cantHijos = document.getElementById("cantHijos");
         cantHijos.classList.toggle("d-none", radio.value !== "Si");
@@ -19,13 +19,10 @@ document.querySelectorAll('input[name="hijos"]').forEach(radio => { // Mostrar u
 form.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    document.querySelectorAll(".error-msg").forEach(el => el.textContent = ""); // Limpiar errores
+    document.querySelectorAll(".error-msg").forEach(el => el.textContent = "");
 
-    // Leer valores
     const nombre = document.getElementById("nombre").value.trim();
     const apellido = document.getElementById("apellido").value.trim();
-
-    const edad = form.elements["edad"].value;
     const fechaNacimiento = form.elements["fechaNacimiento"].value;
     const documento = form.elements["documento"].value;
     const estadoCivil = form.elements["estadoCivil"].value;
@@ -38,7 +35,14 @@ form.addEventListener("submit", (e) => {
     const email = formData.get("email");
     const cantidadHijos = formData.get("cantidadHijos");
 
-    // Validaciones
+    // Calcular edad a partir de fechaNacimiento
+    const hoy = new Date();
+    const nacimiento = new Date(fechaNacimiento);
+    let edad = hoy.getFullYear() - nacimiento.getFullYear();
+    const mesesPasados = hoy.getMonth() > nacimiento.getMonth() ||
+        (hoy.getMonth() === nacimiento.getMonth() && hoy.getDate() >= nacimiento.getDate());
+    if (!mesesPasados) edad--;
+
     let hayErrores = false;
 
     if (!nombre) {
@@ -59,21 +63,16 @@ form.addEventListener("submit", (e) => {
         hayErrores = true;
     }
 
-    if (!edad) {
-        document.getElementById("errorEdad").textContent = "Ingrese su edad";
-        hayErrores = true;
-    } 
-    else if (edad < 1 || edad > 120) {
-        document.getElementById("errorEdad").textContent = "Debe estar entre 1 y 120";
-        hayErrores = true;
-    }
-
     if (!fechaNacimiento) {
         document.getElementById("errorFechaNacimiento").textContent = "Ingrese su fecha de nacimiento";
         hayErrores = true;
-    } 
-    else if (new Date(fechaNacimiento) > new Date()) {
+    }
+    else if (new Date(fechaNacimiento) > hoy) {
         document.getElementById("errorFechaNacimiento").textContent = "La fecha no puede ser futura";
+        hayErrores = true;
+    }
+    else if (edad < 1 || edad > 120) {
+        document.getElementById("errorFechaNacimiento").textContent = "La edad debe estar entre 1 y 120";
         hayErrores = true;
     }
 
@@ -125,9 +124,8 @@ form.addEventListener("submit", (e) => {
         return;
     }
 
-    const fechaFormateada = fechaNacimiento.split("-").reverse().join("/"); // Formatear fecha
+    const fechaFormateada = fechaNacimiento.split("-").reverse().join("/");
 
-    // Guardar en array y localStorage
     const registro = {
         nombre, apellido, edad, fechaNacimiento: fechaFormateada,
         sexo, documento, nacionalidad, telefono, email,
@@ -159,7 +157,7 @@ function renderizarTodo() {
     contenedor.insertAdjacentHTML("beforeend", `<p>${lista}</p>`);
 }
 
-document.addEventListener("keydown", (event) => {           // Presionar espacio para limpiar el localStorage 
+document.addEventListener("keydown", (event) => {
     const tagName = document.activeElement.tagName.toLowerCase();
     const esInput = tagName === "input" || tagName === "textarea" || tagName === "select";
 

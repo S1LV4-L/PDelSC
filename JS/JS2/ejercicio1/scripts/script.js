@@ -1,23 +1,37 @@
 import { initNightDayButton } from "../modules/nightDayButton.js";
 initNightDayButton();
 
+// Referencias a elementos del DOM
 const form = document.getElementById("formulario");
 const contenedor = document.getElementById("contenedor");
 const mensaje = document.getElementById("mensaje");
 
+// Se recupera el registro desde localStorage, o se inicializa como array vacío si no existe
 const registro = JSON.parse(localStorage.getItem("registro")) || [];
 
 renderizarTodo();
 
+// Botón Guardar: descarga los números registrados como archivo .txt
 document.getElementById("btnGuardar").addEventListener("click", () => {
     if (registro.length < 10) {
         document.getElementById("errorNumero").textContent = "Ingresá al menos 10 números.";
         return;
     }
-    localStorage.setItem("registro", JSON.stringify(registro));
-    mostrarMensaje("Guardado localmente", "success");
+
+    // Se une el array en un string con saltos de línea y se crea un archivo descargable en memoria mediante la API blob
+    const contenido = registro.join("\n");
+    const blob = new Blob([contenido], { type: "text/plain" }); // Blob: objeto binario que representa el archivo
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "numeros.txt";
+    link.click();
+    URL.revokeObjectURL(url);
+
+    mostrarMensaje("Archivo descargado", "success");
 });
 
+// Botón Eliminar: borra todos los registros de localStorage y del servidor
 document.getElementById("btnEliminar").addEventListener("click", async () => {
     localStorage.removeItem("registro");
     registro.length = 0;
@@ -38,6 +52,7 @@ document.getElementById("btnEliminar").addEventListener("click", async () => {
     }
 });
 
+// Botón "Enviar" del formulario
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -52,7 +67,8 @@ form.addEventListener("submit", async (e) => {
     if (numeroRaw === "" || isNaN(numero)) {
         document.getElementById("errorNumero").textContent = "Ingresá un número válido.";
         hayErrores = true;
-    } else if (registro.length >= 20) {
+    }
+    else if (registro.length >= 20) {
         document.getElementById("errorNumero").textContent = "Se ha alcanzado el máximo de 20 números.";
         hayErrores = true;
     }
@@ -62,12 +78,13 @@ form.addEventListener("submit", async (e) => {
         return;
     }
 
-    registro.push(numeroRaw); //se guarda como String
+    registro.push(numeroRaw); // Se guarda como String para preservar el valor original ingresado por el usuario
     localStorage.setItem("registro", JSON.stringify(registro));
 
     renderizarTodo();
     form.reset();
 
+    // Se sincroniza el nuevo número con el servidor mediante POST
     try {
         const respuesta = await fetch("/numeros-guardados", {
             method: "POST",
@@ -76,12 +93,12 @@ form.addEventListener("submit", async (e) => {
         });
 
         if (respuesta.ok) {
-            mostrarMensaje("Guardado y sincronizado correctamente", "success");
+            mostrarMensaje("Ingresado y sincronizado correctamente", "success");
         } else {
-            mostrarMensaje("Guardado localmente, pero falló en el servidor", "warning");
+            mostrarMensaje("Ingresado localmente, pero falló en el servidor", "warning");
         }
     } catch (error) {
-        mostrarMensaje("Guardado localmente (servidor fuera de línea)", "warning");
+        mostrarMensaje("Ingresado localmente (servidor fuera de línea)", "warning");
     }
 });
 

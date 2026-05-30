@@ -15,13 +15,15 @@ app.use("/pages", express.static(path.join(__dirname, "pages")));
 app.use("/modules", express.static(path.join(__dirname, "modules")));
 app.use("/styles", express.static(path.join(__dirname, "styles")));
 
-// Guardar número en el archivo
+// POST /numeros-guardados: recibe un número y lo agrega al archivo numeros.txt
 app.post("/numeros-guardados", (req, res) => {
     const { numero } = req.body;
 
+    // path.join construye la ruta absoluta al archivo
     const rutaArchivo = path.join(__dirname, "numeros.txt");
     const contenido = `${numero}\n`;
 
+    // fs.appendFile agrega contenido al final del archivo sin borrar lo existente. Si el archivo no existe, lo crea automáticamente.
     fs.appendFile(rutaArchivo, contenido, "utf-8", (err) => {
         if (err) {
             console.error("Error al escribir en el archivo:", err);
@@ -31,10 +33,11 @@ app.post("/numeros-guardados", (req, res) => {
     });
 });
 
-// Eliminar todos los números del archivo
+// DELETE /numeros-guardados: vacía el contenido del archivo numeros.txt
 app.delete("/numeros-guardados", (req, res) => {
     const rutaArchivo = path.join(__dirname, "numeros.txt");
 
+    // fs.writeFile sobreescribe el archivo con un string vacío, borrando todo su contenido.
     fs.writeFile(rutaArchivo, "", "utf-8", (err) => {
         if (err) {
             console.error("Error al limpiar el archivo:", err);

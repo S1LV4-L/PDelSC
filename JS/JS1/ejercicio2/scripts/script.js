@@ -6,6 +6,9 @@ const contenedor = document.getElementById("contenedor");
 
 const deportes = [];
 
+const btnScrollTop = document.getElementById("btnScrollTop");
+btnScrollTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+
 form.addEventListener("submit", (e) => {
     e.preventDefault();
 
@@ -96,6 +99,8 @@ form.addEventListener("submit", (e) => {
             </div>
         </div>
     `;
+
+    btnScrollTop.classList.toggle("d-none", deportes.length === 0);
 
     contenedor.insertAdjacentHTML("beforeend", resultado);
     form.reset();
