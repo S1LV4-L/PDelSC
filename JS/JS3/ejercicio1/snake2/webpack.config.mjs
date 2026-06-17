@@ -29,7 +29,7 @@ export default (_env, argv) => {
         },
         progress: true,
       },
-      port: 5143,
+      port: 3000,
       host: "0.0.0.0",
     },
 
@@ -54,7 +54,10 @@ export default (_env, argv) => {
     },
 
     module: {
-      rules: [],
+      rules: [{
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'], // Procesa el CSS y lo inyecta en el DOM
+      },],
     },
     resolve: {
       extensions: [".js", ".jsx"],

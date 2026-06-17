@@ -21,12 +21,14 @@
 // Los vecinos de (x, y) son los cuatro cardinales: (x±1, y) y (x, y±1).
 
 import { Graphics } from 'pixi.js';
-import { CELL_SIZE, UI_HEIGHT, COLS, GHOST_STATE, lerp } from './Grid.js';
+import { CELL_SIZE, UI_HEIGHT, COLS, ROWS, GHOST_STATE, lerp, MOVE_INTERVAL_GHOST, MOVE_INTERVAL_GHOST_FRIGHTENED } from './Grid.js';
+import { Maze } from './Maze.js'
+import PF from 'pathfinding'
 
 /** Color de los fantasmas cuando están asustados */
 const COLOR_FRIGHTENED = 0x2222ff;
 /** Color de los fantasmas cuando están comidos (solo se ven los ojos) */
-const COLOR_EATEN      = 0x444444;
+const COLOR_EATEN = 0x444444;
 
 export class Ghost {
     /**
@@ -38,19 +40,17 @@ export class Ghost {
      * @param {string} name    - Nombre del fantasma (informativo / debug)
      */
     constructor(container, id, startX, startY, color, name) {
-        this.id    = id;
-        this.name  = name;
+        this.id = id;
+        this.name = name;
         this.color = color;
 
         // ── Estado lógico ─────────────────────────────────────
 
         /** Posición actual en la grilla */
-        this.gridX = startX;
-        this.gridY = startY;
+        this.posicion = { x: startX, y: startY };
 
         /** Posición del tick anterior (para interpolación visual) */
-        this.prevX = startX;
-        this.prevY = startY;
+        this.prevPos = { x: startX, y: startY };
 
         /** Dirección de movimiento actual */
         this.direction = { x: 0, y: -1 }; // empieza mirando arriba
@@ -62,72 +62,90 @@ export class Ghost {
 
         /** Timer interno para salir del estado FRIGHTENED */
         this._frightenTimer = null;
+        this.respawnTimer = null;
+        this.respawnDuration = 8000;
+
+        this.timeSinceLastMove = 0;
+
+        /** Intervalo de movimiento normal (ms). Game.js lo ajusta según el nivel. */
+        this.moveInterval = MOVE_INTERVAL_GHOST;
+
+        this.movimientos = [];
 
         // ── Visual ────────────────────────────────────────────
         // TODO: reemplazar por Sprite/AnimatedSprite cuando haya assets.
         this.graphics = new Graphics();
         container.addChild(this.graphics);
+        this.graphics.zIndex = 3;
 
         this.graphics.x = _cellCenter(startX);
         this.graphics.y = _cellCenterY(startY);
         this._redraw();
+
     }
 
-    // ── Lógica de movimiento ──────────────────────────────────
-
     /**
-     * Mueve el fantasma un paso en la grilla.
-     * Llamado una vez por tick de juego.
-     *
-     * ════════════════════════════════════════════════════════
-     *  AQUÍ VA EL PATHFINDING — instrucciones por estado:
-     *
-     *  HOUSE:
-     *    Salir por la puerta (moverse hacia row 13, col 13).
-     *    maze.isGhostWalkable(x, y) devuelve true para GHOST_DOOR.
-     *    Al salir, cambiar state a SCATTER.
-     *
-     *  SCATTER:
-     *    Cada fantasma tiene una "esquina objetivo":
-     *      Blinky  → arriba-derecha  (col 25, row 0)
-     *      Pinky   → arriba-izquierda (col 2,  row 0)
-     *      Inky    → abajo-derecha   (col 25, row 30)
-     *      Clyde   → abajo-izquierda (col 2,  row 30)
-     *    Usar BFS o A* para navegar hacia esa esquina.
-     *
-     *  CHASE:
-     *    Target = posición de Pac-Man (pacman.gridX, pacman.gridY).
-     *    Blinky apunta directo a Pac-Man.
-     *    Los demás usan offsets (ver comportamiento original de Pac-Man).
-     *    Usar BFS o A* hacia el target.
-     *
-     *  FRIGHTENED:
-     *    Moverse aleatoriamente o alejarse de Pac-Man.
-     *    Nunca dar media vuelta.
-     *
-     *  EATEN:
-     *    Target = entrada de la casa (col 13, row 13).
-     *    Usar BFS o A* hasta llegar.
-     *    Al llegar, cambiar state a HOUSE (o SCATTER si se quiere).
-     *
-     *  Regla general de movimiento en Pac-Man:
-     *    Los fantasmas NO pueden dar media vuelta (invertir dirección).
-     *    En cada intersección eligen la dirección que minimiza la
-     *    distancia al target (greedy) o usan BFS/A* completo.
-     * ════════════════════════════════════════════════════════
-     *
      * @param {import('./Maze.js').Maze} maze
      * @param {import('./Pacman.js').Pacman} pacman
      */
-    move(maze, pacman) {
-        // Guardar posición anterior para la interpolación visual
-        this.prevX = this.gridX;
-        this.prevY = this.gridY;
+    move() {
+        // Guardar posición actual como "anterior" para la interpolación del render
+        this.prevPos.x = this.posicion.x;
+        this.prevPos.y = this.posicion.y;
 
-        // ── PATHFINDING PENDIENTE ────────────────────────────
-        // Los fantasmas no se mueven por ahora.
-        // Implementar cada caso según los comentarios de arriba.
-        // ─────────────────────────────────────────────────────
+        if (!this.movimientos || this.movimientos.length === 0) return;
+
+        let sigMov = this.movimientos.shift();
+
+        // Calcular la celda destino en la dirección actual
+        let newX = sigMov[0];
+        let newY = sigMov[1];
+
+
+        // Túnel horizontal: salir por un lado y entrar por el otro
+        if (newX < 0) newX = COLS - 1;
+        if (newX >= COLS) newX = 0;
+
+
+        this.posicion.x = newX;
+        this.posicion.y = newY;
+
+
+    }
+
+    pathfindingFrightened(pacmanPos, grid) {
+        this.movimientos = [];
+
+
+        // ─── EL TRUCO: CONVERTIR A PAC-MAN EN PARED ───
+        // */ Usamos el método nativo de la librería 'pathfinding' para bloquear su celda
+
+        if (pacmanPos.x >= 0 && pacmanPos.x < grid.width &&
+            pacmanPos.y >= 0 && pacmanPos.y < grid.height) {
+            grid.setWalkableAt(pacmanPos.x, pacmanPos.y, false);
+        }
+
+        // Instanciamos el buscador de caminos
+        const finder = new PF.AStarFinder();
+
+        // Calculamos la ruta desde la posición actual del fantasma hasta la esquina elegida
+        const path = finder.findPath(
+            this.posicion.x,
+            this.posicion.y,
+            this.esquina.x,
+            this.esquina.y,
+            grid
+        );
+
+        // 4. Si encontró un camino, le asignamos el siguiente paso
+        if (path && path.length > 1) {
+            // path[0] es la posición actual, path[1] es el siguiente paso en la grilla
+            path.shift();
+            this.movimientos = path;
+        } else {
+            // En caso de emergencia (si la esquina está bloqueada), nos quedamos quietos o recalculamos
+            this.movimientos = [];
+        }
     }
 
     // ── Cambios de estado ─────────────────────────────────────
@@ -138,10 +156,13 @@ export class Ghost {
      * @param {number} duration - Duración en milisegundos
      */
     frighten(duration) {
-        // No asustar a un fantasma ya comido (está volviendo a la casa)
+        // No asustar a un fantasma ya comido 
+        // No asustar a un fantasma en casa
         if (this.state === GHOST_STATE.EATEN) return;
+        if (this.state === GHOST_STATE.HOUSE) return;
 
         this.state = GHOST_STATE.FRIGHTENED;
+        this.timeSinceLastMove = 0;
         this._redraw();
 
         // Cancelar el timer anterior si el jugador reactivó el poder
@@ -159,14 +180,6 @@ export class Ghost {
      * Marca el fantasma como comido. Vuelve a la casa antes de reactivarse.
      * (La lógica de retorno está pendiente en move() — estado EATEN.)
      */
-    eat() {
-        this.state = GHOST_STATE.EATEN;
-        if (this._frightenTimer) {
-            clearTimeout(this._frightenTimer);
-            this._frightenTimer = null;
-        }
-        this._redraw();
-    }
 
     // ── Render ────────────────────────────────────────────────
 
@@ -176,13 +189,16 @@ export class Ghost {
      */
     render(progress) {
         // Si el fantasma cruzó el túnel, no interpolar (sin deslizamiento visual)
-        const wrapping = Math.abs(this.prevX - this.gridX) > COLS / 2;
+        const wrapping = Math.abs(this.prevPos.x - this.posicion.x) > COLS / 2;
 
-        const interpX = wrapping ? this.gridX : lerp(this.prevX, this.gridX, progress);
-        const interpY = lerp(this.prevY, this.gridY, progress);
+        const interpX = wrapping ? this.posicion.x : lerp(this.prevPos.x, this.posicion.x, progress);
+        const interpY = lerp(this.prevPos.y, this.posicion.y, progress);
 
         this.graphics.x = _cellCenter(interpX);
         this.graphics.y = _cellCenterY(interpY);
+
+        this._redraw();
+
     }
 
     /**
@@ -191,7 +207,7 @@ export class Ghost {
      * TODO: reemplazar por Sprite/AnimatedSprite cuando haya assets.
      */
     _redraw() {
-        const r = CELL_SIZE * 0.42;
+        const r = CELL_SIZE * 0.55;
 
         // Color según estado
         let bodyColor;
@@ -213,9 +229,9 @@ export class Ghost {
         this.graphics.lineTo(r, r * 0.55);
         // Tres "patas" zigzag en la parte inferior
         const legW = (r * 2) / 3;
-        this.graphics.arc(r - legW / 2,       r * 0.55, legW / 2, 0,        Math.PI, false);
-        this.graphics.arc(r - legW - legW / 2, r * 0.55, legW / 2, 0,        Math.PI, false);
-        this.graphics.arc(-r + legW / 2,       r * 0.55, legW / 2, 0,        Math.PI, false);
+        this.graphics.arc(r - legW / 2, r * 0.55, legW / 2, 0, Math.PI, false);
+        this.graphics.arc(r - legW - legW / 2, r * 0.55, legW / 2, 0, Math.PI, false);
+        this.graphics.arc(-r + legW / 2, r * 0.55, legW / 2, 0, Math.PI, false);
         // Subida por el lado izquierdo
         this.graphics.lineTo(-r, 0);
         this.graphics.closePath();
@@ -226,18 +242,18 @@ export class Ghost {
             // Ojos tristes: dos puntos blancos pequeños
             this.graphics.circle(-r * 0.32, -r * 0.1, r * 0.14);
             this.graphics.fill(0xffffff);
-            this.graphics.circle( r * 0.32, -r * 0.1, r * 0.14);
+            this.graphics.circle(r * 0.32, -r * 0.1, r * 0.14);
             this.graphics.fill(0xffffff);
         } else {
             // Ojos normales: círculo blanco con pupila azul oscuro
             this.graphics.circle(-r * 0.32, -r * 0.15, r * 0.22);
             this.graphics.fill(0xffffff);
-            this.graphics.circle( r * 0.32, -r * 0.15, r * 0.22);
+            this.graphics.circle(r * 0.32, -r * 0.15, r * 0.22);
             this.graphics.fill(0xffffff);
 
             this.graphics.circle(-r * 0.28, -r * 0.12, r * 0.11);
             this.graphics.fill(0x000088);
-            this.graphics.circle( r * 0.36, -r * 0.12, r * 0.11);
+            this.graphics.circle(r * 0.36, -r * 0.12, r * 0.11);
             this.graphics.fill(0x000088);
         }
     }
@@ -250,26 +266,60 @@ export class Ghost {
      * @param {number} y - Fila
      */
     reset(x, y) {
-        this.gridX = x;
-        this.gridY = y;
-        this.prevX = x;
-        this.prevY = y;
+        this.posicion = { x: x, y: y };
+        this.prevPos = { x: x, y: y };
         this.direction = { x: 0, y: -1 };
-        this.state     = (y <= 12) ? GHOST_STATE.SCATTER : GHOST_STATE.HOUSE;
 
         if (this._frightenTimer) {
             clearTimeout(this._frightenTimer);
             this._frightenTimer = null;
         }
-
+        this.graphics.visible = true;
         this.graphics.x = _cellCenter(x);
         this.graphics.y = _cellCenterY(y);
         this._redraw();
     }
 
+
+
+    respawn() {
+        this.graphics.visible = false;
+        this.movimientos = [];
+        this.state = GHOST_STATE.EATEN;
+        clearTimeout(this._frightenTimer);
+        this._frightenTimer = null;
+        this.respawnTimer = setTimeout(() => {
+            this.state = GHOST_STATE.CHASE;
+            this.reset(14, 14);
+        }, this.respawnDuration);
+    }
+
     destroy() {
-        if (this._frightenTimer) clearTimeout(this._frightenTimer);
+        clearTimeout(this._frightenTimer);
+        clearTimeout(this.respawnTimer);
+        this._frightenTimer = null;
+        this.respawnTimer = null;
         this.graphics.destroy();
+    }
+    getInterpPos(progress) {
+        const wrapping = Math.abs(this.prevPos.x - this.posicion.x) > COLS / 2;
+        const x = wrapping ? this.posicion.x : lerp(this.prevPos.x, this.posicion.x, progress);
+        const y = lerp(this.prevPos.y, this.posicion.y, progress);
+        return { x, y };
+    }
+
+    getSpeedInterval() {
+        if (this.state == GHOST_STATE.FRIGHTENED) {
+            return MOVE_INTERVAL_GHOST_FRIGHTENED;
+        } else {
+            return this.moveInterval;
+        }
+    }
+
+    wait(duration) {
+        setTimeout(() => {
+            this.state = GHOST_STATE.SCATTER;
+        }, duration);
     }
 }
 

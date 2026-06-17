@@ -7,7 +7,7 @@
 //   • Overlay de Victoria (todos los orbes recolectados)
 
 import { Container, Graphics, Text } from 'pixi.js';
-import { CANVAS_WIDTH, CANVAS_HEIGHT, UI_HEIGHT } from './Grid.js';
+import { CANVAS_WIDTH, CANVAS_HEIGHT, UI_HEIGHT, CELL_SIZE } from './Grid.js';
 
 export class UI {
     /**
@@ -17,12 +17,25 @@ export class UI {
         // ── HUD superior ──────────────────────────────────────
         this.hudContainer = new Container();
         stage.addChild(this.hudContainer);
+        this.hudContainer.zIndex = 10;
 
         // Fondo de la barra
         const hudBg = new Graphics();
         hudBg.rect(0, 0, CANVAS_WIDTH, UI_HEIGHT);
         hudBg.fill(0x1a1a2e);
         this.hudContainer.addChild(hudBg);
+
+
+        // Barras negras para cubrir al pacman cuando pasa por el portal
+        this.leftCover = new Graphics();
+        this.leftCover.rect(0, UI_HEIGHT - 3, CELL_SIZE, CANVAS_HEIGHT - UI_HEIGHT + 2);
+        this.leftCover.fill(0x000000);
+        this.hudContainer.addChild(this.leftCover);
+
+        this.rightCover = new Graphics();
+        this.rightCover.rect(CANVAS_WIDTH - CELL_SIZE, UI_HEIGHT - 3, CELL_SIZE, CANVAS_HEIGHT - UI_HEIGHT + 2);
+        this.rightCover.fill(0x000000);
+        this.hudContainer.addChild(this.rightCover);
 
         // Línea separadora
         const separator = new Graphics();
@@ -43,6 +56,20 @@ export class UI {
         this.scoreText.x = 12;
         this.scoreText.y = (UI_HEIGHT - this.scoreText.height) / 2;
         this.hudContainer.addChild(this.scoreText);
+
+        // Texto del nivel actual
+        this.levelText = new Text({
+            text: 'NIVEL 1',
+            style: {
+                fontFamily: 'Arial, sans-serif',
+                fontSize: 13,
+                fill: 0x7f8c8d,
+
+            },
+        });
+        this.levelText.x = this.scoreText.x + this.scoreText.width + 40;
+        this.levelText.y = (UI_HEIGHT - this.levelText.height) / 2;
+        this.hudContainer.addChild(this.levelText);
 
         // Indicador de vidas (texto + círculos amarillos)
         this.livesContainer = new Container();
@@ -68,6 +95,7 @@ export class UI {
         this.gameOverContainer = new Container();
         this.gameOverContainer.visible = false;
         stage.addChild(this.gameOverContainer);
+        this.gameOverContainer.zIndex = 10;
 
         // Fondo semitransparente
         const gameOverBg = new Graphics();
@@ -123,6 +151,8 @@ export class UI {
         winBg.rect(0, UI_HEIGHT, CANVAS_WIDTH, CANVAS_HEIGHT - UI_HEIGHT);
         winBg.fill({ color: 0x000000, alpha: 0.75 });
         this.winContainer.addChild(winBg);
+        this.gameOverContainer.zIndex = 10;
+
 
         const winTitle = new Text({
             text: '¡GANASTE!',
@@ -175,6 +205,14 @@ export class UI {
     }
 
     /**
+     * Actualiza el texto del nivel actual en el HUD.
+     * @param {number} level
+     */
+    updateLevel(level) {
+        this.levelText.text = `NIVEL ${level}`;
+    }
+
+    /**
      * Actualiza el indicador visual de vidas (círculos amarillos).
      * @param {number} lives - Vidas restantes
      */
@@ -183,7 +221,7 @@ export class UI {
 
         // Mostrar un mini Pac-Man por cada vida restante
         const iconSize = 10;
-        const spacing  = 26;
+        const spacing = 26;
 
         for (let i = 0; i < lives; i++) {
             const icon = new Graphics();
