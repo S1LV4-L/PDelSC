@@ -109,8 +109,6 @@ export class Ghost {
 
         this.posicion.x = newX;
         this.posicion.y = newY;
-
-
     }
 
     pathfindingFrightened(pacmanPos, grid) {
@@ -279,8 +277,6 @@ export class Ghost {
         this.graphics.y = _cellCenterY(y);
         this._redraw();
     }
-
-
 
     respawn() {
         this.graphics.visible = false;

@@ -1,0 +1,61 @@
+table {
+    border-collapse: collapse;
+    width: 40%;
+    min-width: 280px; /* evita que se achique demasiado en pantallas medianas*/
+    margin: 20px auto;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+th {
+    background-color: #2c7be5;
+    color: white;
+    padding: 10px;
+}
+
+td {
+    padding: 10px;
+    text-align: center;
+}
+
+th, td {
+    border: 1px solid #ddd;
+}
+
+@media (max-width: 320px) {     /* se aplica solo cuando el ancho de pantalla es 320px o menos */
+    table {
+        width: 100%;       
+        min-width: unset;
+        font-size: 12px;   
+    }
+ 
+    th, td {
+        padding: 6px 4px;  
+    }
+}
+
+/* Inputs y selects en modo claro */
+[data-bs-theme="light"] .form-control,
+[data-bs-theme="light"] .form-select {
+    background-color: #fff;
+    border-color: #6c757d;
+    color: #212529;
+}
+
+/* Borde y sombra al hacer foco */
+[data-bs-theme="light"] .form-control:focus,
+[data-bs-theme="light"] .form-select:focus {
+    border-color: #495057;
+    box-shadow: 0 0 0 0.25rem rgba(108, 117, 125, 0.35);
+}
+
+body {
+    min-height: 100vh;
+    user-select: none;
+}
+
+@media (min-width: 992px) {    
+    .layout-principal {
+        height: calc(100dvh - 57px); /* 57px = altura del navbar */
+    }
+}

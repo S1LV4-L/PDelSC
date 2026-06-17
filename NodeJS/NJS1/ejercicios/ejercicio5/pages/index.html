@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Ejercicio 5</title>
+        <link href="https://cdn.jsdelivr.net/npm/fastbootstrap@2.2.0/dist/css/fastbootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="../styles/styles.css" />
+    </head>
+    <body class="pt-9 pb-2 pb-md-0">
+
+        <nav class="navbar fixed-top bg-discovery-subtle px-4 border-bottom border-discovery">
+            <div class="container-xxl d-flex justify-content-between align-items-center">
+                <a class="navbar-brand fw-bold mb-0 text-body-emphasis">Operaciones</a>
+                <button id="btnTema" class="btn btn-outline-light">
+                    <span id="btnTemaIcono" class="me-1">🌙</span>
+                    <span id="btnTemaTexto" class="d-none d-sm-inline">Modo claro</span>
+                </button> 
+            </div>
+        </nav>
+        
+        <div class="container-xxl px-md-4 d-lg-flex flex-lg-column layout-principal">
+            <div class="row g-4 flex-lg-shrink-0 mt-3">
+                <div class="col-12">
+                    <div class="card border border-discovery rounded-3 shadow-sm h-100 bg-secondary bg-opacity-10">
+                        <div class="card-body p-4">
+                            
+                            <h5 class="card-title fw-semibold mb-3">Resultados de las Operaciones</h5>
+                            
+                            <div class="table-responsive">
+                                <table id="miTabla" class="table table-hover align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="fw-semibold">Suma</th>
+                                            <th class="fw-semibold">Resta</th>
+                                            <th class="fw-semibold">Multiplicación</th>
+                                            <th class="fw-semibold">División</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="cuerpoTabla"></tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="../scripts/script.js" type="module"></script>
+    </body>
+</html>
