@@ -1,3 +1,6 @@
+import { initNightDayButton } from "../modules/nightDayButton.js";
+initNightDayButton();
+
 const registro = document.getElementById("registro");
 
 const soloLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+([a-zA-ZáéíóúÁÉÍÓÚñÑ ]*[a-zA-ZáéíóúÁÉÍÓÚñÑ]+)?$/;

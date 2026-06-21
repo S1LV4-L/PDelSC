@@ -20,7 +20,9 @@ form.addEventListener("submit", (e) => {
     const cantidadMin = form.elements["cantidadMin"].value;
     const cantidadMax = form.elements["cantidadMax"].value;
     const nivel = form.elements["nivel"].value;
-    const duracion = form.elements["duracion"].selectedOptions[0].text;
+    
+    const duracionSelect = form.elements["duracion"];
+    const duracion = duracionSelect.selectedIndex !== -1 ? duracionSelect.selectedOptions[0].text : "";
 
     const formData = new FormData(form);
     const categoria = formData.get("categoria");
@@ -36,6 +38,13 @@ form.addEventListener("submit", (e) => {
     } else if (!/^[A-Za-zÀ-ÿ\s]+$/.test(nombre)) {
         document.getElementById("errorNombre").textContent = "Solo se permiten letras";
         hayErrores = true;
+    } else {
+        // Verifica si el deporte ya existe en el array (ignorando mayúsculas/minúsculas)
+        const yaExiste = deportes.some(dep => dep.nombre.toLowerCase() === nombre.toLowerCase());
+        if (yaExiste) {
+            document.getElementById("errorNombre").textContent = "Este deporte ya se encuentra registrado";
+            hayErrores = true;
+        }
     }
 
     if (!categoria) {
@@ -70,7 +79,7 @@ form.addEventListener("submit", (e) => {
     }
 
     // Validación de duración
-    if (!duracion) {
+    if (!duracion || duracionSelect.value === "") {
         document.getElementById("errorDuracion").textContent = "Seleccione una duración";
         hayErrores = true;
     }

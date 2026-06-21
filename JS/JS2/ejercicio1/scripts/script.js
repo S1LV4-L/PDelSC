@@ -52,7 +52,7 @@ document.getElementById("btnEliminar").addEventListener("click", async () => {
     }
 });
 
-// Botón "Enviar" del formulario
+// Botón "Enviar" del formulario y VALIDACIÓN
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -102,6 +102,7 @@ form.addEventListener("submit", async (e) => {
     }
 });
 
+//Muestra mensajes de error o validación
 function mostrarMensaje(texto, tipo) {
     mensaje.textContent = texto;
     mensaje.className = `mt-3 text-${tipo}`;
@@ -111,6 +112,7 @@ function mostrarMensaje(texto, tipo) {
     }, 5000);
 }
 
+//Renderiza el registro completo
 function renderizarTodo() {
     contenedor.innerHTML = "";
 

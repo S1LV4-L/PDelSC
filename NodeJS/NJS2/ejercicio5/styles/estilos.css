@@ -1,0 +1,11 @@
+:root {
+    --bs-primary: #fd7e14;
+    --bs-primary-rgb: 253, 126, 20;
+}
+
+[data-bs-theme="dark"] {
+    --bs-primary: #fd7e14;
+    --bs-primary-rgb: 253, 126, 20;
+    --bs-primary-bg-subtle: #4d2c0c;
+    --bs-primary-border-subtle: #7a4313;
+}

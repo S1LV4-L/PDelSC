@@ -1,3 +1,6 @@
+import { initNightDayButton } from "../modules/nightDayButton.js";
+initNightDayButton();
+
 const registro = document.getElementById("registro");
 
 // Permite letras y espacios en medio, pero no al principio ni al final (el trim() se encarga de eso)

@@ -26,13 +26,13 @@ export function crearPronostico() {
         // Retorna el HTML de una tarjeta Bootstrap por cada día
         return `
         <div class="col-md-3 col-sm-6">
-            <div class="card text-center">
-                <div class="card-header">${dia}</div>
+            <div class="card border border-primary rounded-3 shadow-sm bg-secondary bg-opacity-10 text-center">
+                <div class="card-header border-primary">${dia}</div>
                 <div class="card-body">
                     <h5 class="card-title">${emojis[clima.estado]} ${clima.estado}</h5>
                     <p class="card-text">Máx: ${clima.temperatura} — Mín: ${minTemp}</p>
                 </div>
-                <div class="card-footer text-body-secondary">
+                <div class="card-footer border-primary text-secondary">
                     💧 ${clima.humedad} &nbsp;&nbsp; 🔵 ${clima.presion}
                 </div>
             </div>

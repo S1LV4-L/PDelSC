@@ -1,18 +1,24 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-bs-theme="dark">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Ejercicio 5</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+        <link href="https://cdn.jsdelivr.net/npm/fastbootstrap@2.2.0/dist/css/fastbootstrap.min.css" rel="stylesheet">
         <link href="../styles/estilos.css" rel="stylesheet"/>
     </head>
-    <body class="py-3 bg-dark text-light min-vh-100 vh-md-100 d-flex flex-column overflow-x-hidden overflow-y-auto">
-        
+    <body class="py-3 min-vh-100 vh-md-100 d-flex flex-column overflow-x-hidden overflow-y-auto">
+
         <div class="container d-flex flex-column flex-grow-1 px-1">
 
             <div class="mb-2">
-                <h3 class="text-uppercase fw-semibold mb-0">Ejercicio 5</h3>
+                <div class="d-flex justify-content-between">
+                    <h3 class="text-uppercase fw-semibold mb-0">Ejercicio 5</h3>
+                    <button id="btnTema" class="btn btn-outline-light">
+                        <span id="btnTemaIcono" class="me-1">🌙</span>
+                        <span id="btnTemaTexto" class="d-none d-sm-inline">Modo claro</span>
+                    </button>
+                </div>
                 <small class="text-secondary">Método <code>splice()</code></small>
             </div>
 
@@ -20,72 +26,63 @@
             <div class="row g-3 mb-4 flex-shrink-0">
                 <!-- Form 1: eliminar 2 elementos desde pos. 1 -->
                 <div class="col-12 col-md-4">
-                    <div class="bg-secondary bg-opacity-10 border border-secondary border-opacity-25 rounded-3 shadow-sm p-4 h-100">
-                        <form id="form1" class="mb-4">
-                            <input id="input1" type="text" class="form-control bg-dark text-light border-secondary mb-2"
-                            placeholder="Ingresá una letra" autocomplete="off">
+                    <div class="card border border-primary rounded-3 shadow-sm bg-secondary bg-opacity-10 h-100">
+                        <div class="card-body p-4">
+                            <form id="form1" class="mb-4">
+                                <input id="input1" type="text" class="form-control mb-2"
+                                placeholder="Ingresá una letra" autocomplete="off">
 
-                            <div class="d-flex gap-2">
-                                <button id="sbmt1" type="submit" class="btn btn-outline-light w-100">
-                                    <span class="d-block fw-semibold">Agregar</span>
-                                </button>
-                                <button id="btn1" type="button" class="btn btn-outline-light w-100">
-                                    <span class="d-block fw-semibold ">Eliminar 2 desde pos. 1</span>
-                                </button>
-                            </div>
-                        </form>
-                        <form id="form2">
-                            <input id="input2" type="text" class="form-control bg-dark text-light border-secondary mb-2"
-                            placeholder="Ingresá un nombre" autocomplete="off">
+                                <div class="d-flex gap-2">
+                                    <button id="sbmt1" type="submit" class="btn btn-outline-primary fw-semibold w-100">Agregar</button>
+                                    <button id="btn1" type="button" class="btn btn-outline-primary fw-semibold w-100">Eliminar 2 desde pos. 1</button>
+                                </div>
+                            </form>
+                            <form id="form2">
+                                <input id="input2" type="text" class="form-control mb-2"
+                                placeholder="Ingresá un nombre" autocomplete="off">
 
-                            <div class="d-flex gap-2">
-                                <button id="sbmt2" type="submit" class="btn btn-outline-light w-100">
-                                    <span class="d-block fw-semibold">Agregar</span>
-                                </button>
-                                <button id="btn2" type="button" class="btn btn-outline-light w-100">
-                                    <span class="d-block fw-semibold">Insertar en pos. 1</span>
-                                </button>
-                            </div>
-                        </form>
+                                <div class="d-flex gap-2">
+                                    <button id="sbmt2" type="submit" class="btn btn-outline-primary fw-semibold w-100">Agregar</button>
+                                    <button id="btn2" type="button" class="btn btn-outline-primary fw-semibold w-100">Insertar en pos. 1</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-                
+
                 <!-- Form 3: reemplazar dos elementos desde una posición -->
                 <div class="col-12 col-md-4">
-                    <div class="bg-secondary bg-opacity-10 border border-secondary border-opacity-25 rounded-3 shadow-sm p-4 h-100">
-                        <form id="form3">
-                            <input id="input3" type="number" class="form-control bg-dark text-light border-secondary mb-2"
-                            placeholder="Ingresá un número" autocomplete="off">
-                            <button id="sbmt3" type="submit" class="btn btn-outline-light w-100 mb-2">
-                                <span class="d-block fw-semibold">Agregar</span>
-                            </button>
+                    <div class="card border border-primary rounded-3 shadow-sm bg-secondary bg-opacity-10 h-100">
+                        <div class="card-body p-4">
+                            <form id="form3">
+                                <input id="input3" type="number" class="form-control mb-2"
+                                placeholder="Ingresá un número" autocomplete="off">
+                                <button id="sbmt3" type="submit" class="btn btn-outline-primary fw-semibold w-100 mb-2">Agregar</button>
 
-                            <input id="input3pos" type="number" class="form-control bg-dark text-light border-secondary mb-2"
-                            placeholder="Posición desde donde reemplazar" autocomplete="off" min="0">
-                            <div class="d-flex gap-2">
-                                <input id="input3val1" type="number" class="form-control bg-dark text-light border-secondary mb-2"
-                                placeholder="Nuevo valor 1" autocomplete="off">
-                                <input id="input3val2" type="number" class="form-control bg-dark text-light border-secondary mb-2"
-                                placeholder="Nuevo valor 2" autocomplete="off">
-                            </div>
-                            <button id="btn3" type="button" class="btn btn-outline-light w-100">
-                                <span class="d-block fw-semibold">Reemplazar 2 elementos</span>
-                            </button>
-                        </form>
+                                <input id="input3pos" type="number" class="form-control mb-2"
+                                placeholder="Posición desde donde reemplazar" autocomplete="off" min="0">
+                                <div class="d-flex gap-2">
+                                    <input id="input3val1" type="number" class="form-control mb-2"
+                                    placeholder="Nuevo valor 1" autocomplete="off">
+                                    <input id="input3val2" type="number" class="form-control mb-2"
+                                    placeholder="Nuevo valor 2" autocomplete="off">
+                                </div>
+                                <button id="btn3" type="button" class="btn btn-outline-primary fw-semibold w-100">Reemplazar 2 elementos</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
 
-                
                 <div class="col-12 col-md-4 d-flex flex-column flex-grow-1 overflow-hidden">
-                    <div id="registro" class="d-flex flex-column gap-1 bg-secondary bg-opacity-10 border border-secondary border-opacity-25
-                    rounded-3 p-3 flex-grow-1 overflow-y-auto">
+                    <div id="registro" class="d-flex flex-column gap-1 card border border-primary
+                    rounded-3 p-3 flex-grow-1 overflow-y-auto bg-secondary bg-opacity-10">
                         <p class="text-secondary small fw-semibold text-uppercase">Registro</p>
                     </div>
-                </div>      
+                </div>
             </div>
 
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="../scripts/script.js"></script>
+        <script src="../scripts/script.js" type="module"></script>
     </body>
 </html>

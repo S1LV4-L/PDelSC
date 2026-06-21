@@ -12,6 +12,7 @@ const registro = JSON.parse(localStorage.getItem("registro")) || [];
 renderizarTodo();
 
 // Botón Cargar: carga un archivo .txt ya existente, reemplaza el almacenamiento local y sincroniza el servidor
+// VALIDACIÓN
 document.getElementById("btnCargar").addEventListener("click", () => {
     const inputArchivo = document.createElement("input"); // elemento <input type="file"> de forma invisible
     inputArchivo.type = "file";
@@ -207,15 +208,14 @@ form.addEventListener("submit", async (e) => {
     }
 });
 
-
 function obtenerFiltrados() {
     return registro.filter(num => {
-        const strNum = num.startsWith("-") ? num.slice(1) : num; //Quitar el símbolo negativo para
+        const strNum = num.startsWith("-") ? num.slice(1) : num; //Quitar el símbolo negativo
         return strNum.at(0) === strNum.at(-1);
     });
 }
 
-
+//Mostrar mensajes de error/validación
 function mostrarMensaje(texto, tipo) {
     mensaje.textContent = texto;
     mensaje.className = `position-absolute start-0 mt-1 ps-4 small text-${tipo}`;
@@ -225,6 +225,7 @@ function mostrarMensaje(texto, tipo) {
     }, 5000);
 }
 
+// Renderizar numeros y cálculos
 function renderizarTodo() {
     contenedor.innerHTML = "";
     const contenedorFiltrados = document.getElementById("contenedorFiltrados");
