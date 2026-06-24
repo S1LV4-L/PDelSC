@@ -3,14 +3,92 @@
 <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <link rel="stylesheet" href="style.css">
     <title>SNAKE</title>
 </head>
-
 <body>
     <div id="app">
-        <div id="pixi-container"></div>
+        <!-- CAJA DE CONTROLES (Solo visible en PC) -->
+        <div id="controls-container" class="hidden-pc">
+            <div class="leaderboard-box">
+                <h2>CONTROLES</h2>
+                <p>Pausa: P / ESC</p>
+                <div class="control-section">
+                    <p class="control-title">JUGADOR 1</p>
+                    <p>Mover: W A S D</p>
+                    <p>Dash: Shift Izq.</p>
+                </div>
+                <div class="control-section control-section-2p">
+                    <p class="control-title">JUGADOR 2</p>
+                    <p>Mover: I J K L</p>
+                    <p>Dash: B</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="pixi-container">
+            <!-- Zonas de Touch (Solo movimiento en 2P) -->
+            <div id="touch-zone-p1" class="touch-zone"></div>
+            <div id="touch-zone-p2" class="touch-zone"></div>
+
+            <!-- CAPA DE UI -->
+            <div id="ui-layer">
+                <!-- HUD Superior -->
+                <div id="hud" class="hud-1p">
+                    <span id="score-text">🍎 0</span>
+                    <span id="level-text">Nivel 1  0/5</span>
+                    <span id="help-text">Moverse: W A S D</span>
+                </div>
+
+                <!-- Overlay Pausa -->
+                <div id="overlay-pause" class="overlay">
+                    <h2 class="title-pause">JUEGO PAUSADO</h2>
+                    <p>Presioná P o ESC para reanudar<br>Presioná M para ir al menú principal</p>
+                    <button id="menu-btn-pause" class="btn-danger">Salir al Menú</button>
+                </div>
+
+                <!-- Overlay Game Over -->
+                <div id="overlay-gameover" class="overlay">
+                    <h2 class="title-gameover">GAME OVER</h2>
+                    <h3 id="winner-text"></h3>
+                    <p id="final-score-text"></p>
+                    <p class="sub-text">Presioná R para reiniciar o SPACE para el menú</p>
+                </div>
+
+                <!-- Overlay Victoria -->
+                <div id="overlay-win" class="overlay">
+                    <h2 class="title-win">VICTORIA</h2>
+                    <p id="final-win-score-text"></p>
+                    <p class="sub-text">Presioná R para reiniciar o SPACE para el menú</p>
+                </div>
+
+                <!-- OVERLAY DE INICIO -->
+                <div id="overlay-start" class="overlay">
+                    <div class="start-controls-pc">
+                        <h2 class="title-start">¿LISTO?</h2>
+                        <p class="start-sub-pc">Presioná cualquier tecla para comenzar</p>
+                    </div>
+                    <div class="start-controls-mobile">
+                        <h2 class="title-start">¿LISTO?</h2>
+                        <p class="start-sub-mobile">Deslizá el dedo para mover<br>Mantené presionado para Dash (2P)<br>JUGADOR 1 mitad superior, JUGADOR 2 mitad inferior</p>
+                        <p class="tap-to-start">Tocá la pantalla para comenzar</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTONES DE DASH (Ocultos por defecto) -->
+        <div id="dash-buttons-container" class="hidden">
+            <div id="dash-btn-p1" class="dash-btn p1-color">
+                <span>DASH</span>
+                <small>J1</small>
+            </div>
+            <div id="dash-btn-p2" class="dash-btn p2-color">
+                <span>DASH</span>
+                <small>J2</small>
+            </div>
+        </div>
     </div>
 </body>
 </html>

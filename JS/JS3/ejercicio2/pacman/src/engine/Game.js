@@ -1,0 +1,520 @@
+// ============================================================
+// Game.js — Controlador principal del juego
+// ============================================================
+
+import { Graphics } from 'pixi.js';
+import { Maze } from './mapBuilding/Maze.js';
+import { Pacman, DIRECTION } from './entities/Pacman.js';
+import { Rojo } from './entities/Rojo.js';
+import { Pink } from './entities/Pink.js';
+import { Cyan } from './entities/Cyan.js';
+import { Yellow } from './entities/Yellow.js';
+import { LEVEL_CONFIGS } from './LevelsConfig.js';
+import { UI } from '../UI/UI.js';
+import { DJ } from '../sfx/DJ.js';
+import { CANVAS_HEIGHT,UI_HEIGHT, MOVE_INTERVAL, FRIGHTEN_DURATION, GHOST_STATE, CELL, SCORE, calcCellSize, calcCanvasWidth, } from './mapBuilding/Grid.js';
+
+import PF from 'pathfinding';
+
+const STATE = {
+    PLAYING: 'playing',
+    GAME_OVER: 'game_over',
+    WIN: 'win',
+    PAUSE: 'pause',
+};
+
+const MAX_LEVEL = 5;
+
+export class Game {
+    constructor(app, settings) {
+        this.app = app;
+        this.gameSettings = settings;
+        this.dj = settings.dj || DJ;
+
+        this.timeSinceLastMove = 0;
+        this.inputDirection = { x: 0, y: 0 };
+        this.ghostsEatenThisPellet = 0;
+
+        this.onGameOverCallback = settings.onGameOver || null;
+        this.onLevelCompleteCallback = settings.onLevelComplete || null;
+
+
+        this._setupInput();
+        this._start();
+
+        this._onTick = (ticker) => this._update(ticker);
+        this.app.ticker.add(this._onTick);
+    }
+
+    // ── Ciclo de vida ─────────────────────────────────────────
+
+    // En tu Game.js busca el método _start y cámbialo para que no sobreescriba tu nivel:
+    _start() {
+        // Si ya viene predefinido por el VersusGame no lo reseteamos a 5
+        if (this.gameSettings.currentLevel) {
+            this.level = this.gameSettings.currentLevel;
+        }else{
+            this.level = 1;
+        }
+        this.score = 0;
+        this.lives = 1; // O las vidas iniciales de tu preferencia
+        this._buildLevel();
+        this.dj.playSfx('level-theme');
+    }
+
+    _nextLevel() {
+        // Guardamos score antes de mutarlo
+        const oldScore = this.score;
+        const isMaxLevel = this.level >= MAX_LEVEL;
+
+        this.state = STATE.WIN;
+
+        // Evaluamos si venimos desde VersusGame analizando la configuración instanciada
+        const isVersus = !!this.gameSettings.isVersus;
+        const isFinalTournament = isVersus && this.level >= 5 && this.gameSettings.currentPlayer === 2;
+
+        this.dj.stopMusic(300);
+        this.dj.playSfx(isMaxLevel ? 'win' : 'level-clear', { silent: true }).catch(() => {});
+
+        const winScorePara = document.getElementById('win-score');
+        if (winScorePara) {
+            winScorePara.innerHTML = `SCORE: ${this.score}`;
+            // Si ganó en el 5to nivel (isMaxLevel) y es un récord nuevo, lo indicamos de manera llamativa
+            if (!isVersus && isMaxLevel && isNewRecord) {
+                winScorePara.innerHTML += `<br><span class="blink-record" style="color:#00ff00; font-size:12px; display:block; margin-top:10px;">¡NUEVO RÉCORD HISTÓRICO!</span>`;
+            }
+        }
+
+        this.ui.showWin(this.score, isVersus, isFinalTournament, isMaxLevel, {
+            onNextLevel: () => {
+                this.ui.hideWin();
+                this.level++;
+                this._buildLevel();
+            },
+            onRestartFromScratch: () => {
+                this.ui.hideWin();
+                this.level = 1;
+                this.score = 0;
+                this._buildLevel();
+            },
+            onQuit: () => {
+                if (this.gameSettings.onQuitCallback) this.gameSettings.onQuitCallback();
+            },
+            onNextPlayer: () => {
+                this.ui.hideWin();
+                if (this.onLevelCompleteCallback) this.onLevelCompleteCallback(oldScore, isMaxLevel);
+            }
+        });
+    }
+
+    _buildLevel() {
+        this._clearScene();
+        this.dj.playMusic('level-theme', { silent: true }).catch(() => {});
+
+        this.state = STATE.PLAYING;
+        this.timeSinceLastMove = 0;
+        this.ghostsEatenThisPellet = 0;
+        this.inputDirection = DIRECTION.NONE;
+
+        this.config = LEVEL_CONFIGS[this.level];
+
+        this.CELL_SIZE = calcCellSize(this.config.map.ROWS);
+        this.CANVAS_WIDTH = calcCanvasWidth(this.config.map.COLS, this.CELL_SIZE);
+
+        this.PACMAN_START = this.config.map.PACMAN_START;
+        this.GHOST_STARTS = this.config.map.GHOST_STARTS;
+
+        this._createBackground();
+        this.app.stage.sortableChildren = true;
+
+        this.ui = new UI(this.app.stage, this.CANVAS_WIDTH, this.CELL_SIZE);
+
+        this.maze = new Maze(this.app.stage, { pelletMode: this.config.pelletMode }, this.level);
+
+        this.pacman = new Pacman(
+            this.app.stage,
+            this.PACMAN_START.x,
+            this.PACMAN_START.y,
+            this.config.map.COLS,
+            this.CELL_SIZE,
+        );
+
+        const corners = this.config.map.GHOST_CORNERS;
+        const ghostBuilders = [
+            () => new Rojo(this.app.stage, 0, this.GHOST_STARTS[0].x, this.GHOST_STARTS[0].y, 0xff0000, 'rojito', this.CELL_SIZE, corners[0], this.maze),
+            () => new Pink(this.app.stage, 1, this.GHOST_STARTS[1].x, this.GHOST_STARTS[1].y, 0xff69b4, 'rosita', this.CELL_SIZE, corners[1], this.maze),
+            () => new Cyan(this.app.stage, 2, this.GHOST_STARTS[2].x, this.GHOST_STARTS[2].y, 0x00ffff, 'celestito', this.CELL_SIZE, corners[2], this.maze),
+            () => new Yellow(this.app.stage, 3, this.GHOST_STARTS[3].x, this.GHOST_STARTS[3].y, 0xffa500, 'amarillito', this.CELL_SIZE, corners[3], this.maze),
+        ];
+        this.ghosts = ghostBuilders.slice(0, this.config.ghostCount).map((build) => build());
+
+        for (const ghost of this.ghosts) {
+            ghost.moveInterval = this.config.ghostMoveInterval;
+        }
+
+        this.ui.updateScore(this.score);
+        this.ui.updateLives(this.lives);
+        this.ui.updateLevel(this.level);
+
+        this._resize();
+    }
+
+    _clearScene() {
+        if (this.background) this.background.destroy();
+        if (this.maze) this.maze.destroy();
+        if (this.pacman) this.pacman.destroy();
+        if (this.ghosts) this.ghosts.forEach((g) => g.destroy());
+        if (this.ui) this.ui.destroy();
+
+        this.background = null;
+        this.maze = null;
+        this.pacman = null;
+        this.ghosts = [];
+        this.ui = null;
+    }
+
+    _createBackground() {
+        this.background = new Graphics();
+        // El canvas ya no tiene barra HUD interna: ocupa todo el alto
+        this.background.rect(0, 0, this.CANVAS_WIDTH, CANVAS_HEIGHT);
+        this.background.fill(0x000000);
+        this.app.stage.addChildAt(this.background, 0);
+    }
+
+    // ── Input ─────────────────────────────────────────────────
+
+    _setupInput() {
+        window.addEventListener('keydown', (e) => {
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+                e.preventDefault();
+            }
+
+            // ── Manejar Pausa con P o Escape ──
+            if (e.code === 'KeyP' || e.code === 'Escape') {
+                e.preventDefault();
+                this._togglePause();
+                return;
+            }
+
+            // Si no está jugando, solo permite reiniciar con Space
+            if (this.state !== STATE.PLAYING) {
+                if (e.code === 'Space') this._start();
+                return;
+            }
+
+            switch (e.code) {
+                case 'ArrowLeft': case 'KeyA': this.inputDirection = DIRECTION.LEFT; break;
+                case 'ArrowRight': case 'KeyD': this.inputDirection = DIRECTION.RIGHT; break;
+                case 'ArrowUp': case 'KeyW': this.inputDirection = DIRECTION.UP; break;
+                case 'ArrowDown': case 'KeyS': this.inputDirection = DIRECTION.DOWN; break;
+            }
+        });
+
+        // --- Input Táctil (Swipe y Tap) ---
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        window.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        window.addEventListener('touchend', (e) => {
+            if (e.target.closest('#pause-overlay:not(.hidden)')) { // Si el toque fue en el overlay de pausa, despausar
+                this._togglePause();
+                return;
+            }
+
+            // Si el toque fue en otros overlays HTML visibles (Game Over, Win, etc.), ignorar para que los botones del overlay funcionen correctamente
+            if (e.target.closest('.versus-overlay-container:not(.hidden)')) {
+                return;
+            }
+
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            const dy = e.changedTouches[0].clientY - touchStartY;
+
+            if (Math.abs(dx) < 10 && Math.abs(dy) < 10) { // Si el movimiento es muy pequeño, se considera un toque
+                if (this.state === STATE.PLAYING || this.state === STATE.PAUSE) { // Tap pausa/despausa el juego
+                    this._togglePause();
+                }
+                return;
+            }
+
+            // Swipe: solo procesar si estamos jugando
+            if (this.state !== STATE.PLAYING) return;
+
+            if (Math.abs(dx) > Math.abs(dy)) {
+                this.inputDirection = dx > 0 ? DIRECTION.RIGHT : DIRECTION.LEFT;
+            } else {
+                this.inputDirection = dy > 0 ? DIRECTION.DOWN : DIRECTION.UP;
+            }
+        }, { passive: true });
+    }
+
+    // ── Toggle Pausa ──────────────────────────────────────────
+    _togglePause() {
+        if (this.state === STATE.PLAYING) {
+            // Pausar
+            this.state = STATE.PAUSE;
+            if (this.ui) this.ui.showPause();
+            
+            // Pausar la música si el DJ lo soporta
+            if (this.dj && typeof this.dj.pauseMusic === 'function') {
+                this.dj.pauseMusic();
+            }
+        } else if (this.state === STATE.PAUSE) {
+            // Reanudar
+            this.state = STATE.PLAYING;
+            if (this.ui) this.ui.hidePause();
+            
+            // Reanudar la música si el DJ lo soporta
+            if (this.dj && typeof this.dj.resumeMusic === 'function') {
+                this.dj.resumeMusic();
+            }
+
+            // Resetear timers para evitar "saltos" al reanudar
+            this.timeSinceLastMove = 0;
+            for (const ghost of this.ghosts) {
+                ghost.timeSinceLastMove = 0;
+            }
+        }
+    }
+
+    // ── Loop principal ────────────────────────────────────────
+
+    _update(ticker) {
+        if (this.state !== STATE.PLAYING) return;
+
+        this.timeSinceLastMove += ticker.deltaMS;
+        while (this.timeSinceLastMove > MOVE_INTERVAL) {
+            this.timeSinceLastMove -= MOVE_INTERVAL;
+            this._tick();
+            if (this.state !== STATE.PLAYING) return;
+        }
+
+        const progress = this.timeSinceLastMove / MOVE_INTERVAL;
+        this.pacman.render(progress);
+
+        for (const ghost of this.ghosts) {
+            if (!ghost.graphics.visible) continue;
+
+            ghost.timeSinceLastMove += ticker.deltaMS;
+            const currentInterval = ghost.getSpeedInterval();
+
+            while (ghost.timeSinceLastMove > currentInterval) {
+                ghost.timeSinceLastMove -= currentInterval;
+                this._tickSingleGhost(ghost);
+                if (this.state !== STATE.PLAYING) return;
+            }
+
+            const progressGhost = ghost.timeSinceLastMove / currentInterval;
+            ghost.render(progressGhost);
+        }
+
+        this._checkVisualCollisions(progress);
+    }
+
+    _checkVisualCollisions(progressPacman) {
+        const pacmanPos = this.pacman.getInterpPos(progressPacman);
+        for (const ghost of this.ghosts) {
+            if (!ghost.graphics.visible) continue;
+
+            const progressGhost = ghost.timeSinceLastMove / ghost.getSpeedInterval();
+            const ghostPos = ghost.getInterpPos(progressGhost);
+            const dx = pacmanPos.x - ghostPos.x;
+            const dy = pacmanPos.y - ghostPos.y;
+            const distSquared = dx * dx + dy * dy;
+            const threshold = 0.5;
+
+            if (distSquared < threshold * threshold) {
+                this._resolveCollision(ghost);
+                if (this.state !== STATE.PLAYING) return;
+            }
+        }
+    }
+
+    _tick() {
+        this.pacman.setNextDirection(this.inputDirection);
+        this.pacman.move(this.maze);
+
+        const collected = this.maze.collectAt(this.pacman.posicion);
+        if (collected !== null) {
+            this._onCollect(collected);
+        }
+
+        if (this.maze.countRemainingOrbs() === 0) {
+            this._nextLevel();
+        }
+    }
+
+    _tickSingleGhost(ghost) {
+        if (ghost.state === GHOST_STATE.FRIGHTENED) {
+            ghost.pathfindingFrightened(this.pacman.posicion, this.maze.gridPathfinding.clone());
+            ghost.move();
+            return;
+        }
+
+        switch (ghost.id) {
+            case 0:
+                if (ghost.state === GHOST_STATE.HOUSE) break;
+                if (ghost.state === GHOST_STATE.SCATTER) {
+                    ghost.pathfinding(ghost.esquina, this.maze.gridPathfinding.clone());
+                    if (ghost.posicion.x === ghost.esquina.x && ghost.posicion.y === ghost.esquina.y) {
+                        ghost.state = GHOST_STATE.CHASE;
+                    }
+                } else {
+                    ghost.pathfinding(this.pacman.posicion, this.maze.gridPathfinding.clone());
+                }
+                ghost.move();
+                break;
+
+            case 1:
+                if (ghost.state === GHOST_STATE.HOUSE) break;
+                if (ghost.state === GHOST_STATE.SCATTER) {
+                    ghost.pathfinding(ghost.esquina, this.maze.gridPathfinding.clone(), this.pacman, this.maze);
+                    if (ghost.posicion.x === ghost.esquina.x && ghost.posicion.y === ghost.esquina.y) {
+                        ghost.state = GHOST_STATE.CHASE;
+                    }
+                } else {
+                    ghost.pathfinding(this.pacman.posicion, this.maze.gridPathfinding.clone(), this.pacman, this.maze);
+                }
+                ghost.move();
+                break;
+
+            case 2:
+                if (ghost.state === GHOST_STATE.HOUSE) break;
+                if (ghost.state === GHOST_STATE.SCATTER) {
+                    ghost.pathfinding(ghost.esquina, this.maze.gridPathfinding.clone(), this.pacman);
+                    if (ghost.posicion.x === ghost.esquina.x && ghost.posicion.y === ghost.esquina.y) {
+                        ghost.state = GHOST_STATE.CHASE;
+                    }
+                } else {
+                    ghost.pathfinding(this.pacman.posicion, this.maze.gridPathfinding.clone(), this.pacman);
+                }
+                ghost.move();
+                break;
+
+            case 3:
+                if (ghost.state === GHOST_STATE.HOUSE) break;
+                if (ghost.state === GHOST_STATE.SCATTER) {
+                    ghost.pathfinding(this.maze.gridPathfinding.clone(), this.maze);
+                    if (ghost.posicion.x === ghost.esquina.x && ghost.posicion.y === ghost.esquina.y) {
+                        ghost.state = GHOST_STATE.CHASE;
+                    }
+                } else {
+                    ghost.pathfinding(this.maze.gridPathfinding.clone(), this.maze);
+                }
+                ghost.move();
+                break;
+
+            default:
+                console.warn('fantasma inexistente:', ghost.id);
+        }
+    }
+
+    // ── Eventos del juego ─────────────────────────────────────
+
+    _onCollect(cellType) {
+        if (cellType === CELL.ORB) {
+            this.score += SCORE.ORB;
+            this.dj.playSfx('orb', { silent: true }).catch(() => {});
+        } else if (cellType === CELL.PELLET) {
+            this.score += SCORE.PELLET;
+            this.dj.playSfx('pellet', { silent: true }).catch(() => {});
+            this.ghostsEatenThisPellet = 0;
+            for (const ghost of this.ghosts) {
+                ghost.frighten(FRIGHTEN_DURATION);
+            }
+        }
+        this.ui.updateScore(this.score);
+    }
+
+    _resolveCollision(ghost) {
+        if (ghost.state === GHOST_STATE.FRIGHTENED) {
+            this.ghostsEatenThisPellet++;
+            const scoreKey = `GHOST_${Math.min(this.ghostsEatenThisPellet, 4)}`;
+            this.score += SCORE[scoreKey];
+            this.ui.updateScore(this.score);
+            this.dj.playSfx('ghost-eaten', { silent: true }).catch(() => {});
+            ghost.respawn();
+        } else if (ghost.state !== GHOST_STATE.EATEN) {
+            this._pacmanDied();
+        }
+    }
+
+    // Busca e intercepta el método _pacmanDied() por este:
+    _pacmanDied() {
+        this.lives--;
+        this.ui.updateLives(this.lives);
+        this.dj.playSfx('death', { silent: true }).catch(() => {});
+
+        if (this.lives <= 0) {
+            this.state = STATE.GAME_OVER;
+            this.dj.stopMusic(300);
+            this.dj.playSfx('game-over', { silent: true }).catch(() => {});
+
+            const isVersus = !!this.gameSettings.isVersus;
+            const isFinalTournament = isVersus && this.gameSettings.currentLevel >= 5 && this.gameSettings.currentPlayer === 2;
+
+            
+            this.ui.showGameOver(this.score, isVersus, isFinalTournament, {
+                onRestart: () => {
+                    this.ui.hideGameOver();
+                    this._start();
+                },
+                onQuit: () => {
+                    this.ui.hideGameOver();
+                    if (this.gameSettings.onQuitCallback) this.gameSettings.onQuitCallback();
+                },
+                onNextPlayer: () => {
+                    this.ui.hideGameOver();
+                    if (this.onGameOverCallback != null) {
+                        this.onGameOverCallback(this.score);
+                    }
+                }
+            });
+            return;
+        }
+
+        this.pacman.reset(this.PACMAN_START.x, this.PACMAN_START.y);
+        for (let i = 0; i < this.ghosts.length; i++) {
+            const start = this.GHOST_STARTS[i];
+            this.ghosts[i].reset(start.x, start.y);
+        }
+
+        this.ghostsEatenThisPellet = 0;
+        this.inputDirection = DIRECTION.NONE;
+        this.timeSinceLastMove = 0;
+    }
+
+        /**
+     * Centra y escala el stage para ajustarse al contenedor.
+     * Sin barra interna: el canvas ocupa todo CANVAS_HEIGHT.
+     */
+    _resize() {
+        if (this.state === 'destroyed' || !this.CANVAS_WIDTH) return;
+
+        const container = document.getElementById('pixi-game');
+        if (!container) return;
+
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+
+        if (w === 0 || h === 0) return; // Si el contenedor no es visible aún (ej: tamaño 0), no hacer nada
+
+        const scaleX = w / this.CANVAS_WIDTH;
+        const scaleY = h / CANVAS_HEIGHT;
+        const scale = Math.min(scaleX, scaleY);
+
+        this.app.stage.scale.set(scale);
+        this.app.stage.x = (w - this.CANVAS_WIDTH * scale) / 2;
+        this.app.stage.y = (h - CANVAS_HEIGHT * scale) / 2;
+    }
+
+    destroy() {
+        this.state = 'destroyed';
+        this.dj.stopAll(120);
+        this.app.ticker.remove(this._onTick);
+        this._clearScene();
+    }
+}
