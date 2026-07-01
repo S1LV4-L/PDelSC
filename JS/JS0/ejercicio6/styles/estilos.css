@@ -7,3 +7,7 @@
     color: #6c757d;
     opacity: 1;
 }
+
+[data-bs-theme="light"] {
+    --bs-body-bg: #d0e6f0;
+}
