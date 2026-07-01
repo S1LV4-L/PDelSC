@@ -34,8 +34,6 @@ export class Game {
         this.isTwoPlayerMode = false;
         this.pendingMode = null; // Guarda si eligió '1p' o '2p' en el menú
 
-
-
         this.timeSinceLastMove = 0;
 
         this.inputHandler = new InputHandler(this);
