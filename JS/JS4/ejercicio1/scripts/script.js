@@ -1,12 +1,8 @@
-import { initNightDayButton } from "../modules/nightDayButton.js";
+import { initNightDayButton } from "../modules/nightDayBtn.js";
+
 initNightDayButton();
 
-// Referencias a elementos del DOM
-const form = document.getElementById("formulario");
-const contenedor = document.getElementById("contenedor");
-const mensaje = document.getElementById("mensaje");
-
-// Función usando Fetch con POST a tu servidor
+// Función usando Fetch con POST al servidor
 async function obtenerUsuarios() {
     const url = '/api/usuarios';
     const lista = document.getElementById('usuarios-lista-fetch');
@@ -33,7 +29,7 @@ async function obtenerUsuarios() {
     }
 }
 
-// Función usando Axios con POST a tu servidor
+// Función usando Axios con POST al servidor
 async function obtenerUsuariosConAxios() {
     const url = '/api/usuarios';
     const lista = document.getElementById('usuarios-lista-axios');
@@ -57,6 +53,7 @@ async function obtenerUsuariosConAxios() {
 
 // Función de renderizado
 function renderizarUsuarios(usuarios, elementoLista) {
+    elementoLista.innerHTML = ''; // Limpieza de seguridad
     usuarios.forEach(usuario => {
         const li = document.createElement('li');
         li.innerHTML = `<strong>${usuario.name}</strong> - ${usuario.email}`;

@@ -1,4 +1,11 @@
-/* Inputs y selects en modo claro */
+/* =============================================
+   Estilos base e Inputs
+============================================= */
+body {
+    min-height: 100vh;
+    user-select: none;
+}
+
 [data-bs-theme="light"] .form-control,
 [data-bs-theme="light"] .form-select {
     background-color: #fff;
@@ -6,76 +13,33 @@
     color: #212529;
 }
 
-/* Borde y sombra al hacer foco */
 [data-bs-theme="light"] .form-control:focus,
 [data-bs-theme="light"] .form-select:focus {
     border-color: #495057;
     box-shadow: 0 0 0 0.25rem rgba(108, 117, 125, 0.35);
 }
 
-body {
-    min-height: 100vh;
-    user-select: none;
-}
-
 @media (min-width: 992px) {    
     .layout-principal {
-        height: calc(100dvh - 57px); /* 57px = altura del navbar */
+        height: calc(100dvh - 57px);
     }
 }
 
-/* Inputs y selects en modo claro */
-[data-bs-theme="light"] .form-control,
-[data-bs-theme="light"] .form-select {
-    background-color: #fff;
-    border-color: #6c757d;
-    color: #212529;
-}
-
-/* Borde y sombra al hacer foco */
-[data-bs-theme="light"] .form-control:focus,
-[data-bs-theme="light"] .form-select:focus {
-    border-color: #495057;
-    box-shadow: 0 0 0 0.25rem rgba(108, 117, 125, 0.35);
-}
-
-body {
-    min-height: 100vh;
-    user-select: none;
-}
-
-@media (min-width: 992px) {    
-    .layout-principal {
-        height: calc(100dvh - 57px); /* 57px = altura del navbar */
-    }
-}
+/* Nota: Removí el bloque .tema-cambiando ya que tu script original 
+   inyecta su propia transición global directamente en el head */
 
 /* =============================================
-   Transición suave al cambiar de tema
-   Se activa mediante la clase ".tema-cambiando"
-   desde JS, evitando afectar los hovers de
-   Bootstrap (que duran 0.15s).
+   Registrar variables CSS para interpolación
 ============================================= */
-.tema-cambiando *,
-.tema-cambiando *::before,
-.tema-cambiando *::after {
-    transition: background-color 0.4s ease,
-                color 0.4s ease,
-                border-color 0.4s ease,
-                box-shadow 0.4s ease !important;
-}
-
-/* Botón cuadrado en móvil */
-@media (max-width: 575.98px) {
-    #btnTema {
-        width: 2.5rem;
-        height: 2.5rem;
-        padding: 0 !important;
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-    }
-    #btnTemaIcono {
-        margin: 0 !important;
-    }
-}
+@property --bs-body-bg { syntax: '<color>'; inherits: true; initial-value: #fff; }
+@property --bs-body-color { syntax: '<color>'; inherits: true; initial-value: #212529; }
+@property --bs-emphasis-color { syntax: '<color>'; inherits: true; initial-value: #000; }
+@property --bs-secondary-color { syntax: '<color>'; inherits: true; initial-value: rgba(33, 37, 41, 0.75); }
+@property --bs-border-color { syntax: '<color>'; inherits: true; initial-value: #dee2e6; }
+@property --bs-tertiary-bg { syntax: '<color>'; inherits: true; initial-value: #f8f9fa; }
+@property --bs-secondary-bg { syntax: '<color>'; inherits: true; initial-value: #e9ecef; }
+@property --bs-btn-color { syntax: '<color>'; inherits: false; initial-value: transparent; }
+@property --bs-btn-border-color { syntax: '<color>'; inherits: false; initial-value: transparent; }
+@property --bs-btn-bg { syntax: '<color>'; inherits: false; initial-value: transparent; }
+@property --bs-discovery-bg-subtle { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --bs-discovery { syntax: '<color>'; inherits: true; initial-value: transparent; }

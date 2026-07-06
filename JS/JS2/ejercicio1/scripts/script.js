@@ -1,5 +1,4 @@
-import { initNightDayButton } from "../modules/nightDayButton.js";
-initNightDayButton();
+import { initNightDayButton } from "./nightDayButton.js"; // Ajustá la ruta relativa exacta según tu árbol de carpetas
 
 // Referencias a elementos del DOM
 const form = document.getElementById("formulario");
@@ -9,6 +8,7 @@ const mensaje = document.getElementById("mensaje");
 // Se recupera el registro desde localStorage, o se inicializa como array vacío si no existe
 const registro = JSON.parse(localStorage.getItem("registro")) || [];
 
+// EJECUTAMOS EL RENDERIZADO INICIAL
 renderizarTodo();
 
 // Botón Guardar: descarga los números registrados como archivo .txt
@@ -18,9 +18,8 @@ document.getElementById("btnGuardar").addEventListener("click", () => {
         return;
     }
 
-    // Se une el array en un string con saltos de línea y se crea un archivo descargable en memoria mediante la API blob
     const contenido = registro.join("\n");
-    const blob = new Blob([contenido], { type: "text/plain" }); // Blob: objeto binario que representa el archivo
+    const blob = new Blob([contenido], { type: "text/plain" }); 
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -38,10 +37,7 @@ document.getElementById("btnEliminar").addEventListener("click", async () => {
     renderizarTodo();
 
     try {
-        const respuesta = await fetch("/numeros-guardados", {
-            method: "DELETE"
-        });
-
+        const respuesta = await fetch("/numeros-guardados", { method: "DELETE" });
         if (respuesta.ok) {
             mostrarMensaje("Registros eliminados", "success");
         } else {
@@ -78,13 +74,12 @@ form.addEventListener("submit", async (e) => {
         return;
     }
 
-    registro.push(numeroRaw); // Se guarda como String para preservar el valor original ingresado por el usuario
+    registro.push(numeroRaw); 
     localStorage.setItem("registro", JSON.stringify(registro));
 
     renderizarTodo();
     form.reset();
 
-    // Se sincroniza el nuevo número con el servidor mediante POST
     try {
         const respuesta = await fetch("/numeros-guardados", {
             method: "POST",
@@ -102,7 +97,6 @@ form.addEventListener("submit", async (e) => {
     }
 });
 
-//Muestra mensajes de error o validación
 function mostrarMensaje(texto, tipo) {
     mensaje.textContent = texto;
     mensaje.className = `mt-3 text-${tipo}`;
@@ -112,14 +106,12 @@ function mostrarMensaje(texto, tipo) {
     }, 5000);
 }
 
-//Renderiza el registro completo
 function renderizarTodo() {
     contenedor.innerHTML = "";
-
     if (registro.length === 0) return;
-
     contenedor.insertAdjacentHTML("beforeend", `<h4 class="mb-2"><strong>Números ingresados:</strong></h4>`);
-
     const lista = registro.join(", ");
     contenedor.insertAdjacentHTML("beforeend", `<p>${lista}</p>`);
 }
+
+initNightDayButton();
