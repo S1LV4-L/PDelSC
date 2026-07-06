@@ -1,0 +1,55 @@
+/* Inputs y selects en modo claro */
+[data-bs-theme="light"] .form-control,
+[data-bs-theme="light"] .form-select {
+    background-color: #fff;
+    border-color: #6c757d;
+    color: #212529;
+}
+
+/* Borde y sombra al hacer foco */
+[data-bs-theme="light"] .form-control:focus,
+[data-bs-theme="light"] .form-select:focus {
+    border-color: #495057;
+    box-shadow: 0 0 0 0.25rem rgba(108, 117, 125, 0.35);
+}
+
+/* Fondo pastel del body en modo claro */
+[data-bs-theme="light"] body {
+    background-color: #f0f4f8;
+}
+
+/* Mantener color discovery en el navbar en modo claro (sin usar variables de BS) */
+[data-bs-theme="light"] nav.navbar {
+    background-color: #e5d7ff !important;
+}
+
+@media (min-width: 992px) {    
+    .layout-principal {
+        height: calc(100dvh - 57px);
+    }
+
+    /* 1. El contenedor del segundo card ocupa el RESTO exacto, pero su altura es rígida */
+    .layout-principal > div > .col-12:last-child {
+        flex: 1 1 0%;   /* Ocupa lo que sobra */
+        min-height: 0;   /* Permite encogerse */
+        overflow: hidden; /* Evita que el contenedor crezca */
+    }
+
+    /* 2. El card y su cuerpo ocupan el 100% de esa altura fija */
+    .layout-principal > div > .col-12:last-child .card,
+    .layout-principal > div > .col-12:last-child .card-body {
+        height: 100%;
+    }
+
+    /* 3. Preparamos el card-body para que su hijo (el scroll) funcione con flex */
+    .layout-principal > div > .col-12:last-child .card-body {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
