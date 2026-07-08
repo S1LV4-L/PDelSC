@@ -1,0 +1,58 @@
+/* evita que los dígitos se desplacen al cambiar (ej. 9 → 10) */
+.cuenta-numero {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Inputs en modo claro */
+[data-bs-theme="light"] .form-control,
+[data-bs-theme="light"] .form-select {
+    background-color: #fff;
+    border-color: #6c757d;
+    color: #212529;
+}
+
+[data-bs-theme="light"] .form-control:focus,
+[data-bs-theme="light"] .form-select:focus {
+    border-color: #495057;
+    box-shadow: 0 0 0 0.25rem rgba(108, 117, 125, 0.35);
+}
+
+/* Fondo pastel en modo claro */
+[data-bs-theme="light"] body {
+    background-color: #f0f4f8;
+}
+
+/* Navbar discovery en modo claro */
+[data-bs-theme="light"] nav.navbar {
+    background-color: #e5d7ff !important;
+}
+
+/* Layout actualizado para 50/50 */
+@media (min-width: 992px) {
+    .layout-principal {
+        height: calc(100dvh - 57px);
+    }
+
+    /* Apuntamos a col-lg-6 en lugar de col-lg-8 */
+    .layout-principal > .row > .col-lg-6 {
+        flex: 1 1 0%;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .layout-principal > .row > .col-lg-6 .card,
+    .layout-principal > .row > .col-lg-6 .card-body {
+        height: 100%;
+    }
+
+    .layout-principal > .row > .col-lg-6 .card-body {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}

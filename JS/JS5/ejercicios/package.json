@@ -1,0 +1,9 @@
+{
+  "name": "ejercicio1",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "express": "^5.2.1",
+    "mysql2": "^3.22.6"
+  }
+}

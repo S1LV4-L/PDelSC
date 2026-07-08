@@ -58,7 +58,7 @@ app.post("/api/feriados", (req, res) => {
         return new Date(anioF, mes - 1, dia) >= hoy;
     });
 
-    // Devuelve ambos arrays: el filtrado para el contador y el completo para el selector por mes
+    // Devuelve ambos arrays (el filtrado para el contador y el completo para el selector por mes)
     res.json({
         feriados: feriadosRestantes,
         feriadosTodos: feriadosTodos

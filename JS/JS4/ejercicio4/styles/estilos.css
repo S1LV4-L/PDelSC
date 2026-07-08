@@ -1,5 +1,4 @@
-/* Único CSS que Bootstrap no puede dar:
-   evita que los dígitos se desplacen al cambiar (ej. 9 → 10) */
+/* evita que los dígitos se desplacen al cambiar (ej. 9 → 10) */
 .cuenta-numero {
     font-variant-numeric: tabular-nums;
 }
