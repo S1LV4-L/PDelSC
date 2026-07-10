@@ -25,13 +25,19 @@ const inputNuevoNombre = document.getElementById("nuevoNombre");
 const inputNuevoApellido = document.getElementById("nuevoApellido");
 const inputNuevaEdad = document.getElementById("nuevaEdad");
 
+const regexNombre = /^[a-zA-ZÀ-ÿ\u00f1\u00d1\s]+$/;
+const regexEdad = /^\d+$/;
+
+// Mantener copia local de los alumnos para validación de duplicados
+let alumnosActuales = [];
+
 // Vuelve a la vista de agregación
 btnVolver.addEventListener("click", () => {
     modoModificar.classList.add("d-none");
     modoAgregar.classList.remove("d-none");
 });
 
-// Llena los campos "Actuales" y cambia a la vista modificar (se ejecuta al hacer clic en la lista)
+// Llena los campos "Actuales" y cambia a la vista modificar
 function cargarAlumnoParaModificar(id, nombre, apellido, edad) {
     inputIdOculto.value = id;
     inputNombreActual.value = nombre;
@@ -47,12 +53,12 @@ function cargarAlumnoParaModificar(id, nombre, apellido, edad) {
 }
 
 function mostrarMensaje(texto, esError = false) {
-    mensajeDiv.className = `position-absolute start-0 bottom-0 small ${esError ? 'text-danger' : 'text-success'}`;
+    mensajeDiv.className = `mt-auto pt-2 small ${esError ? 'text-danger' : 'text-success'}`;
     mensajeDiv.textContent = texto;
     setTimeout(() => mensajeDiv.textContent = "", 3000);
 }
 
-// 1. OBTENER (Leer todos los alumnos)
+// OBTENER
 async function obtenerAlumnos() {
     try {
         const respuesta = await axios.post("/api/alumnos");
@@ -62,7 +68,7 @@ async function obtenerAlumnos() {
     }
 }
 
-// 2. CREAR (Ingresar alumno nuevo)
+// CREAR
 async function crearAlumno(datos) {
     try {
         await axios.post("/api/alumnos/crear", datos);
@@ -74,22 +80,20 @@ async function crearAlumno(datos) {
     }
 }
 
-// 3. MODIFICAR (Actualizar alumno existente)
+// MODIFICAR
 async function modificarAlumno(id, datosNuevos) {
     try {
         await axios.put(`/api/alumnos/${id}`, datosNuevos);
         mostrarMensaje("Alumno modificado correctamente");
-        btnVolver.click(); // Simula hacer clic en volver para restaurar la vista
+        btnVolver.click();
         obtenerAlumnos();
     } catch (error) {
         mostrarMensaje("Error al modificar el alumno", true);
     }
 }
 
-// 4. ELIMINAR
-async function eliminarAlumno(id) {
-    if (!confirm("¿Estás seguro de que deseas eliminar este alumno?")) return;
-    
+// ELIMINAR
+async function eliminarAlumno(id) {    
     try {
         await axios.delete(`/api/alumnos/${id}`);
         mostrarMensaje("Alumno eliminado correctamente");
@@ -99,8 +103,9 @@ async function eliminarAlumno(id) {
     }
 }
 
-// Renderiza la lista de la derecha con sus botones
+// Renderiza la lista
 function renderizarAlumnos(alumnos) {
+    alumnosActuales = alumnos;
     listaAlumnosUl.innerHTML = "";
 
     if (alumnos.length === 0) {
@@ -113,14 +118,13 @@ function renderizarAlumnos(alumnos) {
         li.className = "list-group-item bg-transparent border border-secondary rounded-3 mb-2 d-flex justify-content-between align-items-center";
         
         li.innerHTML = `
-            <span class="fw-medium">${alumno.nombre} ${alumno.apellido} <span class="text-secondary">- ${alumno.edad} años</span></span>
+            <span class="fw-medium">${alumno.nombre} ${alumno.apellido}<span class="text-secondary d-block">${alumno.edad} años</span></span>
             <div class="d-flex gap-2">
                 <button class="btn btn-sm btn-outline-info btn-editar">Modificar</button>
-                <button class="btn btn-sm btn-outline-danger btn-eliminar">Eliminar</button>
+                <button class="btn btn-sm btn-outline-danger btn-eliminar">X</button>
             </div>
         `;
 
-        // Guardamos los datos del alumno en el botón usando datasets
         li.querySelector(".btn-editar").dataset.id = alumno.id;
         li.querySelector(".btn-editar").dataset.nombre = alumno.nombre;
         li.querySelector(".btn-editar").dataset.apellido = alumno.apellido;
@@ -132,7 +136,7 @@ function renderizarAlumnos(alumnos) {
     });
 }
 
-// Evento de la lista (Delegación de eventos para los botones dinámicos)
+// Delegación de eventos en la lista
 listaAlumnosUl.addEventListener("click", (e) => {
     const btnEditar = e.target.closest(".btn-editar");
     const btnEliminar = e.target.closest(".btn-eliminar");
@@ -151,36 +155,66 @@ listaAlumnosUl.addEventListener("click", (e) => {
     }
 });
 
-// Evento del Formulario (Solo maneja Agregar y Guardar Modificación)
+// Evento del Formulario — cada rama valida solo sus propios campos
 formulario.addEventListener("submit", async (e) => {
     e.preventDefault();
     const botonPresionado = e.submitter;
 
-    // --- LÓGICA PARA INGRESAR ---
+    // ── INGRESAR ──
     if (botonPresionado.id === "btnIngresar") {
-        const datos = {
-            nombre: inputNombre.value,
-            apellido: inputApellido.value,
-            edad: inputEdad.value
-        };
-        crearAlumno(datos);
+        const nombreVal = inputNombre.value.trim();
+        const apellidoVal = inputApellido.value.trim();
+        const edadVal = inputEdad.value.trim();
+
+        if (nombreVal === "") {
+            mostrarMensaje("El nombre es obligatorio.", true);
+            return;
+        } else if (!regexNombre.test(nombreVal)) {
+            mostrarMensaje("El nombre no puede contener números ni caracteres especiales.", true);
+            return;
+        } else if (apellidoVal === "") {
+            mostrarMensaje("El apellido es obligatorio.", true);
+            return;
+        } else if (!regexNombre.test(apellidoVal)) {
+            mostrarMensaje("El apellido no puede contener números ni caracteres especiales.", true);
+            return;
+        } else if (edadVal === "") {
+            mostrarMensaje("La edad es obligatoria.", true);
+            return;
+        } else if (!regexEdad.test(edadVal)) {
+            mostrarMensaje("La edad solo puede contener números.", true);
+            return;
+        } else if (parseInt(edadVal) > 120 || parseInt(edadVal) < 0) {
+            mostrarMensaje("Ingrese una edad válida.", true);
+            return;
+        }
+
+        const duplicado = alumnosActuales.some(a =>
+            a.nombre.toLowerCase() === nombreVal.toLowerCase() &&
+            a.apellido.toLowerCase() === apellidoVal.toLowerCase()
+        );
+
+        if (duplicado) {
+            mostrarMensaje("Ya existe un alumno con ese nombre y apellido.", true);
+            return;
+        }
+
+        crearAlumno({ nombre: nombreVal, apellido: apellidoVal, edad: edadVal });
     }
 
-    // --- LÓGICA PARA MODIFICAR ---
-    if (botonPresionado.id === "btnGuardarMod") {
-        const id = inputIdOculto.value;
-        
+    // ── MODIFICAR ──
+    else if (botonPresionado.id === "btnGuardarMod") {
         const datosNuevos = {};
         if (inputNuevoNombre.value.trim() !== "") datosNuevos.nombre = inputNuevoNombre.value.trim();
         if (inputNuevoApellido.value.trim() !== "") datosNuevos.apellido = inputNuevoApellido.value.trim();
         if (inputNuevaEdad.value !== "") datosNuevos.edad = inputNuevaEdad.value;
 
         if (Object.keys(datosNuevos).length === 0) {
-            mostrarMensaje("Debes completar al menos un campo nuevo", true);
+            mostrarMensaje("Debes completar al menos un campo nuevo.", true);
             return;
         }
 
-        modificarAlumno(id, datosNuevos);
+        modificarAlumno(inputIdOculto.value, datosNuevos);
     }
 });
 

@@ -27,27 +27,43 @@
     background-color: #e5d7ff !important;
 }
 
-/* Layout actualizado para 50/50 */
+/*
+  Layout desktop:
+  1) flex-grow: 1 + min-height: 0 en .layout-principal ocupa el espacio
+     restante del body sin empujarlo más allá del viewport.
+  2) height: 100% propaga esa altura fija hacia los col y cards,
+     para que no crezcan por su contenido.
+  3) overflow: hidden en .card-body corta lo que exceda.
+  4) flex-grow: 1 + min-height: 0 en .overflow-y-auto permite el
+     scroll interno solo en la lista.
+*/
 @media (min-width: 992px) {
     .layout-principal {
-        height: calc(100dvh - 57px);
-    }
-
-    /* Apuntamos a col-lg-6 en lugar de col-lg-8 */
-    .layout-principal > .row > .col-lg-6 {
-        flex: 1 1 0%;
+        flex-grow: 1;
         min-height: 0;
-        overflow: hidden;
     }
 
-    .layout-principal > .row > .col-lg-6 .card,
-    .layout-principal > .row > .col-lg-6 .card-body {
+    .layout-principal > .row,
+    .layout-principal > .row > [class*="col-"],
+    .layout-principal > .row > [class*="col-"] > .card,
+    .layout-principal > .row > [class*="col-"] > .card > .card-body {
+        min-height: 0;
+    }
+
+    /* Propagar la altura fija hacia abajo */
+    .layout-principal > .row > [class*="col-"],
+    .layout-principal > .row > [class*="col-"] > .card {
         height: 100%;
     }
 
-    .layout-principal > .row > .col-lg-6 .card-body {
-        display: flex;
-        flex-direction: column;
+    /* Los card-body no crecen: cortan el excedente */
+    .layout-principal > .row > [class*="col-"] > .card > .card-body {
+        overflow: hidden;
+    }
+
+    /* Solo este div hace scroll cuando la lista se desborda */
+    .layout-principal .overflow-y-auto {
+        flex-grow: 1;
         min-height: 0;
     }
 }
@@ -55,4 +71,8 @@
 img {
     max-width: 100%;
     height: auto;
+}
+
+#usuarios-lista-axios {
+    border: none;
 }

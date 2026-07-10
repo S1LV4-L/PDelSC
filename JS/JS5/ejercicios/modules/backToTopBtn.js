@@ -4,7 +4,7 @@ export function initBackToTopButton() {
     style.textContent = `
         #btn-back-to-top {
             position: fixed;
-            bottom: 6vh;
+            bottom: 2.3vh;
             right: 3vh;
             display: none;
             width: 2rem;

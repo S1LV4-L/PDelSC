@@ -1,7 +1,7 @@
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
-import mysql from "mysql2"; 
+import mysql from "mysql2";
 
 const app = express();
 
@@ -19,26 +19,17 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "pages", "pagina1.html"));
 });
 
-const connection = mysql.createConnection({
+const pool = mysql.createPool({
     host: 'localhost',
     user: 'root',
     password: '',
     database: 'alumnosdb'
 });
 
-// Conectar a la base de datos
-connection.connect((err) => {
-    if (err) {
-        console.error('Error al conectar a la BD:', err);
-        return;
-    }
-    console.log('Conectado a la base de datos MySQL');
-});
-
 app.post('/api/alumnos', (req, res) => {
     const query = 'SELECT * FROM alumno';
 
-    connection.query(query, (err, results) => {
+    pool.query(query, (err, results) => {
         if (err) {
             console.error('Error en la consulta:', err);
             return res.status(500).json({ error: 'Error del servidor' });
@@ -52,9 +43,13 @@ app.post('/api/alumnos', (req, res) => {
 app.post('/api/alumnos/crear', (req, res) => {
     const { nombre, apellido, edad } = req.body;
     const query = 'INSERT INTO alumno (nombre, apellido, edad) VALUES (?, ?, ?)';
-    connection.query(query, [nombre, apellido, edad], (err, result) => {
+    pool.query(query, [nombre, apellido, edad], (err, result) => {
         if (err) return res.status(500).json({ error: 'Error al insertar' });
-        res.json({ mensaje: 'Creado exitosamente', id: result.insertId });
+
+        pool.query('SELECT * FROM alumno WHERE id = ?', [result.insertId], (err, rows) => {
+            if (err) return res.status(500).json({ error: 'Error al leer el alumno creado' });
+            res.json(rows[0]);
+        });
     });
 });
 
@@ -62,11 +57,15 @@ app.post('/api/alumnos/crear', (req, res) => {
 app.put('/api/alumnos/:id', (req, res) => {
     const id = req.params.id;
     const campos = req.body;
-    // En un caso real, construirías la query dinámicamente según qué campos lleguen
     const query = 'UPDATE alumno SET nombre = IFNULL(?, nombre), apellido = IFNULL(?, apellido), edad = IFNULL(?, edad) WHERE id = ?';
-    connection.query(query, [campos.nombre || null, campos.apellido || null, campos.edad || null, id], (err) => {
+    pool.query(query, [campos.nombre || null, campos.apellido || null, campos.edad || null, id], (err, result) => {
         if (err) return res.status(500).json({ error: 'Error al modificar' });
-        res.json({ mensaje: 'Modificado exitosamente' });
+        if (result.affectedRows === 0) return res.status(404).json({ error: 'Alumno no encontrado' });
+
+        pool.query('SELECT * FROM alumno WHERE id = ?', [id], (err, rows) => {
+            if (err) return res.status(500).json({ error: 'Error al leer el alumno modificado' });
+            res.json(rows[0]);
+        });
     });
 });
 
@@ -74,9 +73,10 @@ app.put('/api/alumnos/:id', (req, res) => {
 app.delete('/api/alumnos/:id', (req, res) => {
     const id = req.params.id;
     const query = 'DELETE FROM alumno WHERE id = ?';
-    connection.query(query, [id], (err) => {
+    pool.query(query, [id], (err, result) => {
         if (err) return res.status(500).json({ error: 'Error al eliminar' });
-        res.json({ mensaje: 'Eliminado exitosamente' });
+        if (result.affectedRows === 0) return res.status(404).json({ error: 'Alumno no encontrado' });
+        res.status(204).send();
     });
 });
 
