@@ -1,0 +1,31 @@
+.presentation-card {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  max-width: 100vh;
+  margin: 1rem;
+  font-family: sans-serif;
+}
+
+.card-img {
+  width: 100%;
+  height: 30vh;
+  object-fit: fill;
+}
+
+.card-content {
+  padding: 1.3rem;
+}
+
+.card-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  color: #333333;
+}
+
+.card-desc {
+  margin: 0 0 1rem 0;
+  color: #666666;
+  font-size: 0.95rem;
+}
