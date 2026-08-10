@@ -1,29 +1,119 @@
-.uno{
-    color: blue;
+/* Layout Principal */
+.main-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.5rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.dos {
-    text-decoration: underline;
-    text-shadow: 2px 2px red;
+.header {
+  text-align: center;
 }
 
-.tres {
-    font-size: 1.5rem;
-    font-family: 'Times New Roman', Times, serif;
+.titulo-principal {
+  margin: 0;
+  padding: 0.2em 0.1em;
+  font-size: clamp(2.5rem, 8vw, 4rem); /* Tamaño responsivo */
+  font-weight: 800;
+  line-height: 1.1; /* Ajuste de altura de línea */
+  display: inline-block; /* Contexto de bloque para el clip */
 }
 
-.btn-tema {
-    width: fit-content;
-    height: 2.5rem;
-    padding: 0 1rem;
-    align-self: center;
-    border: 1px solid var(--border);
-    border-radius: 0.375rem;
-    background: var(--code-bg);
-    color: var(--text-h);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    white-space: nowrap;
+.titulo-gradiente {
+  background-image: linear-gradient(150deg, #0004ff 0%, #f7a800 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  /* Fallback por si acaso: */
+  text-rendering: optimizeLegibility;
+}
+
+.seccion-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.uno { color: #2563eb; font-weight: bold; margin: 0; }
+.dos { text-decoration: underline; text-shadow: 0px 3px 2px red; margin: 0; }
+.tres { font-size: 1.5rem; font-family: 'Times New Roman', Times, serif; margin: 0; }
+
+/* Contenedor de Tarjetas */
+.tarjetas-container {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 1000px;
+  width: 100%;
+}
+
+/* ESTILO BASE DE LA TARJETA (común para todas) */
+.card {
+  background-color: var(--code-bg, #f8fafc);
+  color: var(--text-h, #1a4dc4);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 1rem;
+  padding: 2rem;
+  width: 260px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 6px -1px rgba(4, 0, 255, 0.05); /* Sombra base muy suave */
+  transition: all 0.3s ease; /* Transición para todo */
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card h3 { margin: 0.5rem 0; color: var(--text-h, inherit); font-size: 1.25rem; }
+.card p { margin: 0; color: var(--text-h, inherit); opacity: 0.8; font-size: 0.95rem; line-height: 1.5; }
+.card .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+
+/* Elevación y Sombra Intensa (card-lift) */
+.card-lift:hover {
+  transform: translateY(-10px); /* Sube más */
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 
+              0 10px 10px -5px rgba(0, 0, 0, 0.1);
+  border-color: #6366f1;
+}
+
+/* Gradiente Animado de Fondo (card-gradient) */
+.card-gradient {
+  background-size: 200% 200%; /* Fondo más grande para moverlo */
+  background-image: linear-gradient(135deg, var(--code-bg, #007b8b) 5%, #003449de 50%, var(--code-bg, #0fc3f0) 100%);
+}
+
+.card-gradient:hover {
+  animation: gradientMove 2s ease infinite;
+  border-color: #00c3ff;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Transformación 3D y Borde de Color (card-3d) */
+.card-3d {
+  perspective: 1000px; /* Necesario para el efecto 3D */
+}
+
+.card-3d:hover {
+  transform: rotateY(15deg) rotateX(5deg); /* Rotación en 2 ejes */
+  border-color: #f59e0b;
+  box-shadow: -10px 10px 20px rgba(0,0,0,0.1); /* Sombra asimétrica */
+}
+
+@media (max-width: 768px) {
+  .main-container {
+    /* Agrega un margen/espacio de 4rem arriba y abajo, y mantiene el de los lados */
+    padding-top: 3rem;
+    padding-bottom: 2rem;
+  }
 }

@@ -1,13 +1,13 @@
 import './App.css'
-import { mostrar } from './components/holaMundo'
-import { NightDayButton } from './components/NightDayButton'
+import { Mostrar } from './components/HolaMundo'
+import { ThemeToggle } from './components/BotonTema'
 import './styles/styles.css'
 
 function App() {
   return (
     <>
-      <NightDayButton />
-      {mostrar()}
+      <Mostrar />
+      <ThemeToggle />
     </>
   )
 }

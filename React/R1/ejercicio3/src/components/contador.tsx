@@ -1,33 +1,31 @@
-import { useState, type CSSProperties } from 'react';
+import { useState } from "react";
+import "../styles/estilos.css";
 
-export function Component({ value: initialState }: { value: number }) {
-  const [value, setValue] = useState(initialState);
+const STORAGE_KEY = "contador-value";
 
-  return (
-    <div style={containerStyle}>
-      <button style={buttonStyle} onClick={() => setValue(value + 1)}>Incrementar</button>
-      <strong>{value}</strong>
-      <button style={buttonStyle} onClick={() => setValue(value - 1)}>Decrementar</button>
-    </div>
-  );
+export function Contador({ value: initialState }: { value: number }) {
+    // Lee el valor guardado en sessionStorage al montar el componente, si no existe (nueva sesión) usa el valor inicial recibido por props.
+    const [value, setValue] = useState<number>(() => {
+        const saved = sessionStorage.getItem(STORAGE_KEY);
+        return saved !== null ? Number(saved) : initialState;
+    });
+
+    // Actualiza el contador y persiste el nuevo valor en sessionStorage.
+    // sessionStorage sobrevive a recargas de página pero se borra al cerrar la pestaña/navegador.
+    const updateValue = (newValue: number) => {
+        setValue(newValue);
+        sessionStorage.setItem(STORAGE_KEY, String(newValue));
+    };
+
+    return (
+        <div className="containerStyle">
+            <button className="buttonStyle" onClick={() => updateValue(value + 1)}>
+                Incrementar
+            </button>
+            <strong>{value}</strong>
+            <button className="buttonStyle" onClick={() => updateValue(value - 1)}>
+                Decrementar
+            </button>
+        </div>
+    );
 }
-
-const containerStyle: CSSProperties = {
-  display: 'flex',
-  flexFlow: 'row wrap',
-  alignItems: 'center',
-  fontSize: 20,
-  gap: '1rem',
-  fontFamily: 'arial',
-};
-
-const buttonStyle: CSSProperties = {
-  all: 'unset',
-  borderRadius: 100,
-  padding: '.5rem 1rem',
-  background: 'black',
-  color: 'white',
-  cursor: 'pointer',
-  fontFamily: 'unset',
-  fontSize: 14,
-};

@@ -1,0 +1,28 @@
+.divCont{
+    padding-top: 5rem;
+}
+
+.containerStyle{
+    padding-top: 3vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: row;
+    font-size: 20px;
+    gap: 1rem;
+    font-family: arial;
+}
+
+.buttonStyle{
+    border-radius: 5rem;
+    padding: .5rem 1rem;
+    background: black;
+    color: white;
+    cursor: pointer;
+    font-family: unset;
+    font-size: 14px;
+}
+
+strong{
+    color: white;
+}
