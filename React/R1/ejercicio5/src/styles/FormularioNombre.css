@@ -11,21 +11,8 @@
   box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.4);
   border-radius: 1.5rem;
   box-sizing: border-box;
-  background: #17140f;
+  background: linear-gradient(180deg, #4a2a15 0%, #362514 50%, #13110d 100%);
   border: 0.0625rem solid rgba(255, 255, 255, 0.07);
-}
-
-.formulario-container::before {
-  content: "";
-  position: absolute;
-  inset: -30% -20% auto -20%;
-  height: 22rem;
-  background:
-    radial-gradient(circle at 25% 20%, rgba(232, 150, 90, 0.2), transparent 60%),
-    radial-gradient(circle at 75% 10%, rgba(212, 105, 80, 0.14), transparent 55%);
-  filter: blur(3rem);
-  pointer-events: none;
-  z-index: 0;
 }
 
 .formulario-input {
@@ -149,6 +136,39 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* =========================================
+   ESTILOS PARA EL TEMA LIGHT
+   ========================================= */
+
+[data-theme="light"] .formulario-container {
+  background: linear-gradient(160deg, #ffffff 0%, #f8f5f0 50%, #f0ebe4 100%);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .formulario-input input {
+  background-color: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #2c2824;
+}
+
+[data-theme="light"] .formulario-input input::placeholder {
+  color: #8a8580;
+}
+
+[data-theme="light"] .formulario-input input:focus {
+  background-color: rgba(226, 144, 90, 0.06);
+}
+
+[data-theme="light"] .formulario-mensaje {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .formulario-bienvenida {
+  color: #2c2824; 
 }
 
 /* Tablet */

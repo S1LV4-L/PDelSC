@@ -4,13 +4,13 @@ import { ThemeToggle } from "./components/BotonTema";
 
 function App() {
     return (
-        <>
+        <div className="app-layout">
             <ThemeToggle />
-            <h1>Contador</h1>
-            <div className="divCont">
+            <div className="contador-wrapper">
+                <h1 className="contador-titulo">Contador</h1>
                 <Contador value={0} />
             </div>
-        </>
+        </div>
     );
 }
 

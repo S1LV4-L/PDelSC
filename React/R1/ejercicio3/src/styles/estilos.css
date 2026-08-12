@@ -1,28 +1,148 @@
-.divCont{
-    padding-top: 5rem;
+/* =========================================
+   CONTENEDOR MODERNO
+   ========================================= */
+.containerStyle {
+  position: relative;
+  overflow: hidden;
+  max-width: 500px;
+  width: 100%;
+  height: 80vh;
+  padding: 2rem;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.4);
+  border-radius: 1.5rem;
+  box-sizing: border-box;
+  /* Gradiente oscuro con tono teal */
+  background: linear-gradient(180deg, #153535 0%, #0f2626 50%, #0a1919 100%);
+  border: 0.0625rem solid rgba(255, 255, 255, 0.07);
+  z-index: 1;
+  transition: background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
-.containerStyle{
-    padding-top: 3vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-flow: row;
-    font-size: 20px;
-    gap: 1rem;
-    font-family: arial;
+/* Número */
+.numeroStyle {
+  color: #f6f1ea;
+  font-size: 4rem;
+  font-weight: 700;
+  line-height: 1;
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  transition: color 0.3s ease;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
 }
 
-.buttonStyle{
-    border-radius: 5rem;
-    padding: .5rem 1rem;
-    background: black;
-    color: white;
-    cursor: pointer;
-    font-family: unset;
-    font-size: 14px;
+/* Botones */
+.botones-container {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-strong{
-    color: white;
+.buttonStyle {
+  flex: 1;
+  border-radius: 0.875rem;
+  padding: 0.875rem 1.5rem;
+  background: transparent;
+  /* Color de acento Teal */
+  color: #2dd4bf; 
+  /* Borde de acento Teal */
+  border: 0.0938rem solid #2dd4bf; 
+  cursor: pointer;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.buttonStyle:hover {
+  transform: translateY(-0.0625rem);
+}
+
+.buttonStyle:active {
+  transform: translateY(0);
+  /* Hover/Active sutil en Teal */
+  background-color: rgba(45, 212, 191, 0.16);
+}
+
+/* =========================================
+   TEMA LIGHT
+   ========================================= */
+[data-theme="light"] .containerStyle {
+  background: linear-gradient(160deg, #ffffff 0%, #f8f5f0 50%, #f0ebe4 100%);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .numeroStyle {
+  color: #1a1714;
+}
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .containerStyle {
+    width: 95%;
+    height: 85vh;
+    padding: 1.5rem;
+    margin: 1.25rem auto;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .containerStyle {
+    width: 95%;
+    margin-top: auto;
+    margin-bottom: auto;
+    height: 80vh;
+    border-radius: 1rem;
+  }
+
+  .botones-container {
+    flex-direction: column;
+  }
+
+  .buttonStyle {
+    max-width: 100%;
+    width: 100%;
+    padding: 0.8125rem;
+    font-size: 1rem;
+  }
+
+  .numeroStyle {
+    font-size: 3rem;
+  }
+}
+
+/* Titulo (por si lo tienes en el TSX) */
+.contador-titulo {
+  color: #f6f1ea;
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin: 0;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+[data-theme="light"] .contador-titulo {
+  color: #2c2824; 
 }

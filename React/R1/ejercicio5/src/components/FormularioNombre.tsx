@@ -6,7 +6,7 @@ const MIN_CARACTERES = 2;
 const REGEX_SOLO_LETRAS = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
 
 export function InitForm() {
-    const [nombre, setNombre] = useState(""); // Valor actual del input, controlado por React
+    const [nombre, setNombre] = useState(""); // Valor actual del input
     const [nombreEnviado, setNombreEnviado] = useState(""); // Copia del nombre en el momento del submit, para no depender de "nombre" tras vaciar el input
     const [enviado, setEnviado] = useState(false); // Controla si se muestra el mensaje de bienvenida
     const [error, setError] = useState("");
