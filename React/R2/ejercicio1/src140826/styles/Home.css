@@ -1,11 +1,10 @@
-/* =========================================
-   1. VARIABLES Y TEMAS
-   ========================================= */
 :root {
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
   --shadow-sm: 0 0.0625rem 0.125rem rgba(32, 31, 28, 0.06);
   --shadow-md: 0 0.25rem 1rem rgba(32, 31, 28, 0.08);
+  
+  /* Variable para el botón de eliminar */
   --color-danger: #c0392b;
   --color-danger-soft: #fce4e4;
 }
@@ -13,24 +12,25 @@
 [data-theme="dark"] {
   --shadow-sm: 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.3);
   --shadow-md: 0 0.25rem 1rem rgba(0, 0, 0, 0.4);
+  
   --color-danger: #e74c3c;
   --color-danger-soft: #3a1f1f;
 }
 
-/* =========================================
-   2. RESETS BÁSICOS
-   ========================================= */
-h1, h2, h3, p { margin: 0; }
-a { color: inherit; text-decoration: none; }
+/* ELIMINADO DE AQUÍ: Se movió más abajo para que funcione correctamente */
+
+/* Resets de etiquetas base */
 h1, h2, h3 {
   font-family: var(--font-display);
   font-weight: 600;
+  margin: 0;
   color: var(--color-ink);
 }
 
-/* =========================================
-   3. LAYOUT PRINCIPAL
-   ========================================= */
+p { margin: 0; }
+a { color: inherit; text-decoration: none; }
+
+/* Contenedor base */
 .page {
   min-height: 100%;
   padding: 3.5rem 1.5rem 5rem;
@@ -42,74 +42,73 @@ h1, h2, h3 {
   width: 100%;
 }
 
-.home-page .page-inner {
-  margin: 0 auto;
-}
-
 .nombrePag {
-  font-family: monospace;
-  font-size: 0.75rem;
-  color: var(--color-ink-muted);
-  margin-bottom: 0;
-  text-align: start;
-}
-
-/* =========================================
-   4. CABECERA (Título y Botón Nueva Tarea)
-   ========================================= */
-.home-header {
-  margin-bottom: 1rem;
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: var(--color-ink-muted);
+    margin-bottom: 0%;
+    text-align: start;
 }
 
 .headerPag {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
 }
 
-.home-title {
-  font-size: 2.125rem;
-  line-height: 1;
-  /* Por defecto permite encogerse en Flexbox */
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* 
-  Especificidad combinada (.crear.btn) para evitar que otras 
-  reglas genéricas de botones pisen el padding de este elemento.
-*/
-.crear.btn {
+/* Botones principales */
+.btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0; /* Evita que el botón se encoja o deform */
-  border: 1px solid var(--color-border);
+  gap: 0.5rem;
+  border: none;
   border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--color-accent);
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  font-size: 0.75rem;
-  padding: 0.375rem 0.75rem;
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
 }
 
-.crear.btn:hover {
+.btn:active { transform: translateY(0.0625rem); }
+
+.btn-primary {
+  background: var(--color-accent);
+  color: #ffffff;
+}
+
+.btn-primary:hover { background: var(--color-accent-hover); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-accent);
+  border: 1px solid var(--color-border);
+}
+
+.btn-ghost:hover {
   background: var(--color-surface-alt);
   border-color: var(--color-ink-faint);
 }
 
-/* =========================================
-   5. BOTONES EXTRA (Exportar, Importar, etc)
-   ========================================= */
-.extra-buttons {
+.btn-block { width: 100%; }
+
+.crear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.75rem;
+  padding: 0.375rem 0.75rem;
+  transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+/* Botones Extra (Menores para caber en fila) */
+.extra-buttons{
   margin-bottom: 1.5rem;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: wrap; 
   gap: 0.5rem;
 }
 
@@ -119,14 +118,14 @@ h1, h2, h3 {
   justify-content: center;
   border-radius: var(--radius-sm);
   font-weight: 600;
-  font-size: 0.6875rem;
+  font-size: 0.6875rem; 
   padding: 0.3125rem 0.625rem;
   background: transparent;
   color: var(--color-accent);
   border: 1px solid var(--color-border);
   cursor: pointer;
-  white-space: nowrap;
   transition: background-color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
 }
 
 .extra-btn:hover {
@@ -134,25 +133,38 @@ h1, h2, h3 {
   border-color: var(--color-ink-faint);
 }
 
-.extra-btn--success {
-  color: var(--color-success);
-  border-color: var(--color-success);
-}
-.extra-btn--success:hover {
-  background: var(--color-success-soft);
-}
-
 .extra-btn--danger {
   color: var(--color-danger);
   border-color: var(--color-danger);
 }
+
 .extra-btn--danger:hover {
   background: var(--color-danger-soft);
 }
 
-/* =========================================
-   6. LISTA DE TAREAS Y TARJETAS
-   ========================================= */
+/* COLOCADO AQUÍ: Ahora tiene prioridad sobre .extra-btn:hover */
+.extra-btn--success {
+  color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.extra-btn--success:hover {
+  background: var(--color-success-soft);
+}
+
+.home-page .page-inner {
+  margin: 0 auto;
+}
+
+.home-header {
+  margin-bottom: 1rem;
+}
+
+.home-title {
+  font-size: 2.125rem;
+  line-height: 1; /* <- AGREGADO: Empaqueta el texto para que quede exactamente al centro del botón */
+}
+
 .task-list {
   display: flex;
   flex-direction: column;
@@ -161,6 +173,8 @@ h1, h2, h3 {
   margin: 0;
   list-style: none;
 }
+
+.task-list li { list-style: none; }
 
 .task-card {
   display: flex;
@@ -225,25 +239,24 @@ h1, h2, h3 {
   border: 1px solid var(--color-border);
   background: transparent;
   cursor: pointer;
-  font-weight: 600;
   transition: all 0.15s ease;
+  font-weight: 600;
 }
 
 .task-btn--complete {
   color: var(--color-success);
   border-color: var(--color-success);
 }
+
 .task-btn--complete:hover { background: var(--color-success-soft); }
 
 .task-btn--delete {
   color: var(--color-danger);
   border-color: var(--color-danger);
 }
+
 .task-btn--delete:hover { background: var(--color-danger-soft); }
 
-/* =========================================
-   7. ESTADOS (Vacío y Errores)
-   ========================================= */
 .empty-state {
   border: 2.5px dashed var(--color-border);
   border-radius: var(--radius-md);
@@ -254,21 +267,20 @@ h1, h2, h3 {
 }
 
 .import-error {
-  color: var(--color-danger);
-  background: var(--color-danger-soft);
-  border: 1px solid var(--color-danger);
-  border-radius: var(--radius-sm);
-  padding: 0.625rem 0.875rem;
-  font-size: 0.875rem;
-  margin-bottom: 1rem;
+    color: var(--color-danger);
+    background: var(--color-danger-soft);
+    border: 1px solid var(--color-danger);
+    border-radius: var(--radius-sm);
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
 }
 
-/* =========================================
-   8. RESPONSIVE (Móviles)
-   ========================================= */
 @media (max-width: 480px) {
-  .home-page {
+  .home-page{
     margin-top: 3%;
+    margin-bottom: 0%;
+    padding-bottom: 0%;
   }
 
   .nombrePag {
@@ -277,34 +289,33 @@ h1, h2, h3 {
     text-align: center;
   }
 
-  /* Espacio inferior aumentado antes del borde de la página */
-  .page {
-    padding: 1.75rem 0.875rem 6rem; 
-  }
+  .page { padding: 1.75rem 0.875rem 3.5rem; }
+  .btn { padding: 0.5rem; }
 
-  /* Forzamos el comportamiento del Flexbox para que quepan en 1 fila */
   .headerPag {
+    display: flex;
     flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
     gap: 0.75rem;
   }
 
-  /* El título ocupa el espacio sobrante pero tiene permiso de encogerse */
   .home-title {
-    flex: 1 1 0%;
-    font-size: 1.5rem;
+    font-size: 1.5rem; 
+    line-height: 1;
+    min-width: 0; /* Permite que el texto se corte con "..." si no hay espacio */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; 
   }
 
-  /* El botón mantiene su tamaño compacto gracias a la especificidad */
-  .crear.btn {
-    padding: 0.375rem 0.75rem;
-  }
-
+  /* En móvil los botones extra se centran y ocupan todo el ancho si es necesario */
   .extra-buttons {
     justify-content: center;
   }
 
   .extra-btn {
-    flex: 1 1 40%;
+    flex: 1 1 40%; /* Ocupa aprox el 40% para hacer 2x2 si es necesario */
     justify-content: center;
   }
 
@@ -313,16 +324,12 @@ h1, h2, h3 {
     gap: 0.75rem;
   }
 
-  .task-card > div:first-child {
-    flex-basis: 100%;
-  }
+  .task-card > div:first-child { flex-basis: 100%; }
 
   .task-actions {
     width: 100%;
     justify-content: center;
-  }
+}
 
-  .task-desc {
-    white-space: normal;
-  }
+  .task-desc { white-space: normal; }
 }
