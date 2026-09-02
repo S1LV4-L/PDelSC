@@ -9,6 +9,7 @@ function Home() {
     const { tareas, completarTarea, eliminarTarea, setTareas } = useTareas();
     const inputArchivoRef = useRef<HTMLInputElement>(null);
     const [errorImportacion, setErrorImportacion] = useState<string | null>(null);
+    const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
 
     // Limpia el mensaje de error automáticamente a los 10 segundos
     useEffect(() => {
@@ -53,7 +54,7 @@ function Home() {
 
                     const estado = partes[0];
                     const titulo = partes[1];
-                    // Usamos slice y join por si el usuario usó '|' en la descripción
+                    // slice y join por si el usuario usó '|' en la descripción
                     const descripcion = partes.slice(2).join("|");
 
                     if (estado !== "0" && estado !== "1") throw new Error("Formato inválido");
@@ -84,9 +85,16 @@ function Home() {
 
     const eliminarTodas = () => {
         if (tareas.length === 0) return;
-        if (window.confirm("¿Estás seguro de que quieres eliminar TODAS las tareas?")) {
-            setTareas([]);
-        }
+        setMostrarConfirmacion(true);
+    };
+
+    const confirmarEliminarTodas = () => {
+        setTareas([]);
+        setMostrarConfirmacion(false);
+    };
+
+    const cancelarEliminarTodas = () => {
+        setMostrarConfirmacion(false);
     };
 
     return (
@@ -127,6 +135,20 @@ function Home() {
                             style={{ display: "none" }}
                         />
                     </div>
+
+                    {mostrarConfirmacion && (
+                        <div className="confirm-box">
+                            <p className="confirm-text">¿Estas seguro de que queres eliminar TODAS las tareas?</p>
+                            <div className="confirm-actions">
+                                <button type="button" className="confirm-btn confirm-btn--si" onClick={confirmarEliminarTodas}>
+                                    Si
+                                </button>
+                                <button type="button" className="confirm-btn confirm-btn--no" onClick={cancelarEliminarTodas}>
+                                    No
+                                </button>
+                            </div>
+                        </div>
+                    )}
 
                     {errorImportacion && <p className="import-error">{errorImportacion}</p>}
 

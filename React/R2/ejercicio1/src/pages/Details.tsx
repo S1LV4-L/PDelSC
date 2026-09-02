@@ -3,11 +3,13 @@ import { useTareas } from "../hooks/useTareas";
 import "../styles/Details.css";
 import { ThemeToggle } from "../components/BotonTema";
 
+// Página de detalle: muestra la información completa de una tarea según el id de la URL
 function Details() {
     const { id } = useParams();
     const { obtenerTareaPorId } = useTareas();
     const tarea = obtenerTareaPorId(id!);
 
+    // Si la id es inexistente o la tarea fue tarea eliminada
     if (!tarea) {
         return (
             <>
@@ -39,6 +41,7 @@ function Details() {
                             </div>
                         </header>
 
+                        {/* Estado (completa/pendiente) y fecha de creación formateada */}
                         <div className="details-info-row">
                             <span className={`status-pill ${tarea.completa ? "status-pill--complete" : "status-pill--pending"}`}>
                                 {tarea.completa ? "Completa" : "Pendiente"}

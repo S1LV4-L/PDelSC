@@ -4,9 +4,6 @@ import Details from './pages/Details'
 import Creation from './pages/Creation'
 import './styles/Estilos.css'
 
-// atomizar
-// mejorar css
-
 function App() {
   return (
     <Routes>

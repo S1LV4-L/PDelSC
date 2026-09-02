@@ -40,6 +40,7 @@
 .btn-primary {
   background: var(--color-accent);
   color: #ffffff;
+  padding: 1.5%;
 }
 
 .btn-primary:hover {
@@ -187,5 +188,9 @@ textarea.form-input {
 
   .creation-title {
     font-size: 1.5rem;
+  }
+
+  .btn-primary {
+    padding: 5%;
   }
 }

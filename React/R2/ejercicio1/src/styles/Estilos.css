@@ -50,13 +50,12 @@
 }
 
 html,
-body,
-#root {
-  height: 100%;
+body {
+  min-height: 100%;
+  margin: 0;
 }
 
 body {
-  margin: 0;
   background: var(--color-bg);
   color: var(--color-ink);
   font-family: var(--font-body);

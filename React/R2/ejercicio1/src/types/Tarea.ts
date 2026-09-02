@@ -1,7 +1,8 @@
+// Modelo de datos de una tarea
 export interface Tarea {
-  id: string
+  id: string              // Identificador único (UUID)
   titulo: string
   descripcion: string
-  completa: boolean
-  fechaCreacion: string
+  completa: boolean       // Estado de completitud
+  fechaCreacion: string   // Fecha en formato ISO
 }
