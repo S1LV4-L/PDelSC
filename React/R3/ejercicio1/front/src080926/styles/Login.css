@@ -1,0 +1,108 @@
+/* ===== Login ===== */
+
+.login-page {
+  border: 0.25rem outset #fff;
+  border-color: var(--azul-90);
+  box-shadow: 0.375rem 0.375rem 0 var(--negro);
+  width: 100%;
+  max-width: 45rem;
+  /* Márgenes verticales aumentados para llenar más la pantalla */
+  margin: 4vh auto; 
+  background-color: var(--cian-90);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--cian-90),
+    var(--cian-90) 0.75rem,
+    #b3ffff 0.75rem,
+    #b3ffff 1.5rem
+  );
+  /* Aumentamos el padding vertical para dar respiro interno */
+  padding-top: 2rem;
+  padding-bottom: 3rem;
+  padding-left: 3%;
+  padding-right: 3%;
+}
+
+.login-page h1 {
+  font-size: 3em;
+  margin-bottom: 2rem;
+}
+
+.login-page h1::before,
+.login-page h1::after {
+  content: "✦";
+  padding: 0 0.5rem;
+}
+
+.login-page label {
+  color: black;
+  font-size: 1.05em;
+  margin-top: 0.75rem;
+  /* Un poco más de espacio entre la etiqueta y el input */
+  margin-bottom: 0.5rem; 
+}
+
+.login-page input,
+.login-page select {
+  padding: 0.3rem;
+  font-size: 1.05em;
+  /* Aumentamos significativamente el margen inferior para alargar el formulario */
+  margin-bottom: 1.5rem;
+}
+
+.login-page .login-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  /* Más separación desde el último input hasta los botones */
+  margin-top: 2.5rem;
+}
+
+/* Estilos unificados para botones y enlaces */
+.login-page .login-acciones > button,
+.login-page .login-acciones > a {
+  flex: 1 1 calc(50% - 0.75rem);
+  margin: 0;
+  padding: 0.6rem 0.5rem; /* Un poco más de padding en los botones también */
+  font-size: 0.85em;
+  text-align: center;
+  
+  background-color: var(--gris-panel);
+  color: var(--negro);
+  text-decoration: none;
+  font-family: inherit;
+  font-weight: bold;
+}
+
+/* Efecto Hover unificado */
+.login-page .login-acciones > button:hover,
+.login-page .login-acciones > a:hover {
+  background-color: rgb(212, 212, 212);
+  color: var(--negro);
+}
+
+@media (max-width: 480px) {
+  .login-page {
+    width: 100%;
+    padding: 1rem;
+    margin: 0.75rem 0;
+    box-shadow: 0.25rem 0.25rem 0 var(--negro);
+  }
+
+  .login-page .login-acciones {
+    flex-direction: column;
+    margin-top: 10%;
+    gap: 1rem; /* El espacio en móviles se mantiene independiente */
+  }
+
+  .login-page h1 {
+    margin-top: 0%;
+    margin-bottom: 0%;
+    font-size: 2em;
+  }
+
+  .login-page input,
+    .login-page select {
+    margin-bottom: 0.8rem;
+    }
+}

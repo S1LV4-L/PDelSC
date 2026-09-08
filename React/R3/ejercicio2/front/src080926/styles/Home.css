@@ -1,0 +1,94 @@
+/* ===== Home ===== */
+
+.home-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  background-color: var(--amarillo-90);
+  border-top: 0.5rem solid;
+  border-bottom: 0.5rem solid;
+  border-image: repeating-linear-gradient(45deg, #000, #000 0.625rem, var(--amarillo-90) 0.625rem, var(--amarillo-90) 1.25rem) 8;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  margin-top: 1.5rem;
+}
+
+.home-header > div {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.home-imagenes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  background-color: rgba(95, 95, 95, 0.322);
+  border: 0.25rem inset #fff;
+  padding: 0.75rem;
+}
+
+.home-imagenes img {
+  width: 9.375rem;
+  height: 6.25rem;
+  object-fit: cover;
+  margin: 0.25rem;
+  border: 0.25rem solid #fff;
+  outline: 0.125rem solid var(--negro);
+  box-shadow: 0.1875rem 0.1875rem 0 var(--negro);
+  transform: rotate(-1deg);
+}
+
+.home-imagenes img:nth-child(even) {
+  transform: rotate(1deg);
+}
+
+@media (max-width: 480px) {
+  .home-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .home-header > div {
+    width: 100%;
+    justify-content: center;
+    gap: 0.5rem;
+    /* IMPORTANTE: Estira los elementos verticalmente */
+    align-items: stretch; 
+  }
+
+  /* 
+     Estilos unificados para botones y enlaces en móvil
+  */
+  .home-header > div .btn-link,
+  .home-header > div button {
+    width: auto;
+    flex: 1 1 calc(50% - 0.25rem); /* 2 botones por fila */
+    padding: 0.4rem 0.5rem;
+    font-size: 0.75rem;
+    margin: 0;
+    
+    /* 
+       CORRECCIÓN DE ALTURA:
+       1. line-height explícito para igualar la altura del texto con los enlaces.
+       2. min-height para forzar una altura mínima absoluta.
+    */
+    line-height: 1.2; 
+    min-height: 2.5rem; 
+
+    white-space: nowrap; /* Evitar saltos de línea */
+    
+    /* Flexbox interno para centrar el texto */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .home-imagenes img {
+    width: 42%;
+    height: 4.375rem;
+  }
+}
