@@ -11,7 +11,7 @@ import Registro from "./pages/Registro";
 import OlvidePassword from "./pages/OlvidePassword";
 import MiCuenta from "./pages/MiCuenta";
 import UsuariosLista from "./pages/UsuariosLista";
-import Galeria from "./pages/Galeria";
+import Recetas from "./pages/Recetas";
 
 // componente interno que useAuth() necesita. Se ejecuta DENTRO de <AuthProvider>, y App() provee el contexto.
 function Navegador() {
@@ -34,8 +34,8 @@ function Navegador() {
             return <MiCuenta setPagina={setPagina} />;
         case "usuarios":
             return <UsuariosLista setPagina={setPagina} />;
-        case "galeria":
-            return <Galeria setPagina={setPagina} />;
+        case "recetas":
+            return <Recetas setPagina={setPagina} />;
         case "home":
         default:
             return <Home setPagina={setPagina} />;

@@ -1,16 +1,62 @@
 /* ===== Estilos globales ===== */
+/* Los colores base (--bg-color, --text-color, --button-bg, --icon-color) */
+/* los define BotonTema.css según data-theme="dark" | claro por defecto. */
 
 :root {
-  --azul-90: #0000ee;
-  --morado-90: #7d00ff;
-  --fucsia-90: #ff00ff;
-  --amarillo-90: #ffff00;
-  --verde-90: #00ff00;
-  --cian-90: #00ffff;
-  --gris-panel: #c0c0c0;
-  --gris-oscuro: #808080;
-  --negro: #000000;
-  --naranja-90: rgba(255, 166, 0, 0.493);
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --on-primary: #ffffff;
+
+  --success: #16a34a;
+  --success-dark: #15803d;
+  --success-bg: #dcfce7;
+
+  --warning: #d97706;
+  --warning-dark: #b45309;
+  --warning-bg: #fef3c7;
+
+  --danger: #dc2626;
+  --danger-dark: #b91c1c;
+  --danger-bg: #fee2e2;
+
+  --morado: #7c3aed;
+  --morado-dark: #6d28d9;
+
+  --surface: #ffffff;
+  --border: #d4d4d8;
+  --text-muted: #52525b;
+
+  --radius: 0.5rem;
+  --radius-sm: 0.375rem;
+  --shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  --transition: 0.15s ease;
+}
+
+[data-theme="dark"] {
+  --primary: #3b82f6;
+  --primary-dark: #60a5fa;
+  --on-primary: #0b0b0b;
+
+  --success: #22c55e;
+  --success-dark: #4ade80;
+  --success-bg: #123a1f;
+
+  --warning: #f59e0b;
+  --warning-dark: #fbbf24;
+  --warning-bg: #3a2c0a;
+
+  --danger: #f87171;
+  --danger-dark: #fca5a5;
+  --danger-bg: #3a1414;
+
+  --morado: #a78bfa;
+  --morado-dark: #c4b5fd;
+
+  --surface: #1c1c1e;
+  --border: #3a3a3d;
+  --text-muted: #a1a1aa;
+
+  --shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 * {
@@ -18,37 +64,17 @@
 }
 
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
   margin: 0;
-  padding: 0%;
-  position: relative;
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-size: 2.5rem 2.5rem;
-  background-position: 0 0, 1.25rem 1.25rem;
-  will-change: transform;
+  padding: 0;
+  line-height: 1.5;
 }
 
 h1, h2 {
   text-align: center;
-  color: var(--fucsia-90);
-  text-shadow:
-    0.125rem 0.125rem 0 var(--azul-90),
-    -0.0625rem -0.0625rem 0 var(--amarillo-90);
-  letter-spacing: 0.0625rem;
-  animation: parpadeo 1.2s steps(1) infinite;
-  will-change: opacity;
-}
-
-@keyframes parpadeo {
-  0%, 49% { opacity: 1; }
-  50%, 100% { opacity: 0.55; }
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-color) !important;
 }
 
 label {
@@ -58,47 +84,54 @@ label {
 }
 
 input, select {
-  color: black;
+  color: var(--text-color);
   display: block;
   width: 100%;
   padding: 0.5rem;
   margin-bottom: 0.25rem;
-  font-family: "Courier New", monospace;
-  background-color: #fff;
-  border: 0.1875rem inset var(--gris-oscuro);
+  font-family: inherit;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--transition);
 }
 
 input:focus, select:focus {
-  outline: 0.125rem dashed var(--fucsia-90);
+  outline: none;
+  border-color: var(--primary);
 }
-
-/* ... resto del código ... */
 
 button {
   margin: 0;
   padding: 0.5rem 1.25rem;
   cursor: pointer;
   font-family: inherit;
-  font-size: 1em; /* FORZAR: Iguala el tamaño de letra al del padre */
-  line-height: normal; /* FORZAR: Normaliza la altura de línea */
+  font-size: 1em;
+  line-height: normal;
   font-weight: bold;
-  background-color: var(--gris-panel);
-  border: 0.1875rem outset #fff;
-  box-shadow: 0.1875rem 0.1875rem 0 var(--negro);
-  vertical-align: middle; /* Ayuda a la alineación vertical si no están en un contenedor flex */
+  color: var(--on-primary);
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border: none;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  transition: filter var(--transition), transform var(--transition);
+  vertical-align: middle;
 }
 
-/* ... resto del código ... */
+button:hover {
+  filter: brightness(1.1);
+}
 
 button:active {
-  border-style: inset;
-  box-shadow: none;
+  transform: translateY(1px);
+  filter: brightness(0.95);
 }
 
 .error {
-  color: #ff0000;
-  background-color: #fff;
-  border: 0.0625rem dashed #ff0000;
+  color: var(--danger);
+  background-color: var(--danger-bg);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-sm);
   font-size: 0.85em;
   font-weight: bold;
   padding: 0.125rem 0.375rem;
@@ -107,56 +140,54 @@ button:active {
 }
 
 a {
-  color: var(--azul-90);
+  color: var(--primary);
   text-decoration: underline;
   font-weight: bold;
 }
 
 a:visited {
-  color: var(--morado-90);
+  color: var(--morado);
 }
 
 a:hover {
-  color: var(--fucsia-90);
-  background-color: var(--amarillo-90);
+  color: var(--primary-dark);
 }
 
 .btn-link {
   display: inline-block;
-  margin: 0; /* AGREGADO: Asegurar consistencia de márgenes */
-  vertical-align: middle; /* AGREGADO: Alinear verticalmente con otros elementos */
+  margin: 0;
+  vertical-align: middle;
   padding: 0.5rem 1.25rem;
-  background-color: var(--gris-panel);
-  border: 0.1875rem outset #fff;
-  box-shadow: 0.1875rem 0.1875rem 0 var(--negro);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
   font-weight: bold;
   font-family: inherit;
   text-decoration: none;
-  color: black;
+  color: var(--text-color);
   cursor: pointer;
   text-align: center;
+  transition: border-color var(--transition), background var(--transition);
 }
 
 .btn-link:visited {
-  color: var(--negro);
+  color: var(--text-color);
 }
 
 .btn-link:hover {
-  background-color: var(--amarillo-90);
-  color: var(--negro);
+  border-color: var(--primary);
+  background: linear-gradient(135deg, var(--surface), var(--border));
 }
 
 .btn-link:active {
-  border-style: inset;
-  box-shadow: none;
+  transform: translateY(1px);
 }
 
-/* Variante para el botón de "volver al Home" dentro de los formularios */
 .btn-volver {
   display: block;
   width: 100%;
   margin-top: 0.75rem;
-  background-color: var(--cian-90);
 }
 
 .enlaces {
@@ -168,26 +199,19 @@ a:hover {
 }
 
 .mensaje-exito {
-  background-color: var(--amarillo-90);
-  border: 0.25rem outset #fff;
-  box-shadow: 0.375rem 0.375rem 0 var(--negro);
+  background: linear-gradient(135deg, var(--success-bg), var(--surface));
+  border: 1px solid var(--success);
+  border-radius: var(--radius);
   padding: 1.25rem;
   width: 90%;
   max-width: 26rem;
   margin: 1.5rem auto;
   text-align: center;
   font-weight: bold;
+  color: var(--success);
 }
 
 @media (max-width: 30em) {
-  body {
-    padding: 0 5%;
-  }
-
-  body::before {
-    background-size: 1.5rem 1.5rem;
-  }
-
   h1 {
     font-size: 1.3em;
   }

@@ -2,7 +2,7 @@
 import type { Pagina, Usuario } from "../types";
 
 // Páginas que exigen sesión activa
-const PAGINAS_PROTEGIDAS: Pagina[] = ["mi-cuenta", "usuarios", "galeria"];
+const PAGINAS_PROTEGIDAS: Pagina[] = ["mi-cuenta", "usuarios", "recetas"];
 
 // Dada la página que se quiere mostrar y el usuario actual, devuelve la página que realmente corresponde renderizar:
 // la misma si es pública o si hay sesión, o "login" si es protegida y no hay sesión activa.

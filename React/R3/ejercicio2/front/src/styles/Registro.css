@@ -1,20 +1,10 @@
 /* ===== Registro ===== */
 
 .registro-page {
-  border: 0.25rem outset #fff;
-  border-color: var(--verde-90);
-  box-shadow: 0.375rem 0.375rem 0 var(--negro);
+  overflow: hidden;
   width: 100%;
   max-width: 45rem;
   margin: 1.5rem auto;
-  background-color: #ccffcc;
-  background-image: repeating-linear-gradient(
-    45deg,
-    #ccffcc,
-    #ccffcc 0.75rem,
-    #99ff99 0.75rem,
-    #99ff99 1.5rem
-  );
   margin-top: 2%;
   margin-bottom: 0%;
   padding-bottom: 3%;
@@ -22,21 +12,24 @@
   padding-right: 3%;
 }
 
+.registro-page::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0.3rem;
+  background: linear-gradient(90deg, var(--success), var(--primary));
+}
+
 .registro-page h1 {
   font-size: 1.8em;
   margin-bottom: 1rem;
 }
 
-.registro-page h1::before,
-.registro-page h1::after {
-  content: "✦";
-  padding: 0 0.5rem;
-}
-
 .registro-page label {
-    color: black;
-  font-size: 1.05em;
   margin-top: 0.75rem;
+  font-size: 1.05em;
 }
 
 .registro-page input,
@@ -53,7 +46,6 @@
   margin-top: 0.75rem;
 }
 
-/* Estilos unificados para botones y enlaces */
 .registro-page .registro-acciones > button,
 .registro-page .registro-acciones > a {
   flex: 1 1 0;
@@ -62,20 +54,9 @@
   padding: 0.4rem 0.5rem;
   font-size: 0.85em;
   text-align: center;
-  
-  /* Asegurar igualdad estética */
-  background-color: var(--gris-panel);
-  color: var(--negro);
   text-decoration: none;
   font-family: inherit;
   font-weight: bold;
-}
-
-/* Efecto Hover unificado */
-.registro-page .registro-acciones > button:hover,
-.registro-page .registro-acciones > a:hover {
-  background-color: rgb(212, 212, 212);
-  color: var(--negro);
 }
 
 @media (max-width: 480px) {
@@ -83,7 +64,6 @@
     width: 100%;
     padding: 1rem;
     margin: 0.75rem 0;
-    box-shadow: 0.25rem 0.25rem 0 var(--negro);
   }
 
   .registro-page .registro-acciones {

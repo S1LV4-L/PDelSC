@@ -88,7 +88,7 @@ export type Pagina =
     | "olvide-password"
     | "mi-cuenta"
     | "usuarios"
-    | "galeria";
+    | "recetas";
 
 // Prop que reciben todas las páginas para poder cambiar la página actual.
 // Sustituye a useNavigate() y a <Link to="..."> de React Router.
