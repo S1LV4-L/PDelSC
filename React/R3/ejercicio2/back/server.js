@@ -151,7 +151,6 @@ app.post("/api/usuarios/listar", verificarToken, verificarPermiso("ver_usuarios"
     res.json(usuarios);
 });
 
-// Endpoint ELIMINADO: /api/usuarios/detalle (Ya no se usa, los permisos vienen en listar)
 
 app.post("/api/usuarios/crear", verificarToken, verificarPermiso("crear_usuario"), async (req, res) => {
     const { nombre, perfilId } = req.body;
