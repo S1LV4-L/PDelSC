@@ -47,7 +47,7 @@
 }
 
 .header-icono {
-  color: var(currentColor);
+  color: var(--text-color);
   width: 4.5rem;
   height: 4.5rem;
   flex-shrink: 0;
@@ -258,7 +258,7 @@
 }
 
 .skill-name {
-  color: var(currentColor);
+  color: var(--text-color);
 }
 
 /* Proyectos */
