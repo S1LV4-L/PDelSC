@@ -1,9 +1,10 @@
 // Instancia centralizada de Axios para comunicarse con el back.
 // Cualquier archivo que necesite hacer un pedido HTTP importa este objeto en vez de configurar Axios de nuevo cada vez.
 import axios from 'axios';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000/api', // URL base del backend Node/Express
+  baseURL: API_URL, // URL base del backend Node/Express ('http://localhost:3000/api')
 });
 
 // Interceptor: se ejecuta ANTES de cada pedido.
