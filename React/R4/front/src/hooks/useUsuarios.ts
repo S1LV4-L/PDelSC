@@ -1,7 +1,7 @@
 // Hook que encapsula toda la lógica de "traer y borrar usuarios" para que las páginas que lo usan no repitan este código.
 import { useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
-import type { Usuario } from '../types';
+import type { Usuario } from '../types/index';
 
 export function useUsuarios() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);

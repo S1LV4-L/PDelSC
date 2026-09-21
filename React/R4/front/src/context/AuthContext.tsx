@@ -3,7 +3,7 @@
 import { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
 import api from "../services/api";
-import type { Usuario, AuthContextType } from "../types";
+import type { Usuario, AuthContextType, RegistroDatos } from "../types";
 
 // Contenedor del Context. Empieza en null hasta que AuthProvider lo inicialice.
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -15,6 +15,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return guardado ? JSON.parse(guardado) : null;
     });
 
+    // Es admin si el nombre de su perfil empieza con "admin" (Admin, Administrador, etc.).
+    const esAdmin = usuario?.perfil.nombre.toLowerCase().startsWith("admin") ?? false;
+
     // Envía credenciales al back. Si son correctas guarda el token y los datos del usuario en localStorage y en el estado.
     // Devuelve el usuario para que quien llame a login() pueda decidir a dónde redirigir según su perfil.
     const login = async (nombreUsuario: string, password: string): Promise<Usuario> => {
@@ -23,6 +26,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem("usuario", JSON.stringify(data.usuario));
         setUsuario(data.usuario);
         return data.usuario;
+    };
+
+    // Crea una cuenta nueva. No inicia sesión automáticamente (el usuario debe loguearse después de registrarse)
+    const registrar = async ({ nombre, password, preguntaSeguridad, respuestaSeguridad }: RegistroDatos) => {
+        await api.post("/auth/registro", {
+            nombre,
+            password,
+            preguntaSeguridad,
+            respuestaSeguridad,
+        });
     };
 
     // Cambia la contraseña validando la respuesta de seguridad, sin necesidad de estar logueado (flujo de "olvidé mi contraseña").
@@ -46,7 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     return (
-        <AuthContext.Provider value={{ usuario, login, solicitarRestablecimiento, logout }}>
+        <AuthContext.Provider value={{ usuario, esAdmin, login, registrar, solicitarRestablecimiento, logout }}>
             {children}
         </AuthContext.Provider>
     );

@@ -1,0 +1,112 @@
+/* ===== Login ===== */
+
+.login-container {
+    /* Ocupa toda la altura de la pantalla y centra el contenido */
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem;
+    position: relative;
+}
+
+.login-theme-toggle {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 28rem; /* Un poco más angosto y elegante */
+    padding: 2.5rem 2rem;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Barra superior decorativa (estilo original adaptado) */
+.login-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 0.3rem;
+    background: rgb(184, 49, 0);
+}
+
+.login-card h1 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+/* Utilizamos los estilos globales de input, pero ajustamos márgenes específicos del login */
+.login-card input {
+    margin-bottom: 0.25rem; /* El error message lleva el espacio visual */
+}
+
+.login-acciones {
+    margin-top: 1.5rem;
+}
+
+.login-acciones button {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+}
+
+.login-links {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.login-links .btn-link {
+    width: 100%;
+    font-size: 0.9rem;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    color: var(--text-muted);
+}
+
+.login-links .btn-link:hover {
+    color: var(--primary);
+    text-decoration: underline;
+    background: transparent;
+    filter: none;
+}
+
+/* Animación simple de entrada */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile: ajustes para pantallas muy pequeñas */
+@media (max-width: 480px) {
+    .login-container {
+        padding: 1rem;
+        align-items: flex-start; /* En móviles muy pequeños, mejor arriba */
+        padding-top: 4rem;
+    }
+
+    .login-card {
+        padding: 2rem 1.5rem;
+        max-width: 100%;
+    }
+    
+    .login-theme-toggle {
+        top: 1rem;
+        right: 1rem;
+    }
+}

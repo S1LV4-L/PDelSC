@@ -27,7 +27,7 @@ h1, h2, h3, h4, h5, h6, p, span, a, li, label, strong, em, small {
 
 .theme-toggle {
     position: fixed;
-    top: 0.5rem;
+    top: 0.7rem;
     right: 0.5rem;
     border-color: 10px var(--icon-color);
     border-radius: 10%;
@@ -54,8 +54,8 @@ h1, h2, h3, h4, h5, h6, p, span, a, li, label, strong, em, small {
 
 @media (max-width: 480px) {
     .theme-toggle {
-        width: 2rem;
-        height: 2rem;
+        width: 2.5rem;
+        height: 2.5rem;
         background-size: 1rem 1rem;
     }
 }

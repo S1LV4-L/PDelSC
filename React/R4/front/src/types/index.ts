@@ -16,10 +16,20 @@ export interface Usuario {
     perfil: Perfil;
 }
 
+// Datos que van al backend al registrarse
+export interface RegistroDatos {
+    nombre: string;
+    password: string;
+    preguntaSeguridad: string;
+    respuestaSeguridad: string;
+}
+
 // Forma del valor que expone el Context de autenticación
 export interface AuthContextType {
     usuario: Usuario | null; /** Usuario actualmente autenticado, o null si no hay una sesión activa. */
+    esAdmin: boolean; /** true si el usuario logueado tiene perfil de administrador. */
     login: (nombreUsuario: string, password: string) => Promise<Usuario>; /** Autentica a un usuario utilizando sus credenciales y devuelve el usuario logueado (para poder redirigir según su perfil). */
+    registrar: (datos: RegistroDatos) => Promise<void>;
     solicitarRestablecimiento: (nombreUsuario: string, respuestaSeguridad: string, nuevaPassword: string) => Promise<void>;
     logout: () => void;
 }
@@ -34,6 +44,15 @@ export interface UsuarioFormDatos {
 export interface LoginFormDatos {
     nombreUsuario: string;
     password: string;
+}
+
+// Datos del formulario de registro (solo se usa para validar en el cliente, no se manda al back)
+export interface RegistroFormDatos {
+    nombre: string;
+    password: string;
+    confirmarPassword: string;
+    preguntaSeguridad: string;
+    respuestaSeguridad: string;
 }
 
 // Datos del formulario de "olvidé mi contraseña"

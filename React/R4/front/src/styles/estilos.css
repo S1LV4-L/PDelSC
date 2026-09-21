@@ -1,11 +1,11 @@
 /* ===== Estilos globales ===== */
-/* Los colores base (--bg-color, --text-color, --button-bg, --icon-color) */
-/* los define BotonTema.css según data-theme="dark" | claro por defecto. */
+/* --bg-color, --text-color, --button-bg, --icon-color los define BotonTema.css */
 
 :root {
-  --primary: #2563eb;
-  --primary-dark: #1d4ed8;
+  --primary: #4f46e5;
+  --primary-dark: #4338ca;
   --on-primary: #ffffff;
+  --morado: #7c3aed;
 
   --success: #16a34a;
   --success-dark: #15803d;
@@ -19,23 +19,23 @@
   --danger-dark: #b91c1c;
   --danger-bg: #fee2e2;
 
-  --morado: #7c3aed;
-  --morado-dark: #6d28d9;
-
   --surface: #ffffff;
   --border: #d4d4d8;
   --text-muted: #52525b;
 
-  --radius: 0.5rem;
-  --radius-sm: 0.375rem;
-  --shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
-  --transition: 0.15s ease;
+  --radius: 0.75rem;
+  --radius-sm: 0.5rem;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --transition: 0.2s ease;
+
+  --bg-image: url("../assets/paper.jpg");
 }
 
 [data-theme="dark"] {
-  --primary: #3b82f6;
-  --primary-dark: #60a5fa;
-  --on-primary: #0b0b0b;
+  --primary: #818cf8;
+  --primary-dark: #6366f1;
+  --on-primary: #111827;
+  --morado: #a78bfa;
 
   --success: #22c55e;
   --success-dark: #4ade80;
@@ -49,18 +49,25 @@
   --danger-dark: #fca5a5;
   --danger-bg: #3a1414;
 
-  --morado: #a78bfa;
-  --morado-dark: #c4b5fd;
-
   --surface: #1c1c1e;
   --border: #3a3a3d;
   --text-muted: #a1a1aa;
-
-  --shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  
+  --bg-image: url("../assets/ornate.png");
 }
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {
@@ -68,12 +75,20 @@ body {
   margin: 0;
   padding: 0;
   line-height: 1.5;
+  background-color: var(--bg-color);
+  background-image: var(--bg-image);
+  color: var(--text-color);
+}
+
+img {
+  max-width: 100%;
+  display: block;
 }
 
 h1, h2 {
   text-align: center;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.01em;
   color: var(--text-color) !important;
 }
 
@@ -110,7 +125,7 @@ button {
   line-height: normal;
   font-weight: bold;
   color: var(--on-primary);
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  background: rgb(211, 87, 42);
   border: none;
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow);
@@ -150,7 +165,7 @@ a:visited {
 }
 
 a:hover {
-  color: var(--primary-dark);
+  color: orangered;
 }
 
 .btn-link {
@@ -158,7 +173,7 @@ a:hover {
   margin: 0;
   vertical-align: middle;
   padding: 0.5rem 1.25rem;
-  background-color: var(--surface);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow);
@@ -176,8 +191,9 @@ a:hover {
 }
 
 .btn-link:hover {
-  border-color: var(--primary);
-  background: linear-gradient(135deg, var(--surface), var(--border));
+  border-color: rgb(211, 87, 42);
+  background: var(--surface);
+  filter: none;
 }
 
 .btn-link:active {
@@ -199,7 +215,7 @@ a:hover {
 }
 
 .mensaje-exito {
-  background: linear-gradient(135deg, var(--success-bg), var(--surface));
+  background: var(--success-bg);
   border: 1px solid var(--success);
   border-radius: var(--radius);
   padding: 1.25rem;
