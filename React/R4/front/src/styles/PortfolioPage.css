@@ -334,7 +334,7 @@
 
 /* El portfolio necesita ocupar todo el ancho, a diferencia del resto de la app */
 #root:has(.portfolio-background) {
-  width: 85%;
+  width: 75%;
 }
 
 /* Mobile: los botones pasan a un menú desplegable con hamburguesa */
