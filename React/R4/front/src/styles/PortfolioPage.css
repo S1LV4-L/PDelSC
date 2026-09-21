@@ -332,6 +332,11 @@
   opacity: 0.7;
 }
 
+/* El portfolio necesita ocupar todo el ancho, a diferencia del resto de la app */
+#root:has(.portfolio-background) {
+  width: 85%;
+}
+
 /* Mobile: los botones pasan a un menú desplegable con hamburguesa */
 @media (max-width: 768px) {
   .portfolio-header {
