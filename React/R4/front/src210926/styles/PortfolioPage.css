@@ -1,0 +1,414 @@
+/* ===== Portfolio ===== */
+:root {
+  --header-h: 4rem;
+}
+
+.portfolio-background {
+  min-height: 100svh;
+  background-image: url("../assets/num.gif");
+  background-size: repeat;
+  background-position: center;
+  background-attachment: fixed;
+  border-right: 3px solid orangered;
+  border-left: 3px solid orangered;
+  margin-left: 3vw;
+  margin-right: 3vw;
+}
+
+/* Header fijo */
+.portfolio-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 1.5rem;
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.portfolio-header h1 {
+  min-width: 0;
+  margin: 0;
+  font-size: 2rem;
+  text-align: left;
+}
+
+.header-marca {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.header-icono {
+  color: var(currentColor);
+  width: 4.5rem;
+  height: 4.5rem;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+/* Grupo derecho: menú + tema + hamburguesa */
+.header-derecha {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  margin-right: 3%;
+}
+
+.header-botones,
+.admin-botones {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.portfolio-header .btn-link {
+  width: auto;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.9rem;
+  box-shadow: none;
+}
+
+/* Botón hamburguesa: oculto en desktop */
+.hamburguesa {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0.5rem;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.hamburguesa:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.hamburguesa span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background-color: currentColor;
+  border-radius: 2px;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+}
+
+/* Animación a "X" (separación entre centros: 5px de gap + 2px de alto = 7px) */
+.hamburguesa.abierto span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.hamburguesa.abierto span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburguesa.abierto span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Contenido */
+.contenedor-principal {
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: var(--header-h) 1.5rem 1rem;
+  overflow-x: clip; /* evita scroll horizontal durante las animaciones de Reveal */
+}
+
+.seccion {
+  scroll-margin-top: var(--header-h);
+}
+
+#proyectos, #skills{
+  margin-bottom: 5rem;
+}
+
+#contacto{
+  margin-bottom: 0%;
+}
+
+.seccion + .seccion {
+  margin-top: 4rem;
+}
+
+/* Sobre mi */
+.sobre-mi {
+  min-height: calc(100svh - var(--header-h));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.sobre-mi h1 {
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  line-height: 1.1;
+  color: white !important;
+}
+
+.sobre-mi h3 {
+  margin: 0.25rem 0 0;
+  color: rgb(184, 49, 0);
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  line-height: 1.2;
+}
+
+.sobre-mi h4 {
+  margin: 0.25rem auto 0;
+  max-width: 36rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: rgb(211, 87, 42);
+}
+
+/* Skills */
+.skills {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);  /* 2 columnas fijas */
+  gap: 1.25rem;
+}
+
+.skill-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.25rem;
+  background-color: var(--bg-color);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition: border-color var(--transition), transform var(--transition);
+}
+
+.skill-card:hover {
+  border-color: rgb(211, 87, 42);
+  transform: translateY(-3px);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.card-icon {
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+}
+
+.icono-mono {
+  display: inline-block;
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+.title{
+  font-family: 'Courier New', Courier, monospace;
+  color: white !important;
+}
+
+.card-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.skill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  flex: 1;                      /* crece para llenar el espacio libre de la card */
+  align-content: space-evenly;  /* reparte las filas de skills con espacio igual */
+}
+
+.skills {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+.skill-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  object-fit: contain;
+}
+
+.skill-name {
+  color: var(currentColor);
+}
+
+/* Proyectos */
+.proyectos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.proyectos a {
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition: border-color var(--transition);
+}
+
+.proyectos a:hover {
+  border-color: var(--primary);
+}
+
+.proyecto-preview {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background-color: var(--border);
+  transition: transform 0.3s ease;
+}
+
+.proyectos a:hover .proyecto-preview {
+  transform: scale(1.04);
+}
+
+/* Contacto */
+.contacto {
+  font-size: clamp(0.9rem, 2.5vw, 1.5rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.portfolio-footer {
+  display: flex;
+  justify-content: center;
+  padding: 0 0 0.5rem;
+}
+
+/* Casi invisible: se revela al pasar el mouse o al enfocarlo con teclado */
+.portfolio-footer .login-discreto,
+.portfolio-footer .login-discreto:visited {
+  display: inline-flex;
+  padding: 0.5rem;
+  color: var(--text-muted);
+  opacity: 0.15;
+  text-decoration: none;
+  transition: opacity var(--transition);
+}
+
+.portfolio-footer .login-discreto:hover,
+.portfolio-footer .login-discreto:focus-visible {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+/* Mobile: los botones pasan a un menú desplegable con hamburguesa */
+@media (max-width: 768px) {
+  .portfolio-header {
+    padding: 0 1rem;
+  }
+
+  .portfolio-header h1 {
+    font-size: 0.3rem !important;
+  }
+
+  .portfolio-background {
+    margin-left: 0vw;
+    margin-right: 0vw;
+  }
+
+  .hamburguesa {
+    display: flex;
+    position: absolute;
+    inset: 0;
+    margin: auto;
+  }
+
+  .header-botones {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding: 1rem;
+    background-color: var(--surface);
+    border-bottom: 1px solid var(--border);
+
+    /* estado cerrado */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-0.5rem);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+  }
+
+  .header-botones.abierto {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .admin-botones {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .portfolio-header .header-botones .btn-link {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    text-align: center;
+  }
+
+  .contenedor-principal {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .skills {
+    grid-template-columns: 1fr; /* 1 columna en mobile */
+  }
+
+  .proyectos {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header-botones,
+  .hamburguesa span {
+    transition: none;
+  }
+}
