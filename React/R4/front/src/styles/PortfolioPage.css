@@ -339,6 +339,9 @@
 
 /* Mobile: los botones pasan a un menú desplegable con hamburguesa */
 @media (max-width: 768px) {
+  #root:has(.portfolio-background) {
+  width: 100%;
+}
   .portfolio-header {
     padding: 0 1rem;
   }
