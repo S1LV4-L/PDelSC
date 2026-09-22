@@ -10,6 +10,7 @@ function Home() {
     const inputArchivoRef = useRef<HTMLInputElement>(null);
     const [errorImportacion, setErrorImportacion] = useState<string | null>(null);
     const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
+    const [tareaAEliminar, setTareaAEliminar] = useState<string | null>(null);
 
     // Limpia el mensaje de error automáticamente a los 10 segundos
     useEffect(() => {
@@ -97,6 +98,23 @@ function Home() {
         setMostrarConfirmacion(false);
     };
 
+    // --- CONFIRMACIÓN DE ELIMINACIÓN INDIVIDUAL ---
+
+    const pedirEliminarTarea = (id: string) => {
+        setTareaAEliminar(id);
+    };
+
+    const confirmarEliminarTarea = () => {
+        if (tareaAEliminar) {
+            eliminarTarea(tareaAEliminar);
+            setTareaAEliminar(null);
+        }
+    };
+
+    const cancelarEliminarTarea = () => {
+        setTareaAEliminar(null);
+    };
+
     return (
         <>
             <ThemeToggle />
@@ -150,6 +168,20 @@ function Home() {
                         </div>
                     )}
 
+                    {tareaAEliminar && (
+                        <div className="confirm-box">
+                            <p className="confirm-text">¿Estas seguro de que queres eliminar esta tarea?</p>
+                            <div className="confirm-actions">
+                                <button type="button" className="confirm-btn confirm-btn--si" onClick={confirmarEliminarTarea}>
+                                    Si
+                                </button>
+                                <button type="button" className="confirm-btn confirm-btn--no" onClick={cancelarEliminarTarea}>
+                                    No
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
                     {errorImportacion && <p className="import-error">{errorImportacion}</p>}
 
                     {tareas.length === 0 ? (<p className="empty-state">Todavía no creaste ninguna tarea.</p>) : (
@@ -174,14 +206,16 @@ function Home() {
                                                     Completar
                                                 </button>
                                             )}
-                                            <button className="task-btn task-btn--delete"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    e.stopPropagation();
-                                                    eliminarTarea(t.id);
-                                                }}>
-                                                Eliminar
-                                            </button>
+                                            {t.completa && (
+                                                <button className="task-btn task-btn--delete"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        pedirEliminarTarea(t.id);
+                                                    }}>
+                                                    Eliminar
+                                                </button>
+                                            )}
                                         </div>
                                     </Link>
                                 </li>

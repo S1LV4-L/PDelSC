@@ -1,0 +1,163 @@
+/* ===== Login ===== */
+
+.login-page {
+  border: 0.25rem outset #fff;
+  border-color: var(--azul-90);
+  box-shadow: 0.375rem 0.375rem 0 var(--negro);
+  width: 100%;
+  max-width: 45rem;
+  margin: 4vh auto; 
+  background-color: #0a2a2a;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    #0a2a2a,
+    #0a2a2a 0.75rem,
+    #123939 0.75rem,
+    #123939 1.5rem
+  );
+  padding-top: 0rem;
+  padding-bottom: 2rem;
+  padding-left: 3%;
+  padding-right: 3%;
+}
+
+.login-page h1 {
+  font-size: 3em;
+  margin-bottom: 2rem;
+}
+
+.login-page h1::before,
+.login-page h1::after {
+  content: "✦";
+  padding: 0 0.5rem;
+}
+
+.login-page label {
+  color: white;
+  font-size: 1.05em;
+  margin-top: 0.3rem;
+  margin-bottom: 0.3rem; 
+}
+
+.login-page input,
+.login-page select {
+  padding: 0.3rem;
+  font-size: 1.05em;
+  /* Aumentamos significativamente el margen inferior para alargar el formulario */
+  margin-bottom: 1.5rem;
+}
+
+.login-page .login-acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  /* Más separación desde el último input hasta los botones */
+  margin-top: 1.5rem;
+}
+
+.login-page .btn-ingresar {
+  width: 100%;
+  margin: 0;
+  padding: 0.4rem 0.3rem;
+  font-size: 0.85em;
+  text-align: center;
+}
+
+.login-page .login-acciones-columnas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.login-page .login-oauth,
+.login-page .login-enlaces {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.login-page .login-oauth .btn-oauth,
+.login-page .login-enlaces .btn-link {
+  width: 100%;
+  margin: 0;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.85em;
+  text-align: center;
+}
+
+/* Estilos unificados para botón de ingresar y enlaces */
+.login-page .btn-ingresar,
+.login-page .login-enlaces .btn-link {
+  background-color: var(--gris-panel);
+  color: var(--negro);
+  text-decoration: none;
+  font-family: inherit;
+  font-weight: bold;
+}
+
+/* Efecto Hover unificado */
+.login-page .btn-ingresar:hover,
+.login-page .login-enlaces .btn-link:hover {
+  background-color: rgb(212, 212, 212);
+  color: var(--negro);
+}
+
+/* ===== OAuth ===== */
+
+.login-page .login-oauth .btn-oauth {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-weight: bold;
+  font-family: inherit;
+  text-decoration: none;
+  color: var(--negro);
+  background-color: rgba(129, 208, 245, 0.63);
+  border: 0.1875rem outset #fff;
+  box-shadow: 0.1875rem 0.1875rem 0 var(--negro);
+}
+
+.login-page .login-oauth .btn-oauth:visited {
+  color: var(--negro);
+}
+
+.login-page .login-oauth .btn-oauth:hover {
+  background-color: rgba(157, 219, 248, 0.63);
+  color: var(--negro);
+}
+
+.login-page .login-oauth .btn-oauth:active {
+  border-style: inset;
+  box-shadow: none;
+}
+
+@media (max-width: 480px) {
+  .login-page {
+    width: 100%;
+    padding: 1rem;
+    margin: 0.75rem 0;
+    box-shadow: 0.25rem 0.25rem 0 var(--negro);
+  }
+
+  .login-page .login-acciones {
+    margin-top: 10%;
+    gap: 1rem; /* El espacio en móviles se mantiene independiente */
+  }
+
+  .login-page h1 {
+    margin-top: 0%;
+    margin-bottom: 0%;
+    font-size: 2em;
+  }
+
+  .login-page input,
+    .login-page select {
+    margin-bottom: 0.8rem;
+    }
+
+  .login-page .login-acciones-columnas {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
