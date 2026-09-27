@@ -104,6 +104,8 @@ app.post("/api/auth/restablecer", async (req, res) => {
     }
 });
 
+// Redirige al usuario al proveedor OAuth elegido (Google/GitHub/Jira) para que inicie sesión ahí.
+// GET porque es navegación real del navegador, no un fetch.
 app.get("/api/auth/:proveedor", (req, res) => {
     try {
         res.redirect(obtenerUrlAutorizacion(req.params.proveedor));
@@ -112,13 +114,16 @@ app.get("/api/auth/:proveedor", (req, res) => {
     }
 });
 
+// El proveedor regresa con un "code" temporal después de que el usuario acepta.
 app.get("/api/auth/:proveedor/callback", async (req, res) => {
     const { proveedor } = req.params;
     const { code } = req.query;
 
     try {
+        // Cambia el code por el access_token y trae el perfil (id + nombre) del proveedor
         const { proveedorId, nombre } = await obtenerDatosUsuario(proveedor, code);
 
+        // Busca si ya existe un usuario logueado antes con ese proveedor + id externo
         let [rows] = await pool.query(
             "SELECT * FROM usuarios WHERE proveedor = ? AND proveedor_id = ?",
             [proveedor, proveedorId]
@@ -134,10 +139,13 @@ app.get("/api/auth/:proveedor/callback", async (req, res) => {
             usuario = rows[0];
         }
 
+        // Mismo JWT que usa el login tradicional, así el resto del back no distingue el origen del login
         const token = jwt.sign({ id: usuario.id }, process.env.JWT_SECRET, { expiresIn: "2h" });
+        // Redirige al front con el token en la URL; ahí lo toma AuthCallback.tsx
         res.redirect(`${process.env.FRONTEND_URL}/auth-callback?token=${token}`);
     } catch (error) {
         console.error(error);
+        // Cualquier falla (code inválido, proveedor caído, etc.) vuelve al login con un flag de error
         res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth`);
     }
 });

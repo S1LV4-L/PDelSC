@@ -1,12 +1,6 @@
 import { useState, useEffect } from "react";
 import { usePortfolio } from "../context/PortfolioContext";
-import type {
-  PortfolioData,
-  CategoriaSkill,
-  Skill,
-  Proyecto,
-  EnlaceContacto,
-} from "../types/portfolio";
+import type { PortfolioData, CategoriaSkill, Skill, Proyecto, EnlaceContacto } from "../types/portfolio";
 
 const nuevoId = () => crypto.randomUUID();
 
@@ -14,7 +8,7 @@ const nuevoId = () => crypto.randomUUID();
 export function useDevEditor() {
   const { data, guardar } = usePortfolio();
 
-  const [draft, setDraft] = useState<PortfolioData>(data);
+  const [draft, setDraft] = useState<PortfolioData>(data); // Copia local editable de los datos del portfolio (data del contexto)
   const [estado, setEstado] = useState<"" | "guardado" | "error">("");
 
   const hayCambios = JSON.stringify(draft) !== JSON.stringify(data);
@@ -40,11 +34,16 @@ export function useDevEditor() {
       categorias: [...d.categorias, { id: nuevoId(), titulo: "", icono: "", skills: [] }],
     }));
 
-  const editarCategoria = (id: string, cambios: Partial<Omit<CategoriaSkill, "id" | "skills">>) =>
-    setDraft((d) => ({
-      ...d,
-      categorias: d.categorias.map((c) => (c.id === id ? { ...c, ...cambios } : c)),
-    }));
+// Recibe el id de la categoría y un objeto con solo los campos a cambiar
+const editarCategoria = (id: string, cambios: Partial<Omit<CategoriaSkill, "id" | "skills">>) =>
+  // setDraft con función: recibe el borrador actual (d) para no depender de valores viejos
+  setDraft((d) => ({
+    ...d, // copia el resto del borrador sin modificar (nombre, proyectos, contacto...)
+    categorias: d.categorias.map((c) =>
+      // Si es la categoría buscada, crea una copia con los cambios aplicados; si no, la devuelve igual
+      c.id === id ? { ...c, ...cambios } : c),
+  }));
+// Se crean objetos/arrays nuevos para que React detecte el cambio
 
   const quitarCategoria = (id: string) =>
     setDraft((d) => ({ ...d, categorias: d.categorias.filter((c) => c.id !== id) }));

@@ -117,7 +117,7 @@ app.post("/api/usuarios/mi-cuenta", verificarToken, async (req, res) => {
     }
 });
 
-// ---------- PORTFOLIO (Aquí está el CRUD real de la app) ----------
+// ---------- PORTFOLIO (ABML real) ----------
 
 // POST para LEER
 app.post("/api/portfolio", async (req, res) => {

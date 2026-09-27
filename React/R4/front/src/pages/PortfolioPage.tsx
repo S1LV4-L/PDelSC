@@ -22,8 +22,7 @@ export default function PortfolioPage() {
     const [menuAbierto, setMenuAbierto] = useState(false);
     const headerRef = useRef<HTMLElement>(null);
 
-    // Cierra el menú con Escape, al hacer click fuera del header
-    // o al pasar a resolución desktop. Los hooks van antes del return condicional.
+    // Cierra el menú con Escape, al hacer click fuera del header o al pasar a resolución desktop.
     useEffect(() => {
         if (!menuAbierto) return;
 
@@ -80,10 +79,7 @@ export default function PortfolioPage() {
                 )}
 
                 <div className="header-derecha">
-                    <nav
-                        id="menu-principal"
-                        className={`header-botones${menuAbierto ? " abierto" : ""}`}
-                    >
+                    <nav id="menu-principal" className={`header-botones${menuAbierto ? " abierto" : ""}`}>
                         <button className="btn-link btn-sobre-mi" onClick={() => irASeccion("home")}>Home</button>
                         <button className="btn-link btn-skills" onClick={() => irASeccion("skills")}>Skills</button>
                         <button className="btn-link btn-proyectos" onClick={() => irASeccion("proyectos")}>Proyectos</button>
