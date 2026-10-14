@@ -5,18 +5,21 @@ import PantallaHerramienta, { Aviso, Dato, Seccion } from "../../components/Pant
 import Button from "../../components/ui/Button";
 
 const PUNTOS = ["N", "NE", "E", "SE", "S", "SO", "O", "NO"];
+// Convierte grados en dirección cardinal (N, S, E, O, etc.)
 const cardinal = (grados: number) => PUNTOS[Math.round(grados / 45) % 8];
 
+/** Pantalla para obtener ubicación GPS, seguirla en tiempo real y usar la brújula */
 export default function UbicacionScreen() {
-  const [pos, setPos] = useState<Location.LocationObject | null>(null);
-  const [direccion, setDireccion] = useState("");
-  const [siguiendo, setSiguiendo] = useState(false);
-  const [rumbo, setRumbo] = useState<number | null>(null);
+  const [pos, setPos] = useState<Location.LocationObject | null>(null); // Posición actual
+  const [direccion, setDireccion] = useState(""); // Dirección en texto (geocoding inverso)
+  const [siguiendo, setSiguiendo] = useState(false); // Flag de seguimiento continuo
+  const [rumbo, setRumbo] = useState<number | null>(null); // Grados de la brújula
   const [error, setError] = useState("");
+  // Refs para poder cancelar las suscripciones en segundo plano
   const subPos = useRef<Location.LocationSubscription | null>(null);
   const subRumbo = useRef<Location.LocationSubscription | null>(null);
 
-  // Al salir de la pantalla se cortan las suscripciones
+  // Limpieza de suscripciones al desmontar
   useEffect(
     () => () => {
       subPos.current?.remove();
@@ -25,12 +28,14 @@ export default function UbicacionScreen() {
     []
   );
 
+  // Solicita permisos de ubicación en primer plano
   const pedirPermiso = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") setError("Permiso de ubicación denegado");
     return status === "granted";
   };
 
+  // Obtiene una única lectura de posición y la geocodifica inversamente
   const obtenerActual = async () => {
     try {
       setError("");
@@ -44,6 +49,7 @@ export default function UbicacionScreen() {
     }
   };
 
+  // Inicia o detiene el seguimiento continuo de la posición GPS
   const alternarSeguimiento = async () => {
     if (siguiendo) {
       subPos.current?.remove();
@@ -60,6 +66,7 @@ export default function UbicacionScreen() {
     setSiguiendo(true);
   };
 
+  // Inicia o detiene la suscripción al magnetómetro/brújula
   const alternarBrujula = async () => {
     if (subRumbo.current) {
       subRumbo.current.remove();
@@ -70,7 +77,7 @@ export default function UbicacionScreen() {
     setError("");
     if (!(await pedirPermiso())) return;
     subRumbo.current = await Location.watchHeadingAsync((h) =>
-      setRumbo(h.trueHeading >= 0 ? h.trueHeading : h.magHeading)
+      setRumbo(h.trueHeading >= 0 ? h.trueHeading : h.magHeading) // Prioriza rumbo verdadero sobre magnético
     );
     setRumbo(0);
   };
@@ -94,7 +101,7 @@ export default function UbicacionScreen() {
             <Dato etiqueta="Altitud" valor={`${pos.coords.altitude?.toFixed(1) ?? "-"} m`} />
             <Dato
               etiqueta="Velocidad"
-              valor={`${pos.coords.speed != null ? (pos.coords.speed * 3.6).toFixed(1) : "-"} km/h`}
+              valor={`${pos.coords.speed != null ? (pos.coords.speed * 3.6).toFixed(1) : "-"} km/h`} // Conversión m/s a km/h
             />
             <Dato etiqueta="Hora" valor={new Date(pos.timestamp).toLocaleTimeString("es-AR")} />
             {!!direccion && <Dato etiqueta="Dirección" valor={direccion} />}

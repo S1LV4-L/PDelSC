@@ -3,14 +3,18 @@ import * as LocalAuthentication from "expo-local-authentication";
 import PantallaHerramienta, { Aviso, Dato, Seccion } from "../../components/PantallaHerramienta";
 import Button from "../../components/ui/Button";
 
+// Diccionario para traducir los tipos de autenticación biométrica al español
 const TIPOS: Record<number, string> = {
   [LocalAuthentication.AuthenticationType.FINGERPRINT]: "Huella digital",
   [LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION]: "Reconocimiento facial",
   [LocalAuthentication.AuthenticationType.IRIS]: "Iris",
 };
 
+// Pantalla que consulta las capacidades biométricas del dispositivo y permite probar la autenticación
 export default function BiometriaScreen() {
+  // Estado para almacenar la info del hardware, inscripción y tipos de biometría
   const [info, setInfo] = useState({ hardware: false, inscripto: false, tipos: [] as string[] });
+  // Estado para el resultado de la prueba de autenticación
   const [resultado, setResultado] = useState("");
   const [exito, setExito] = useState(false);
 

@@ -16,6 +16,7 @@ export default function HomeScreen() {
   const theme = useTheme();
   const { user, signOut } = useAuth();
 
+  // Verifica permisos para mostrar el panel de administración de usuarios
   const puedeVerUsuarios = user?.permisos?.includes("ver_usuarios") ?? false;
   const colores = { backgroundColor: theme.surface, borderColor: theme.border };
 
@@ -25,7 +26,7 @@ export default function HomeScreen() {
       <ThemeToggle />
 
       <ScrollView
-        contentContainerStyle={styles.scrollContent} // Cambié el nombre del estilo para mayor claridad
+        contentContainerStyle={styles.scrollContent}
       >
         <View style={[styles.card, isDesktop && styles.cardDesktop, colores]}>
           <View style={[styles.columna, isDesktop && styles.columnaDesktop]}>

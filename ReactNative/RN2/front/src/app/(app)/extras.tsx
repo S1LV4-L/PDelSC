@@ -16,6 +16,7 @@ export default function ExtrasScreen() {
   const [ip, setIp] = useState("-");
   const [texto, setTexto] = useState("Hola, esto es una prueba de voz");
 
+  // Consulta asíncrona de nivel y estado de batería, además de estado de red e IP
   const actualizar = useCallback(async () => {
     const nivel = await Battery.getBatteryLevelAsync();
     const estado = await Battery.getBatteryStateAsync();

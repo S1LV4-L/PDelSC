@@ -11,24 +11,26 @@ type Sensor = {
   addListener: (listener: (datos: Vec) => void) => { remove: () => void };
 };
 
+/** Hook personalizado para suscribirse a un sensor de movimiento y obtener sus datos (x, y, z) */
 function useSensor(sensor: Sensor, activo: boolean) {
   const [datos, setDatos] = useState<Vec>({ x: 0, y: 0, z: 0 });
 
   useEffect(() => {
     if (!activo) return;
-    sensor.setUpdateInterval(100);
+    sensor.setUpdateInterval(100); // Frecuencia de muestreo
     const suscripcion = sensor.addListener(setDatos);
-    return () => suscripcion.remove();
+    return () => suscripcion.remove(); // Limpieza al desmontar o desactivar
   }, [sensor, activo]);
 
   return datos;
 }
 
+// Panel específico para el Acelerómetro. Detecta sacudidas y muestra una burbuja visual de movimiento
 function PanelAcelerometro() {
   const theme = useTheme();
   const [activo, setActivo] = useState(false);
-  const [sacudidas, setSacudidas] = useState(0);
-  const ultima = useRef(0);
+  const [sacudidas, setSacudidas] = useState(0); // Contador de sacudidas
+  const ultima = useRef(0); // Timestamp de la última sacudida (debounce)
   const datos = useSensor(Accelerometer, activo);
 
   // Una sacudida es una aceleración total mayor a ~2 g, con 600 ms entre una y otra
@@ -40,10 +42,10 @@ function PanelAcelerometro() {
     }
   }, [datos, activo]);
 
+  // Cálculos para mover la burbuja visual dentro de la caja
   const TAM = 220;
   const RADIO = 16;
   const limite = TAM / 2 - RADIO;
-  // Si la bolita se mueve al revés en tu dispositivo, invertí el signo de estas dos líneas
   const bx = Math.max(-limite, Math.min(limite, -datos.x * limite));
   const by = Math.max(-limite, Math.min(limite, datos.y * limite));
 
@@ -54,6 +56,7 @@ function PanelAcelerometro() {
       <Dato etiqueta="Z (g)" valor={datos.z.toFixed(3)} />
       <Dato etiqueta="Sacudidas detectadas" valor={String(sacudidas)} />
 
+      {/* inclinación del dispositivo */}
       <View style={[styles.caja, { width: TAM, height: TAM, borderColor: theme.border }]}>
         <View
           style={{
@@ -74,6 +77,7 @@ function PanelAcelerometro() {
   );
 }
 
+/** Giroscopio y Magnetómetro */
 function PanelSensor({ nombre, sensor, unidad }: { nombre: string; sensor: Sensor; unidad: string }) {
   const [activo, setActivo] = useState(false);
   const datos = useSensor(sensor, activo);
@@ -88,6 +92,7 @@ function PanelSensor({ nombre, sensor, unidad }: { nombre: string; sensor: Senso
   );
 }
 
+// Pantalla que agrupa los paneles de los sensores de movimiento del dispositivo
 export default function SensoresScreen() {
   return (
     <PantallaHerramienta titulo="Sensores de movimiento">

@@ -1,3 +1,4 @@
+// app/(tabs)/_layout.tsx
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeColors } from '../../hooks/useThemeColors';
@@ -18,9 +19,9 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen
-        name="basicos"
+        name="index"
         options={{
-          title: 'Básicos',
+          title: 'Básicos', // El título visible sigue siendo Básicos
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="cube-outline" color={color} size={size} />
           ),

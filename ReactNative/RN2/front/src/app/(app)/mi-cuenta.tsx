@@ -20,6 +20,7 @@ function SeccionNombre() {
   const [ok, setOk] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Envía el nuevo nombre al backend si pasa la validación y es distinto al actual
   const guardar = async () => {
     setSubmitted(true);
     setError("");
@@ -154,6 +155,7 @@ function SeccionCodigos() {
   const [loading, setLoading] = useState(false);
   const [codigos, setCodigos] = useState<string[] | null>(null);
 
+  // Pide al backend generar nuevos códigos si la contraseña es correcta
   const generar = async () => {
     setSubmitted(true);
     setError("");

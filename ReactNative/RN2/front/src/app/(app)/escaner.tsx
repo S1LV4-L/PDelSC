@@ -14,6 +14,7 @@ export default function EscanerScreen() {
   const [copiado, setCopiado] = useState(false);
   const [texto, setTexto] = useState("https://expo.dev");
 
+  // Callback que se ejecuta al detectar un código; detiene el escaneo
   const manejarCodigo = ({ type, data }: { type: string; data: string }) => {
     setResultado({ tipo: type, dato: data });
     setEscaneando(false);
