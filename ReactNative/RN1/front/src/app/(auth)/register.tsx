@@ -36,7 +36,7 @@ export default function RegisterScreen() {
     try {
       setLoading(true);
       const res = await register(name.trim(), email.trim(), password);
-      setCodigos(res.codigosRecuperacion);
+      setCodigos(res.codigosRecuperacion); // muestra los códigos
     } catch (e) {
       setFormError(e instanceof Error ? e.message : "Error al registrarse");
     } finally {
@@ -44,6 +44,7 @@ export default function RegisterScreen() {
     }
   };
 
+  // Vista posterior al registro: muestra los códigos al usuario
   if (codigos) {
     return (
       <AuthLayout title="Guarda tus códigos" subtitle="Los necesitarás si olvidas tu contraseña">

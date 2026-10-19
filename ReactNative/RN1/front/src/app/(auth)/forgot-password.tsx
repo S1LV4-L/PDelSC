@@ -17,7 +17,7 @@ export default function ForgotPasswordScreen() {
   const [confirm, setConfirm] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [formError, setFormError] = useState("");
-  const [restantes, setRestantes] = useState<number | null>(null);
+  const [restantes, setRestantes] = useState<number | null>(null); // null = aún no enviado
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
@@ -111,7 +111,7 @@ export default function ForgotPasswordScreen() {
       )}
     </AuthLayout>
   );
-}
+};
 
 const styles = StyleSheet.create({
   success: { fontSize: 15, lineHeight: 22, marginBottom: 16 },

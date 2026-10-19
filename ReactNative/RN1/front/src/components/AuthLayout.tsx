@@ -44,7 +44,7 @@ export default function AuthLayout({ title, subtitle, children }: Props) {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   root: { flex: 1 },
-  rootDesktop: { flexDirection: "row" },
+  rootDesktop: { flexDirection: "row" }, // desktop: marca a la izquierda, form a la derecha
   brand: { flex: 1, justifyContent: "center", padding: 64 },
   brandTitle: { color: "#fff", fontSize: 40, fontWeight: "800", marginBottom: 16, letterSpacing: -1 },
   brandText: { color: "#E0E7FF", fontSize: 18, maxWidth: 420, lineHeight: 26 },

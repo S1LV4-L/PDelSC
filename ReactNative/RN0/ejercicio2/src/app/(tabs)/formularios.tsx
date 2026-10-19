@@ -31,7 +31,7 @@ export default function FormulariosScreen() {
       </Seccion>
 
       <Seccion titulo="Button" desc="Botón nativo con estilo del sistema operativo.">
-        <Button title="Presionar" onPress={() => alert('Presionado')} />
+        <Button title="Presionar" />
       </Seccion>
     </ScrollView>
   );

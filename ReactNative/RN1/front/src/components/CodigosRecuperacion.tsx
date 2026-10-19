@@ -19,9 +19,11 @@ export default function RecoveryCodes({ codigos, onContinue, continueLabel = "Ya
     setTimeout(() => setCopiado(false), 2000);
   };
 
+  // Descarga los códigos: en web genera un .txt, en nativo usa Share
   const descargar = async () => {
     const texto = armarTexto(codigos);
     if (Platform.OS === "web") {
+      // Crea un Blob y dispara la descarga con un <a> temporal
       const url = URL.createObjectURL(new Blob([texto], { type: "text/plain" }));
       const enlace = document.createElement("a");
       enlace.href = url;

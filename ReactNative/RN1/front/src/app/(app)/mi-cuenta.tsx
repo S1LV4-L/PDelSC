@@ -70,7 +70,6 @@ function SeccionPassword() {
   const [error, setError] = useState("");
   const [ok, setOk] = useState("");
   const [loading, setLoading] = useState(false);
-  // Al cambiar la key se vuelven a montar los inputs (se limpian sus errores)
   const [formKey, setFormKey] = useState(0);
 
   const cambiar = async () => {
@@ -226,7 +225,6 @@ export default function MiCuentaScreen() {
   const { user } = useAuth();
   const { isDesktop, fs } = useResponsive();
 
-  // Solo se oculta si el back confirma que la cuenta no tiene contraseña (OAuth)
   const tienePassword = user?.tienePassword !== false;
 
   const volver = () => (router.canGoBack() ? router.back() : router.replace("/home"));
@@ -257,6 +255,7 @@ export default function MiCuentaScreen() {
             ]}
           >
             <SeccionNombre />
+            {/* Si la cuenta no tiene contraseña (OAuth) se muestra aviso en lugar del form */}
             {tienePassword ? (
               <SeccionPassword />
             ) : (
@@ -267,6 +266,7 @@ export default function MiCuentaScreen() {
             )}
           </View>
 
+          {/* La columna de códigos solo aplica si hay contraseña */}
           {tienePassword && (
             <View style={[styles.columna, isDesktop && styles.columnaDesktop]}>
               <SeccionCodigos />

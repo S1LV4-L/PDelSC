@@ -11,12 +11,14 @@ export default function HomeScreen() {
   const router = useRouter();
   const { isDesktop } = useResponsive();
   const theme = useTheme();
-  const { user, signOut } = useAuth();
+  const { user, signOut } = useAuth(); // usuario actual + acción logout
 
+  // Verifica permiso para acceder al panel de administración de usuarios
   const puedeVerUsuarios = user?.permisos?.includes("ver_usuarios") ?? false;
   const colores = { backgroundColor: theme.surface, borderColor: theme.border };
 
   return (
+    // ScrollView permite desplazar contenido si excede la pantalla
     <ScrollView
       style={{ backgroundColor: theme.background }}
       contentContainerStyle={styles.container}
@@ -34,6 +36,7 @@ export default function HomeScreen() {
         </View>
       </View>
 
+      {/* Panel de admin de usuarios: condicional al permiso */}
       {puedeVerUsuarios && (
         <View style={[styles.cardUsuarios, isDesktop && styles.cardUsuariosDesktop, colores]}>
           <AdminUsuarios />
@@ -65,6 +68,7 @@ const styles = StyleSheet.create({
     gap: 24,
   },
   card: { ...cardBase, gap: 12 },
+  // En escritorio la tarjeta se vuelve horizontal con dos columnas
   cardDesktop: {
     width: "85%",
     maxWidth: "100%",

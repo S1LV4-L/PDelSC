@@ -19,6 +19,7 @@ const PROVEEDORES: { id: Proveedor; label: string }[] = [
 export default function LoginScreen() {
   const theme = useTheme();
   const router = useRouter();
+  // Lee un posible flag de error proveniente del callback OAuth
   const { error } = useLocalSearchParams<{ error?: string }>();
   const { signIn, signInWithToken } = useAuth();
   const [email, setEmail] = useState("");
@@ -45,6 +46,7 @@ export default function LoginScreen() {
     }
   };
 
+  // Login OAuth: obtiene token del provider y lo intercambia por sesión
   const handleOAuth = async (proveedor: Proveedor) => {
     setFormError("");
     try {

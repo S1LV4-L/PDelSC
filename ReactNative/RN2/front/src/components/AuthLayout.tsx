@@ -16,7 +16,7 @@ export default function AuthLayout({ title, subtitle, children }: Props) {
       <View style={[styles.root, { backgroundColor: theme.background }, isDesktop && styles.rootDesktop]}>
         {isDesktop && (
           <View style={[styles.brand, { backgroundColor: theme.primaryDark }]}>
-            <Text style={styles.brandTitle}>RN1</Text>
+            <Text style={styles.brandTitle}>RN2</Text>
             <Text style={styles.brandText}>Inicia sesión o registrate para continuar.</Text>
           </View>
         )}
