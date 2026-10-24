@@ -1,32 +1,31 @@
-import { useCallback, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text } from "react-native";
+import { useCallback, useMemo, useState } from "react";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useTheme } from "../../constants/theme";
 import { useAuth } from "../../hooks/useAuth";
-import { useResponsive } from "../../hooks/useResponsive";
-import { misMaterias } from "../../services/academicoService";
-import { DictadoResumen } from "../../types/academico";
-import { dictadoLabel } from "../../utils/formato";
+import { resumenPropio } from "../../services/asistenciaService";
+import { FilaPresentismo } from "../../types/academico";
+import { colorPresentismo, dictadoLabel, etiquetaPresentismo } from "../../utils/formato";
 import CabeceraUsuario from "../CabeceraUsuario";
 import Pantalla from "../Pantalla";
 import Button from "../ui/Button";
 import FilaItem from "../ui/FilaItem";
+import Pct from "../ui/Pct";
 import Tarjeta from "../ui/Tarjeta";
+import Texto from "../ui/Texto";
 
 export default function HomeAlumno() {
   const theme = useTheme();
   const router = useRouter();
-  const { fs } = useResponsive();
   const { token } = useAuth();
-
-  const [items, setItems] = useState<DictadoResumen[]>([]);
+  const [items, setItems] = useState<FilaPresentismo[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
-
+  
   useFocusEffect(
     useCallback(() => {
       if (!token) return;
-      misMaterias(token)
+      resumenPropio(token)
         .then((lista) => {
           setItems(lista);
           setError("");
@@ -35,36 +34,58 @@ export default function HomeAlumno() {
         .finally(() => setCargando(false));
     }, [token])
   );
-
+  
+  const global = useMemo(() => {
+    const clases = items.reduce((a, i) => a + i.clases, 0);
+    const presentes = items.reduce((a, i) => a + i.presentes, 0);
+    return { clases, presentes, pct: clases ? Math.round((100 * presentes) / clases) : null };
+  }, [items]);
+  
+  const colorGlobal = colorPresentismo(global.pct, theme);
+  
   return (
     <Pantalla>
       <CabeceraUsuario />
-
       <Tarjeta>
         <Button title="Escanear QR" onPress={() => router.push("./escanear")} />
+        <Button variant="outline" title="Calendario de asistencia" onPress={() => router.push("./calendario")} />
+        <Button variant="outline" title="Mis justificaciones" onPress={() => router.push("./justificaciones")} />
       </Tarjeta>
-
       <Tarjeta>
-        <Text style={[styles.titulo, { color: theme.text, fontSize: fs(20) }]}>Mis materias</Text>
-
-        {!!error && <Text style={{ color: theme.error, fontSize: fs(14) }}>{error}</Text>}
-
+        <Texto size={20} bold>Mi asistencia</Texto>
+        {!!error && <Texto size={14} color="error">{error}</Texto>}
+        {cargando ? (
+          <ActivityIndicator />
+        ) : (
+          <View style={styles.global}>
+            <View style={[styles.punto, { backgroundColor: colorGlobal }]} />
+            <View>
+              <Texto size={28} bold color={colorGlobal}>{global.pct === null ? "—" : `${global.pct}%`}</Texto>
+              <Texto size={14} color="muted">
+                {etiquetaPresentismo(global.pct)} · {global.presentes}/{global.clases} clases
+              </Texto>
+            </View>
+          </View>
+        )}
+        <Texto size={12} color="muted">Verde: 85% o más · Amarillo: 75% a 84% · Rojo: menos de 75%</Texto>
+      </Tarjeta>
+      <Tarjeta>
+        <Texto size={20} bold>Mis materias</Texto>
         {cargando ? (
           <ActivityIndicator />
         ) : items.length === 0 ? (
-          <Text style={{ color: theme.muted, fontSize: fs(15) }}>
-            Todavía no tienes materias asignadas. Consulta con el administrador.
-          </Text>
+          <Texto color="muted">Todavía no tienes materias asignadas. Consulta con el administrador.</Texto>
         ) : (
           items.map((m) => (
             <FilaItem
-              key={m.id}
+              key={m.dictado_id}
               titulo={dictadoLabel(m)}
-              derecha={<Text style={{ color: theme.muted, fontSize: fs(20) }}>›</Text>}
+              subtitulo={`${m.presentes}/${m.clases} clases${m.justificadas ? ` · ${m.justificadas} justificadas` : ""}`}
+              derecha={<Pct valor={m.porcentaje} />}
               onPress={() =>
                 router.push({
                   pathname: "./materia",
-                  params: { id: String(m.id), titulo: dictadoLabel(m) },
+                  params: { id: String(m.dictado_id), titulo: dictadoLabel(m) },
                 })
               }
             />
@@ -76,5 +97,6 @@ export default function HomeAlumno() {
 }
 
 const styles = StyleSheet.create({
-  titulo: { fontWeight: "800", letterSpacing: -0.3 },
+  global: { flexDirection: "row", alignItems: "center", gap: 16 },
+  punto: { width: 22, height: 22, borderRadius: 11 },
 });

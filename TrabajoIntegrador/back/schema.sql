@@ -118,6 +118,84 @@ CREATE TABLE asistencias (
   FOREIGN KEY (alumno_id) REFERENCES usuarios(id) ON DELETE CASCADE
 );
 
+-- Auditoría general (QR regenerados, correcciones manuales, justificaciones, comunicados, importaciones, promociones)
+CREATE TABLE auditoria (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  usuario_id INT NULL,
+  accion VARCHAR(40) NOT NULL,
+  detalle JSON NULL,
+  creado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL,
+  INDEX idx_accion_fecha (accion, creado_en)
+);
+
+-- Una justificación por falta (si la rechazan, el alumno puede volver a pedirla)
+CREATE TABLE justificaciones (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  asistencia_id INT NOT NULL,
+  alumno_id INT NOT NULL,
+  motivo VARCHAR(500) NOT NULL,
+  adjunto MEDIUMBLOB NULL,
+  adjunto_mime VARCHAR(50) NULL,
+  estado ENUM('pendiente', 'aprobada', 'rechazada') NOT NULL DEFAULT 'pendiente',
+  respuesta VARCHAR(255) NULL,
+  creada_en DATETIME DEFAULT CURRENT_TIMESTAMP,
+  resuelta_por INT NULL,
+  resuelta_en DATETIME NULL,
+  UNIQUE KEY uq_asistencia (asistencia_id),
+  FOREIGN KEY (asistencia_id) REFERENCES asistencias(id) ON DELETE CASCADE,
+  FOREIGN KEY (alumno_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+  FOREIGN KEY (resuelta_por) REFERENCES usuarios(id) ON DELETE SET NULL,
+  INDEX idx_estado (estado)
+);
+
+-- Comunicados (notificaciones). global = todos los alumnos y profesores
+-- curso = alumnos del curso + profesores que dictan en él; usuario = personas puntuales
+CREATE TABLE comunicados (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  autor_id INT NULL,
+  titulo VARCHAR(120) NOT NULL,
+  mensaje TEXT NOT NULL,
+  alcance ENUM('global', 'curso', 'usuario') NOT NULL,
+  creado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (autor_id) REFERENCES usuarios(id) ON DELETE SET NULL
+);
+
+CREATE TABLE comunicado_destinos (
+  comunicado_id INT NOT NULL,
+  curso_id INT NULL,
+  usuario_id INT NULL,
+  FOREIGN KEY (comunicado_id) REFERENCES comunicados(id) ON DELETE CASCADE,
+  FOREIGN KEY (curso_id) REFERENCES cursos(id) ON DELETE CASCADE,
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+  INDEX idx_comunicado (comunicado_id)
+);
+
+CREATE TABLE comunicado_lecturas (
+  comunicado_id INT NOT NULL,
+  usuario_id INT NOT NULL,
+  leido_en DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (comunicado_id, usuario_id),
+  FOREIGN KEY (comunicado_id) REFERENCES comunicados(id) ON DELETE CASCADE,
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+-- Calificaciones: una fila por nota cargada a un alumno en un dictado
+CREATE TABLE calificaciones (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  dictado_id INT NOT NULL,
+  alumno_id INT NOT NULL,
+  titulo VARCHAR(100) NOT NULL,
+  nota DECIMAL(3,1) NOT NULL,
+  fecha DATE NOT NULL,
+  creada_por INT NULL,
+  CONSTRAINT chk_nota CHECK (nota BETWEEN 1 AND 10),
+  FOREIGN KEY (dictado_id) REFERENCES dictados(id) ON DELETE CASCADE,
+  FOREIGN KEY (alumno_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+  FOREIGN KEY (creada_por) REFERENCES usuarios(id) ON DELETE SET NULL,
+  INDEX idx_dictado_alumno (dictado_id, alumno_id)
+);
+
 -- ---------- Datos iniciales ----------
 
 INSERT INTO perfiles (nombre) VALUES ('Administrador'), ('Profesor'), ('Alumno');

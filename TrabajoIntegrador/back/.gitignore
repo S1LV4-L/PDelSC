@@ -1,2 +1,6 @@
 .env
 node_modules/
+
+# Repomix bundles
+backend-bundle.md
+*-bundle.md

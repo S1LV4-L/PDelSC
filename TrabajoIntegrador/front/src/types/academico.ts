@@ -42,11 +42,15 @@ export type AsistenciaAlumno = {
 };
 
 // Alumno: su propio historial
-export type AsistenciaPropia = { fecha: string; estado: EstadoAsistencia; nota: string | null };
-
+export type AsistenciaPropia = {
+  id: number | null;
+  fecha: string;
+  estado: EstadoAsistencia;
+  nota: string | null;
+  justificacion: EstadoJustificacion | null;
+};
 export type QrClase = {
   id: number;
-  token: string;
   duracion_min: number;
   segundos_restantes: number;
   reemplazado?: boolean;
@@ -70,4 +74,111 @@ export type EstadisticaAlumno = {
   presentes: number;
   ausentes: number;
   porcentaje_presentismo: string | number | null;
+};
+
+export type EstadoJustificacion = "pendiente" | "aprobada" | "rechazada";
+
+export type Tabla = {
+  titulo: string;
+  subtitulo?: string;
+  columnas: string[];
+  filas: (string | number | null)[][];
+};
+
+export type FilaPresentismo = {
+  dictado_id: number;
+  materia: string;
+  anio: number;
+  division: number;
+  clases: number;
+  presentes: number;
+  justificadas: number;
+  porcentaje: number | null;
+};
+export type AlertaAusentismo = FilaPresentismo & { alumno_id: number; nombre: string };
+
+export type QrDinamico = { payload: string | null; segundos_restantes: number; ventana: number };
+
+export type EstadisticasMateria = {
+  umbral: number;
+  porClase: { fecha: string; total: number; presentes: number; porcentaje: number }[];
+  porAlumno: AlertaAusentismo[];
+  enRiesgo: AlertaAusentismo[];
+};
+
+export type DiaCalendario = { fecha: string; total: number; presentes: number };
+
+export type Justificacion = {
+  id: number;
+  asistencia_id: number;
+  fecha: string;
+  materia: string;
+  anio: number;
+  division: number;
+  motivo: string;
+  estado: EstadoJustificacion;
+  respuesta: string | null;
+  tiene_adjunto: boolean;
+  alumno?: string; // solo en la vista del administrador
+};
+
+export type FilaClaseAdmin = {
+  asistencia_id: number;
+  alumno_id: number;
+  nombre: string;
+  estado: EstadoAsistencia;
+  justificacion: EstadoJustificacion | null;
+  motivo: string | null;
+};
+
+export type Comunicado = {
+  id: number;
+  titulo: string;
+  mensaje: string;
+  alcance: "global" | "curso" | "usuario";
+  fecha: string;
+  autor: string | null;
+  leido: boolean;
+};
+export type ComunicadoEnviado = {
+  id: number;
+  titulo: string;
+  mensaje: string;
+  alcance: "global" | "curso" | "usuario";
+  fecha: string;
+  destinos: number;
+  lecturas: number;
+};
+
+export type Calificacion = { id: number; alumno_id: number; titulo: string; nota: number; fecha: string };
+
+export type EventoAuditoria = {
+  id: number;
+  fecha: string;
+  accion: string;
+  usuario: string | null;
+  detalle: Record<string, unknown> | null;
+};
+export type AccesoAuditoria = {
+  id: number;
+  fecha: string;
+  resultado: "exitoso" | "fallido";
+  nombre: string | null;
+  email: string | null;
+};
+
+export type ResultadoImportacion = {
+  simulado: boolean;
+  total: number;
+  validos: number;
+  creados: { linea: number; id: number; nombre: string; email: string; password: string; codigos: string[] }[];
+  errores: { linea: number; error: string }[];
+};
+export type ResultadoPromocion = {
+  simulado: boolean;
+  curso: string;
+  destino: string | null;
+  crearaDestino: boolean;
+  egresan: boolean;
+  alumnos: number;
 };

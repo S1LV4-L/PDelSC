@@ -1,74 +1,116 @@
 import { useCallback, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import Pantalla from "../../components/Pantalla";
+import Button from "../../components/ui/Button";
+import Chips from "../../components/ui/Chips";
 import EstadoTexto from "../../components/ui/EstadoTexto";
+import Pct from "../../components/ui/Pct";
 import Tarjeta from "../../components/ui/Tarjeta";
+import Texto from "../../components/ui/Texto";
 import { useTheme } from "../../constants/theme";
 import { useAuth } from "../../hooks/useAuth";
-import { useResponsive } from "../../hooks/useResponsive";
 import { historialPropio } from "../../services/asistenciaService";
-import { AsistenciaPropia } from "../../types/academico";
+import { misCalificaciones } from "../../services/calificacionService";
+import { AsistenciaPropia, Calificacion } from "../../types/academico";
 import { fechaLarga, porcentaje } from "../../utils/formato";
+
+type Pestania = "asistencia" | "calificaciones";
+
+const PESTANIAS = [
+  { valor: "asistencia" as Pestania, label: "Asistencia" },
+  { valor: "calificaciones" as Pestania, label: "Calificaciones" },
+];
 
 export default function MateriaScreen() {
   const theme = useTheme();
-  const { fs } = useResponsive();
+  const router = useRouter();
   const { token } = useAuth();
   const { id, titulo } = useLocalSearchParams<{ id: string; titulo?: string }>();
-
+  const [pestania, setPestania] = useState<Pestania>("asistencia");
   const [filas, setFilas] = useState<AsistenciaPropia[]>([]);
+  const [notas, setNotas] = useState<Calificacion[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
-
+  
   useFocusEffect(
     useCallback(() => {
       if (!token) return;
-      historialPropio(token, Number(id))
-        .then((lista) => {
-          setFilas(lista);
+      Promise.all([historialPropio(token, Number(id)), misCalificaciones(token, Number(id))])
+        .then(([h, n]) => {
+          setFilas(h);
+          setNotas(n);
           setError("");
         })
-        .catch((e) => setError(e instanceof Error ? e.message : "No se pudo cargar el historial"))
+        .catch((e) => setError(e instanceof Error ? e.message : "No se pudo cargar la materia"))
         .finally(() => setCargando(false));
     }, [token, id])
   );
-
+  
   const presentes = filas.filter((f) => f.estado === "presente").length;
-  const pct = porcentaje(presentes, filas.length);
-
+  const pct = filas.length ? porcentaje(presentes, filas.length) : null;
+  const promedio = notas.length ? notas.reduce((a, n) => a + n.nota, 0) / notas.length : null;
+  const colorJust = (e: string) => (e === "aprobada" ? theme.success : e === "rechazada" ? theme.error : theme.muted);
+  
   return (
     <Pantalla volver>
-      <Text style={[styles.titulo, { color: theme.text, fontSize: fs(24) }]}>{titulo}</Text>
-
+      <Texto size={24} bold>{titulo}</Texto>
       <Tarjeta>
-        {!!error && <Text style={{ color: theme.error, fontSize: fs(14) }}>{error}</Text>}
-
+        <Chips opciones={PESTANIAS} valor={pestania} onChange={setPestania} />
+        {!!error && <Texto size={14} color="error">{error}</Texto>}
         {cargando ? (
           <ActivityIndicator />
-        ) : filas.length === 0 ? (
-          <Text style={{ color: theme.muted, fontSize: fs(15) }}>Todavía no hay clases registradas.</Text>
+        ) : pestania === "asistencia" ? (
+          filas.length === 0 ? (
+            <Texto color="muted">Todavía no hay clases registradas.</Texto>
+          ) : (
+            <>
+              <View style={styles.fila}>
+                <Texto size={20} bold>{presentes}/{filas.length} clases</Texto>
+                <Pct valor={pct} />
+              </View>
+              {filas.map((f) => (
+                <View key={f.fecha} style={[styles.item, { borderColor: theme.border }]}>
+                  <View style={styles.fila}>
+                    <Texto style={{ flex: 1 }}>{fechaLarga(f.fecha)}</Texto>
+                    <EstadoTexto estado={f.estado} />
+                  </View>
+                  {f.estado === "ausente" && !!f.nota && (
+                    <Texto size={14} color="muted">Nota del profesor: {f.nota}</Texto>
+                  )}
+                  {f.estado === "ausente" && !!f.justificacion && (
+                    <Texto size={14} bold color={colorJust(f.justificacion)}>
+                      Justificación {f.justificacion}
+                    </Texto>
+                  )}
+                  {f.estado === "ausente" && f.id !== null && (!f.justificacion || f.justificacion === "rechazada") && (
+                    <Button
+                      variant="outline"
+                      title={f.justificacion === "rechazada" ? "Volver a pedir justificación" : "Pedir justificación"}
+                      onPress={() =>
+                        router.push({
+                          pathname: "./justificar",
+                          params: { asistenciaId: String(f.id), fecha: f.fecha, titulo },
+                        })
+                      }
+                    />
+                  )}
+                </View>
+              ))}
+            </>
+          )
+        ) : notas.length === 0 ? (
+          <Texto color="muted">Todavía no tienes calificaciones en esta materia.</Texto>
         ) : (
           <>
-            <Text
-              style={{
-                color: pct >= 75 ? theme.success : theme.error,
-                fontSize: fs(20),
-                fontWeight: "800",
-              }}
-            >
-              {presentes}/{filas.length} ({pct}% de asistencia)
-            </Text>
-
-            {filas.map((f) => (
-              <View key={f.fecha} style={[styles.fila, { borderColor: theme.border }]}>
-                <View style={styles.filaTop}>
-                  <Text style={{ color: theme.text, fontSize: fs(15), flex: 1 }}>{fechaLarga(f.fecha)}</Text>
-                  <EstadoTexto estado={f.estado} />
+            <Texto size={20} bold>Promedio: {promedio!.toFixed(2)}</Texto>
+            {notas.map((n) => (
+              <View key={n.id} style={[styles.item, styles.fila, { borderColor: theme.border }]}>
+                <View style={{ flex: 1 }}>
+                  <Texto bold>{n.titulo}</Texto>
+                  <Texto size={14} color="muted">{fechaLarga(n.fecha)}</Texto>
                 </View>
-                {f.estado === "ausente" && !!f.nota && (
-                  <Text style={{ color: theme.muted, fontSize: fs(14) }}>Nota del profesor: {f.nota}</Text>
-                )}
+                <Texto size={20} bold color={n.nota >= 6 ? "success" : "error"}>{n.nota}</Texto>
               </View>
             ))}
           </>
@@ -79,7 +121,6 @@ export default function MateriaScreen() {
 }
 
 const styles = StyleSheet.create({
-  titulo: { fontWeight: "800", letterSpacing: -0.3 },
-  fila: { borderWidth: 1, borderRadius: 12, padding: 14, gap: 6 },
-  filaTop: { flexDirection: "row", alignItems: "center", gap: 12 },
+  fila: { flexDirection: "row", alignItems: "center", gap: 12 },
+  item: { borderWidth: 1, borderRadius: 12, padding: 14, gap: 8 },
 });

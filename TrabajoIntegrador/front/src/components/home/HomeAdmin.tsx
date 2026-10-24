@@ -11,6 +11,7 @@ import CabeceraUsuario from "../CabeceraUsuario";
 import Pantalla from "../Pantalla";
 import FilaItem from "../ui/FilaItem";
 import Tarjeta from "../ui/Tarjeta";
+import AdminAlertas from "../admin/AdminAlertas";
 
 function Pct({ valor }: { valor: string | number | null }) {
   const theme = useTheme();
@@ -74,10 +75,10 @@ export default function HomeAdmin() {
     <Pantalla>
       <CabeceraUsuario conMiCuenta={false} />
 
+      <AdminAlertas />
+
       <Tarjeta>
-        <Text style={[styles.titulo, { color: theme.text, fontSize: fs(20) }]}>
-          Presentismo y ausentismo
-        </Text>
+        <Text style={[styles.titulo, { color: theme.text, fontSize: fs(20) }]}>Presentismo</Text>
 
         {!!error && <Text style={{ color: theme.error, fontSize: fs(14) }}>{error}</Text>}
 

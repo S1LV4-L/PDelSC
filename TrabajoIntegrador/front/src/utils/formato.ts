@@ -1,3 +1,5 @@
+import { ThemeColors } from "../constants/theme";
+
 export const cursoLabel = (anio: number, division: number) => `${anio}°${division}°`;
 
 export const dictadoLabel = (d: { materia: string; anio: number; division: number }) =>
@@ -22,3 +24,20 @@ export function formatoTiempo(segundos: number) {
   const s = segundos % 60;
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
+
+export const AMARILLO = "#F59E0B";
+
+// Semáforo de presentismo: verde >= 85, amarillo 75–84, rojo < 75
+export const colorPresentismo = (pct: number | null, theme: ThemeColors) =>
+  pct === null ? theme.muted : pct >= 85 ? theme.success : pct >= 75 ? AMARILLO : theme.error;
+
+export const etiquetaPresentismo = (pct: number | null) =>
+  pct === null ? "Sin clases" : pct >= 85 ? "En regla" : pct >= 75 ? "Atención" : "En riesgo";
+
+const dos = (n: number) => String(n).padStart(2, "0");
+export const hoyISO = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${dos(d.getMonth() + 1)}-${dos(d.getDate())}`;
+};
+export const mesISO = (d: Date) => `${d.getFullYear()}-${dos(d.getMonth() + 1)}`;
+export const fechaValida = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s);
