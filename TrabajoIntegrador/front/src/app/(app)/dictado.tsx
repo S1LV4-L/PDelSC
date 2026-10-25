@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocalSearchParams } from "expo-router";
-import Pantalla from "../../components/Pantalla";
+import Pantalla from "../../components/layout/Pantalla"
 import DictadoAsistencia from "../../components/profesor/DictadoAsistencia";
 import DictadoCalificaciones from "../../components/profesor/DictadoCalificaciones";
 import DictadoEstadisticas from "../../components/profesor/DictadoEstadisticas";

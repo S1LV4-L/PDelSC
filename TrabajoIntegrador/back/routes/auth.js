@@ -14,6 +14,9 @@ import {
 
 const router = Router();
 
+// Body: { nombre, email, password }. Registro público: siempre crea un Alumno.
+// 201 { mensaje, codigosRecuperacion } (los códigos se muestran solo esta vez)
+// 400 faltan datos | 409 email o nombre ya existen | 500
 router.post("/auth/registro", async (req, res) => {
     try {
         const { nombre, email, password } = req.body;
@@ -56,6 +59,10 @@ router.post("/auth/registro", async (req, res) => {
     }
 });
 
+// Body: { email, password }. Las cuentas de OAuth no tienen contraseña y no entran por acá.
+// Registra el acceso (exitoso o fallido) en `accesos` solo si el email existe.
+// 200 { token (JWT, 2 h), usuario: { id, nombre, email, tienePassword, permisos, perfil } }
+// 401 Credenciales inválidas (mismo mensaje para email inexistente y contraseña incorrecta) | 500
 router.post("/auth/login", async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -133,6 +140,8 @@ router.post("/auth/restablecer", async (req, res) => {
 // ---------- OAuth (Google/GitHub/Jira) ----------
 // Estas dos rutas son GET porque son redirecciones del navegador: el proveedor siempre vuelve al callback por GET.
 
+// GET /auth/:proveedor (google | github | jira). Redirige a la autorización del proveedor.
+// 302 redirect | 400 texto plano "Proveedor no soportado"
 router.get("/auth/:proveedor", (req, res) => {
     try {
         res.redirect(obtenerUrlAutorizacion(req.params.proveedor));
@@ -141,6 +150,9 @@ router.get("/auth/:proveedor", (req, res) => {
     }
 });
 
+// GET /auth/:proveedor/callback?code=... Canjea el code, busca o crea el usuario (perfil Alumno)
+// y redirige al frontend.
+// 302 ${FRONTEND_URL}/auth-callback?token=<jwt> | 302 ${FRONTEND_URL}/?error=oauth si falla
 router.get("/auth/:proveedor/callback", async (req, res) => {
     const { proveedor } = req.params;
     const { code } = req.query;

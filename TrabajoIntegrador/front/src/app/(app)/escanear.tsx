@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
-import Pantalla from "../../components/Pantalla";
+import Pantalla from "../../components/layout/Pantalla"
 import Button from "../../components/ui/Button";
 import Tarjeta from "../../components/ui/Tarjeta";
 import { useTheme } from "../../constants/theme";

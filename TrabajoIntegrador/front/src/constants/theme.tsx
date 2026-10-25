@@ -14,9 +14,19 @@ export const breakpoints = {
   desktop: 900,
 };
 
+export const spacing = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 24,
+  xxl: 32,
+} as const;
+
 export type ThemeColors = {
   primary: string;
   primaryDark: string;
+  accent: string;
   background: string;
   surface: string;
   text: string;
@@ -24,32 +34,37 @@ export type ThemeColors = {
   border: string;
   error: string;
   success: string;
+  warning: string;
   cardShadow: string;
 };
 
 export const lightTheme: ThemeColors = {
-  primary: "#676991",
-  primaryDark: "#3f3f69",
-  background: "#e2e2e2",
-  surface: "#FFFFFF",
-  text: "#111827",
-  muted: "#6B7280",
-  border: "#E5E7EB",
-  error: "#EF4444",
-  success: "#22C55E",
-  cardShadow: "rgba(0, 0, 0, 0.06)",
+  primary: "#4056A1",
+  primaryDark: "#30427F",
+  accent: "#D79922",
+  background: "#E5E4DF",
+  surface: "#F0EFEB",
+  text: "#292A2D",
+  muted: "#6F7075",
+  border: "#C5CBE3",
+  error: "#D93624",
+  success: "#55734A",
+  warning: "#9A6B13",
+  cardShadow: "rgba(35, 38, 48, 0.12)",
 };
 
 export const darkTheme: ThemeColors = {
-  primary: "#6b6d91",
-  primaryDark: "#11111a",
-  background: "#0F172A",
-  surface: "#1E293B",
-  text: "#F1F5F9",
-  muted: "#94A3B8",
-  border: "#334155",
-  error: "#F87171",
-  success: "#4ADE80",
+  primary: "#8E9ED6",
+  primaryDark: "#050005",
+  accent: "#D79922",
+  background: "#090B10",
+  surface: "#12151D",
+  text: "#EFE2BA",
+  muted: "#A5A9B6",
+  border: "#292E3B",
+  error: "#FF624B",
+  success: "#8EAA7C",
+  warning: "#E4B94F",
   cardShadow: "transparent",
 };
 

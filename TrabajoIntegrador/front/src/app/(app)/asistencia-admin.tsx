@@ -2,7 +2,7 @@ import { useState } from "react";
 import AdminCorrecciones from "../../components/admin/AdminCorrecciones";
 import AdminJustificaciones from "../../components/admin/AdminJustificaciones";
 import AdminReportes from "../../components/admin/AdminReportes";
-import Pantalla from "../../components/Pantalla";
+import Pantalla from "../../components/layout/Pantalla"
 import Chips from "../../components/ui/Chips";
 import Tarjeta from "../../components/ui/Tarjeta";
 

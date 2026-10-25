@@ -7,6 +7,11 @@ import { presentismoAlumnos } from "../scripts/presentismo.js";
 
 const router = Router();
 
+// Body: { token }. token es el payload del QR dinámico ("token.timestamp.firma").
+// Auth: leer_qr. Verifica firma y frescura (20 s + 5 s de gracia), que la toma siga abierta
+// y que el alumno esté inscripto; marca presente y borra la nota de la ausencia.
+// 200 { ok, dictado_id } | 400 QR inválido | 403 no cursa la materia | 404 QR inexistente
+// 410 QR vencido o toma cerrada
 router.post("/asistencias/escanear", verificarToken, verificarPermiso("leer_qr"), async (req, res) => {
   const leido = leerPayloadQr(req.body.token);
   if (leido.error) return res.status(leido.status).json({ error: leido.error });

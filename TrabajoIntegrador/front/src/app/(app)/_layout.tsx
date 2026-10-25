@@ -1,6 +1,6 @@
 import { View } from "react-native";
 import { Redirect, Stack, useSegments } from "expo-router";
-import Navegacion from "../../components/Navegacion";
+import Navegacion from "../../components/layout/Navegacion";
 import { useAuth } from "../../hooks/useAuth";
 import { useResponsive } from "../../hooks/useResponsive";
 

@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
-import AuthLayout from "../../components/AuthLayout";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import { useTheme } from "../../constants/theme";
 import { register } from "../../services/authService";
 import { validar } from "../../utils/validaciones";
-import RecoveryCodes from "../../components/CodigosRecuperacion";
+import AuthLayout from "../../components/layout/AuthLayout";
+import RecoveryCodes from "../../components/ui/CodigosRecuperacion";
 
 export default function RegisterScreen() {
   const router = useRouter();

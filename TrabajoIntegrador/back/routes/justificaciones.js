@@ -74,6 +74,8 @@ router.post("/justificaciones/pedir", verificarToken, verificarPermiso("pedir_ju
   res.status(201).json({ ok: true });
 });
 
+// Sin body. Auth: pedir_justificacion. Pedidos del alumno logueado, más recientes primero.
+// 200 [{ id, asistencia_id, fecha, materia, anio, division, motivo, estado, respuesta, tiene_adjunto }]
 router.post("/justificaciones/mias", verificarToken, verificarPermiso("pedir_justificacion"), async (req, res) => {
   const [rows] = await pool.query(
     `SELECT j.id, j.asistencia_id, DATE_FORMAT(q.fecha, '%Y-%m-%d') AS fecha, m.nombre AS materia,

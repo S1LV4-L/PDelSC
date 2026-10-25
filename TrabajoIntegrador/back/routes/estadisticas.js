@@ -35,6 +35,8 @@ router.post("/estadisticas/materia", verificarToken, verificarPermiso("ver_asist
     });
   });
 
+// Sin body. Auth: ver_estadisticas. Presentismo agregado por dictado (home del administrador).
+// 200 [{ id, materia, anio, division, clases, presentes, ausentes, porcentaje_presentismo }]
 router.post("/estadisticas/dictados", verificarToken, verificarPermiso("ver_estadisticas"), async (req, res) => {
   const [rows] = await pool.query(
     `SELECT d.id, m.nombre AS materia, c.anio, c.division,

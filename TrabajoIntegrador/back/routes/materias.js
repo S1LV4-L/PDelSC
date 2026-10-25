@@ -19,6 +19,8 @@ router.post("/materias/listar", ...gestion, async (req, res) => {
   res.json(rows);
 });
 
+// Body: { nombre, anio (1-7) }. Auth: gestionar_cursos.
+// 201 { id, nombre, anio } | 400 datos inválidos | 409 la materia ya existe para ese año
 router.post("/materias/crear", ...gestion, async (req, res) => {
   const nombre = String(req.body.nombre ?? "").trim();
   const { anio } = req.body;
@@ -34,6 +36,9 @@ router.post("/materias/crear", ...gestion, async (req, res) => {
   }
 });
 
+// Body: { id, nombre, anio (1-7) }. Auth: gestionar_cursos.
+// No se puede cambiar el año si la materia ya tiene dictados.
+// 200 { ok } | 400 datos inválidos | 404 materia inexistente | 409 duplicada o con dictados
 router.post("/materias/actualizar", ...gestion, async (req, res) => {
   const nombre = String(req.body.nombre ?? "").trim();
   const { id, anio } = req.body;
@@ -58,6 +63,8 @@ router.post("/materias/actualizar", ...gestion, async (req, res) => {
   }
 });
 
+// Body: { id }. Auth: gestionar_cursos. Borra también sus dictados (cascada).
+// 200 { ok } | 400 Id inválido | 404 Materia no encontrada
 router.post("/materias/eliminar", ...gestion, async (req, res) => {
   if (!entero(req.body.id, 1, Infinity)) return res.status(400).json({ error: "Id inválido" });
   const [r] = await pool.query("DELETE FROM materias WHERE id = ?", [req.body.id]);

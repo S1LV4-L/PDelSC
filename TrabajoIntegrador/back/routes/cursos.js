@@ -9,6 +9,7 @@ const gestion = [verificarToken, verificarPermiso("gestionar_cursos")];
 
 // ---------- Cursos (año 1 a 7 + división) ----------
 
+// Sin body. Auth: gestionar_cursos. 200 [{ id, anio, division, alumnos }] ordenado por año y división
 router.post("/cursos/listar", ...gestion, async (req, res) => {
   const [rows] = await pool.query(
     `SELECT c.id, c.anio, c.division,
@@ -18,6 +19,8 @@ router.post("/cursos/listar", ...gestion, async (req, res) => {
   res.json(rows);
 });
 
+// Body: { anio (1-7), division (1-99) }. Auth: gestionar_cursos.
+// 201 { id, anio, division } | 400 año o división inválidos | 409 el curso ya existe
 router.post("/cursos/crear", ...gestion, async (req, res) => {
   const { anio, division } = req.body;
   if (!entero(anio, 1, 7) || !entero(division, 1, 99)) {
@@ -32,6 +35,9 @@ router.post("/cursos/crear", ...gestion, async (req, res) => {
   }
 });
 
+// Body: { id, anio (1-7), division (1-99) }. Auth: gestionar_cursos.
+// No se puede cambiar el año si el curso ya tiene dictados.
+// 200 { ok } | 400 datos inválidos | 404 curso inexistente | 409 curso duplicado o con dictados
 router.post("/cursos/actualizar", ...gestion, async (req, res) => {
   const { id, anio, division } = req.body;
   if (!entero(id, 1, Infinity) || !entero(anio, 1, 7) || !entero(division, 1, 99)) {
@@ -56,6 +62,8 @@ router.post("/cursos/actualizar", ...gestion, async (req, res) => {
   }
 });
 
+// Body: { id }. Auth: gestionar_cursos. Borra también sus dictados (cascada); los alumnos quedan sin curso.
+// 200 { ok } | 400 Id inválido | 404 Curso no encontrado
 router.post("/cursos/eliminar", ...gestion, async (req, res) => {
   if (!entero(req.body.id, 1, Infinity)) return res.status(400).json({ error: "Id inválido" });
   const [r] = await pool.query("DELETE FROM cursos WHERE id = ?", [req.body.id]);

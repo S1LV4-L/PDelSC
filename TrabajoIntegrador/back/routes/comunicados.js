@@ -57,6 +57,8 @@ router.post("/comunicados/enviar", ...enviar, async (req, res) => {
   }
 });
 
+// Sin body. Auth: enviar_comunicados. Últimos 50 comunicados con cantidad de destinos y lecturas.
+// 200 [{ id, titulo, mensaje, alcance, fecha, destinos, lecturas }]
 router.post("/comunicados/enviados", ...enviar, async (req, res) => {
   const [rows] = await pool.query(
     `SELECT c.id, c.titulo, c.mensaje, c.alcance, DATE_FORMAT(c.creado_en, '%Y-%m-%d %H:%i') AS fecha,
@@ -67,6 +69,8 @@ router.post("/comunicados/enviados", ...enviar, async (req, res) => {
   res.json(rows);
 });
 
+// Body: { id }. Auth: enviar_comunicados. Borra el comunicado (y en cascada destinos y lecturas).
+// 200 { ok } | 400 Id inválido | 404 Comunicado no encontrado
 router.post("/comunicados/eliminar", ...enviar, async (req, res) => {
   const id = Number(req.body.id);
   if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: "Id inválido" });

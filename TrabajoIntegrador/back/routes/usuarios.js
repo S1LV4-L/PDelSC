@@ -7,6 +7,8 @@ import { PERMISOS_POR_PERFIL } from "../scripts/permisos.js";
 
 const router = Router();
 
+// Sin body. Auth: ver_usuarios. Todos los usuarios con perfil (y permisos) y curso (null si no es alumno).
+// 200 [{ id, nombre, email, perfil: { id, nombre, permisos }, curso: { id, anio, division } | null }]
 router.post("/usuarios/listar", verificarToken, verificarPermiso("ver_usuarios"), async (req, res) => {
     const [rows] = await pool.query(`
         SELECT u.id, u.nombre, u.email,
@@ -33,6 +35,9 @@ router.post("/usuarios/listar", verificarToken, verificarPermiso("ver_usuarios")
     })));
 });
 
+// Body: { nombre, email, password, perfilId }. Auth: crear_usuario.
+// perfilId no se valida: si falta, el usuario queda sin perfil.
+// 201 { mensaje, id, codigosRecuperacion } | 400 faltan datos | 409 nombre o email duplicado | 500
 router.post("/usuarios/crear", verificarToken, verificarPermiso("crear_usuario"), async (req, res) => {
     const { nombre, email, password, perfilId } = req.body;
     const emailNorm = normalizarEmail(email);
@@ -80,6 +85,9 @@ router.post("/usuarios/resetear-password", verificarToken, verificarPermiso("edi
     }
 });
 
+// Body: { id, nombre, email?, perfilId }. Auth: editar_usuario.
+// Si falta email o perfilId se guarda NULL. Un administrador no puede cambiar su propio perfil.
+// 200 { mensaje } | 400 faltan datos / email inválido / cambio del propio perfil | 409 duplicado | 500
 router.post("/usuarios/actualizar", verificarToken, verificarPermiso("editar_usuario"), async (req, res) => {
     try {
         const { id, nombre, email, perfilId } = req.body;
@@ -113,6 +121,8 @@ router.post("/usuarios/actualizar", verificarToken, verificarPermiso("editar_usu
     }
 });
 
+// Body: { id }. Auth: eliminar_usuario. No permite eliminar la propia cuenta (usar /usuarios/eliminar-mi-cuenta).
+// 200 { mensaje } | 400 propia cuenta | 500
 router.post("/usuarios/eliminar", verificarToken, verificarPermiso("eliminar_usuario"), async (req, res) => {
     try {
         const { id } = req.body;
@@ -127,6 +137,7 @@ router.post("/usuarios/eliminar", verificarToken, verificarPermiso("eliminar_usu
     }
 });
 
+// Sin body. Auth: crear_usuario. Perfiles para el formulario de alta. 200 [{ id, nombre }]
 router.post("/perfiles/listar", verificarToken, verificarPermiso("crear_usuario"), async (req, res) => {
     const [rows] = await pool.query("SELECT id, nombre FROM perfiles");
     res.json(rows);

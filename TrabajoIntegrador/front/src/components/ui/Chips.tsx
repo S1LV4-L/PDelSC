@@ -1,8 +1,11 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { useTheme } from "../../constants/theme";
+import { spacing, useTheme } from "../../constants/theme";
 import { useResponsive } from "../../hooks/useResponsive";
 
-type Opcion<T> = { valor: T; label: string };
+type Opcion<T> = {
+  valor: T;
+  label: string;
+};
 
 type Props<T> = {
   opciones: Opcion<T>[];
@@ -22,24 +25,31 @@ export default function Chips<T extends string | number>({
 
   return (
     <View style={styles.chips}>
-      {opciones.map((o) => {
-        const activo = o.valor === valor;
+      {opciones.map((opcion) => {
+        const activo = opcion.valor === valor;
+
         return (
           <Pressable
-            key={String(o.valor)}
+            key={String(opcion.valor)}
             disabled={deshabilitado}
-            onPress={() => onChange(o.valor)}
+            onPress={() => onChange(opcion.valor)}
             style={[
               styles.chip,
               {
                 borderColor: activo ? theme.primary : theme.border,
                 backgroundColor: activo ? theme.primary : theme.surface,
-                opacity: deshabilitado && !activo ? 0.4 : 1,
+                opacity: deshabilitado && !activo ? 0.45 : 1,
               },
             ]}
           >
-            <Text style={{ color: activo ? "#fff" : theme.text, fontSize: fs(14), fontWeight: "600" }}>
-              {o.label}
+            <Text
+              style={{
+                color: activo ? "#FFFFFF" : theme.text,
+                fontSize: fs(14),
+                fontWeight: "600",
+              }}
+            >
+              {opcion.label}
             </Text>
           </Pressable>
         );
@@ -49,6 +59,17 @@ export default function Chips<T extends string | number>({
 }
 
 const styles = StyleSheet.create({
-  chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  chip: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1 },
+  chips: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+  },
+  chip: {
+    minHeight: 38,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: 999,
+    borderWidth: 1,
+    justifyContent: "center",
+  },
 });

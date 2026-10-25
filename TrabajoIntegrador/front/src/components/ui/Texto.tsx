@@ -7,13 +7,34 @@ type Props = {
   children: ReactNode;
   size?: number;
   bold?: boolean;
-  color?: keyof ThemeColors | string; // nombre del tema ("muted", "error"...) o un color
+  color?: keyof ThemeColors | string;
   style?: StyleProp<TextStyle>;
 };
 
-export default function Texto({ children, size = 15, bold = false, color = "text", style }: Props) {
+export default function Texto({
+  children,
+  size = 15,
+  bold = false,
+  color = "text",
+  style,
+}: Props) {
   const theme = useTheme();
   const { fs } = useResponsive();
   const c = color in theme ? theme[color as keyof ThemeColors] : color;
-  return <Text style={[{ color: c, fontSize: fs(size), fontWeight: bold ? "700" : "400" }, style]}>{children}</Text>;
+
+  return (
+    <Text
+      style={[
+        {
+          fontFamily: bold ? "Manrope_700Bold" : "Manrope_400Regular",
+          color: c,
+          fontSize: fs(size),
+          fontWeight: bold ? "700" : "400",
+        },
+        style,
+      ]}
+    >
+      {children}
+    </Text>
+  );
 }

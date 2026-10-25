@@ -53,6 +53,8 @@ router.post("/dictados/asignar", ...asignar, async (req, res) => {
   res.json({ ok: true });
 });
 
+// Body: { id }. Auth: asignar_cursos. Borra también sus inscripciones, clases y asistencias (cascada).
+// 200 { ok } | 400 Id inválido | 404 Dictado no encontrado
 router.post("/dictados/eliminar", ...asignar, async (req, res) => {
   if (!entero(req.body.id, 1, Infinity)) return res.status(400).json({ error: "Id inválido" });
   const [r] = await pool.query("DELETE FROM dictados WHERE id = ?", [req.body.id]);
@@ -63,6 +65,8 @@ router.post("/dictados/eliminar", ...asignar, async (req, res) => {
 // ---------- Pantalla principal de profesor / alumno ----------
 // Devuelve dictados: { id (dictado), materia, anio, division }
 
+// Sin body. Profesor (generar_qr): dictados que dicta. Alumno (leer_qr): dictados en los que está inscripto.
+// Otros perfiles: [].
 router.post("/mis-materias", verificarToken, async (req, res) => {
   const permisos = await obtenerPermisos(req.usuarioId);
   const base = `SELECT d.id, m.nombre AS materia, c.anio, c.division

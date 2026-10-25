@@ -4,7 +4,7 @@ import AdminCursos from "../../components/admin/AdminCursos";
 import AdminDictados from "../../components/admin/AdminDictados";
 import AdminImportacion from "../../components/admin/AdminImportacion";
 import AdminMaterias from "../../components/admin/AdminMaterias";
-import Pantalla from "../../components/Pantalla";
+import Pantalla from "../../components/layout/Pantalla"
 import Chips from "../../components/ui/Chips";
 import Tarjeta from "../../components/ui/Tarjeta";
 type Seccion = "cursos" | "materias" | "dictados" | "importar" | "ciclo";

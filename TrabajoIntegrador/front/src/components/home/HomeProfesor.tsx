@@ -7,8 +7,8 @@ import { useResponsive } from "../../hooks/useResponsive";
 import { misMaterias } from "../../services/academicoService";
 import { DictadoResumen } from "../../types/academico";
 import { dictadoLabel } from "../../utils/formato";
-import CabeceraUsuario from "../CabeceraUsuario";
-import Pantalla from "../Pantalla";
+import CabeceraUsuario from "../../components/layout/CabeceraUsuario"
+import Pantalla from "../../components/layout/Pantalla"
 import FilaItem from "../ui/FilaItem";
 import Tarjeta from "../ui/Tarjeta";
 

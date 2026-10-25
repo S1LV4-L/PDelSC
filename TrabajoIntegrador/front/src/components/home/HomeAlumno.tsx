@@ -6,8 +6,8 @@ import { useAuth } from "../../hooks/useAuth";
 import { resumenPropio } from "../../services/asistenciaService";
 import { FilaPresentismo } from "../../types/academico";
 import { colorPresentismo, dictadoLabel, etiquetaPresentismo } from "../../utils/formato";
-import CabeceraUsuario from "../CabeceraUsuario";
-import Pantalla from "../Pantalla";
+import CabeceraUsuario from "../../components/layout/CabeceraUsuario"
+import Pantalla from "../../components/layout/Pantalla"
 import Button from "../ui/Button";
 import FilaItem from "../ui/FilaItem";
 import Pct from "../ui/Pct";

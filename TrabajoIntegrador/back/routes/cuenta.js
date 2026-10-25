@@ -12,6 +12,8 @@ import {
 
 const router = Router();
 
+// Sin body. Datos del usuario logueado (el front lo usa al restaurar la sesión).
+// 200 { id, nombre, email, tienePassword, permisos, perfil } | 404 Usuario no encontrado
 router.post("/usuarios/mi-perfil", verificarToken, async (req, res) => {
     const [rows] = await pool.query(
         `SELECT u.id, u.nombre, u.email, u.password_hash, p.id AS perfil_id, p.nombre AS perfil_nombre
@@ -31,6 +33,10 @@ router.post("/usuarios/mi-perfil", verificarToken, async (req, res) => {
     });
 });
 
+// Body: { nombre?, email?, password?, passwordActual? } (al menos un campo).
+// Cambiar password exige passwordActual; las cuentas de OAuth no pueden cambiarla.
+// 200 { mensaje } | 400 email inválido / cuenta sin contraseña / nada para actualizar
+// 401 passwordActual incorrecta | 409 nombre o email duplicado | 500
 router.post("/usuarios/mi-cuenta", verificarToken, async (req, res) => {
     try {
         const { nombre, email, password, passwordActual } = req.body;
@@ -100,6 +106,8 @@ router.post("/usuarios/eliminar-mi-cuenta", verificarToken, async (req, res) => 
     }
 });
 
+// Body: { password }. Regenera los 3 códigos de recuperación (los anteriores dejan de valer).
+// 200 { codigosRecuperacion } | 400 cuenta sin contraseña | 401 contraseña incorrecta | 500
 router.post("/usuarios/codigos-recuperacion", verificarToken, async (req, res) => {
     try {
         const { password } = req.body;

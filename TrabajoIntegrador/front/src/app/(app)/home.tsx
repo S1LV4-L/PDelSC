@@ -1,9 +1,9 @@
 import { Text } from "react-native";
-import CabeceraUsuario from "../../components/CabeceraUsuario";
+import CabeceraUsuario from "../../components/layout/CabeceraUsuario";
 import HomeAdmin from "../../components/home/HomeAdmin";
 import HomeAlumno from "../../components/home/HomeAlumno";
 import HomeProfesor from "../../components/home/HomeProfesor";
-import Pantalla from "../../components/Pantalla";
+import Pantalla from "../../components/layout/Pantalla"; 
 import Tarjeta from "../../components/ui/Tarjeta";
 import { useTheme } from "../../constants/theme";
 import { useAuth } from "../../hooks/useAuth";

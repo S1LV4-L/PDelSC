@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
-import Pantalla from "../../components/Pantalla";
+import Pantalla from "../../components/layout/Pantalla"
 import Button from "../../components/ui/Button";
 import Tarjeta from "../../components/ui/Tarjeta";
 import Texto from "../../components/ui/Texto";

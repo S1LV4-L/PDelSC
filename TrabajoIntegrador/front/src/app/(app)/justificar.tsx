@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Image, Platform, StyleSheet } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import Pantalla from "../../components/Pantalla";
+import Pantalla from "../../components/layout/Pantalla"
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import Tarjeta from "../../components/ui/Tarjeta";

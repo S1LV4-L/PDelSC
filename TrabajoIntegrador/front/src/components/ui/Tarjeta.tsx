@@ -1,9 +1,12 @@
 import { ReactNode } from "react";
 import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
-import { useTheme } from "../../constants/theme";
+import { spacing, useTheme } from "../../constants/theme";
 import { useResponsive } from "../../hooks/useResponsive";
 
-type Props = { children: ReactNode; style?: StyleProp<ViewStyle> };
+type Props = {
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+};
 
 export default function Tarjeta({ children, style }: Props) {
   const theme = useTheme();
@@ -14,7 +17,11 @@ export default function Tarjeta({ children, style }: Props) {
       style={[
         styles.card,
         isDesktop && styles.desktop,
-        { backgroundColor: theme.surface, borderColor: theme.border },
+        {
+          backgroundColor: theme.surface,
+          borderColor: theme.border,
+          shadowColor: theme.cardShadow,
+        },
         style,
       ]}
     >
@@ -27,14 +34,15 @@ const styles = StyleSheet.create({
   card: {
     width: "100%",
     borderRadius: 20,
-    padding: 24,
+    padding: spacing.xl,
     borderWidth: 1,
-    gap: 14,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
+    gap: spacing.md,
+    shadowOpacity: 0.08,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
+    elevation: 2,
   },
-  desktop: { padding: 24 },
+  desktop: {
+    padding: spacing.xl,
+  },
 });

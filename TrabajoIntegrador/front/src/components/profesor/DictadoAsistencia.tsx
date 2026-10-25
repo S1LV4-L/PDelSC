@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { useAuth } from "../../hooks/useAuth";
 import { alumnosDelDictado, marcarManual } from "../../services/asistenciaService";
 import { AlumnoDictado } from "../../types/academico";
-import QrDictado from "../QrDictado";
+import QrDictado from "./QrDictado";
 import Button from "../ui/Button";
 import EstadoTexto from "../ui/EstadoTexto";
 import FilaItem from "../ui/FilaItem";

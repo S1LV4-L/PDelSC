@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
-import AuthLayout from "../../components/AuthLayout";
+import AuthLayout from "../../components/layout/AuthLayout";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import { useTheme } from "../../constants/theme";

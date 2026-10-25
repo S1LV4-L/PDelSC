@@ -7,7 +7,7 @@ import {
   TextInputProps,
   View,
 } from "react-native";
-import { useTheme } from "../../constants/theme";
+import { spacing, useTheme } from "../../constants/theme";
 
 type Props = TextInputProps & {
   label: string;
@@ -32,17 +32,24 @@ export default function Input({
 
   const mensaje =
     error ||
-    (validate && (touched || submitted) ? validate(String(rest.value ?? "")) : null);
+    (validate && (touched || submitted)
+      ? validate(String(rest.value ?? ""))
+      : null);
 
   return (
     <View style={styles.wrapper}>
       <Text style={[styles.label, { color: theme.text }]}>{label}</Text>
+
       <View
         style={[
           styles.field,
           {
-            backgroundColor: theme.background,
-            borderColor: focused ? theme.primary : mensaje ? theme.error : theme.border,
+            backgroundColor: theme.surface,
+            borderColor: focused
+              ? theme.primary
+              : mensaje
+                ? theme.error
+                : theme.border,
           },
         ]}
       >
@@ -52,40 +59,61 @@ export default function Input({
           secureTextEntry={hidden}
           autoCapitalize="none"
           onFocus={() => setFocused(true)}
-          onBlur={(e) => {
+          onBlur={(event) => {
             setFocused(false);
             setTouched(true);
-            onBlur?.(e);
+            onBlur?.(event);
           }}
           {...rest}
         />
+
         {secureTextEntry && (
-          <Pressable onPress={() => setHidden((h) => !h)} hitSlop={8}>
-            <Text style={[styles.toggle, { color: theme.primary }]}>{hidden ? "Mostrar" : "Ocultar"}</Text>
+          <Pressable onPress={() => setHidden((value) => !value)} hitSlop={8}>
+            <Text style={[styles.toggle, { color: theme.primary }]}>
+              {hidden ? "Mostrar" : "Ocultar"}
+            </Text>
           </Pressable>
         )}
       </View>
-      {!!mensaje && <Text style={[styles.error, { color: theme.error }]}>{mensaje}</Text>}
+
+      {!!mensaje && (
+        <Text style={[styles.error, { color: theme.error }]}>{mensaje}</Text>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: { marginBottom: 16 },
-  label: { fontSize: 13, fontWeight: "600", marginBottom: 6, letterSpacing: 0.3 },
+  wrapper: {
+    marginBottom: spacing.lg,
+  },
+  label: {
+    fontSize: 13,
+    fontWeight: "600",
+    marginBottom: spacing.sm,
+  },
   field: {
+    minHeight: 48,
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderRadius: 12,
-    paddingHorizontal: 14,
+    paddingHorizontal: spacing.md,
   },
   input: {
     flex: 1,
-    paddingVertical: 14,
+    paddingVertical: spacing.md,
     fontSize: 15,
     ...({ outlineStyle: "none" } as object),
   },
-  toggle: { fontWeight: "600", fontSize: 13 },
-  error: { fontSize: 12, marginTop: 4, marginLeft: 4 },
+  toggle: {
+    fontWeight: "600",
+    fontSize: 13,
+    paddingLeft: spacing.sm,
+  },
+  error: {
+    fontSize: 12,
+    marginTop: spacing.xs,
+    marginLeft: spacing.xs,
+  },
 });
