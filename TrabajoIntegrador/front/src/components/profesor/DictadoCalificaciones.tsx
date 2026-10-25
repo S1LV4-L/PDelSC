@@ -53,7 +53,9 @@ export default function DictadoCalificaciones({ dictadoId }: { dictadoId: number
   
   const guardar = async () => {
     if (!token || !form) return;
-    const nota = Number(form.nota.replace(",", "."));
+    const textoNota = form.nota.trim().replace(",", ".");
+    const nota = /^(10(\.0)?|[1-9](\.\d)?)$/.test(textoNota) ? Number(textoNota) : NaN;
+    if (Number.isNaN(nota)) return setErrorForm("La nota debe estar entre 1 y 10, con un decimal como máximo");
     if (!form.titulo.trim()) return setErrorForm("Escribe el título");
     if (!(nota >= 1 && nota <= 10)) return setErrorForm("La nota debe estar entre 1 y 10");
     if (!fechaValida(form.fecha)) return setErrorForm("La fecha debe ser YYYY-MM-DD");

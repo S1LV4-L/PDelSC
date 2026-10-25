@@ -12,6 +12,7 @@ import { useResponsive } from "../../hooks/useResponsive";
 import { historialAlumno, ponerNota } from "../../services/asistenciaService";
 import { AsistenciaAlumno } from "../../types/academico";
 import { fechaLarga, porcentaje } from "../../utils/formato";
+import { soloLetras, validar } from "../../utils/validaciones";
 
 export default function DictadoAlumnoScreen() {
   const theme = useTheme();
@@ -27,9 +28,9 @@ export default function DictadoAlumnoScreen() {
   const [filas, setFilas] = useState<AsistenciaAlumno[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
-
   const [editando, setEditando] = useState<number | null>(null); // id de la asistencia
   const [texto, setTexto] = useState("");
+  const [submitted, setSubmitted] = useState(false);
   const [guardando, setGuardando] = useState(false);
 
   const cargar = useCallback(async () => {
@@ -52,15 +53,17 @@ export default function DictadoAlumnoScreen() {
 
   const abrirNota = (fila: AsistenciaAlumno) => {
     setEditando(fila.id);
+    setSubmitted(false);
     setTexto(fila.nota ?? "");
   };
 
   const guardarNota = async () => {
-    if (!token || editando === null) return;
+    setSubmitted(true);
+    if (!token || editando === null || validar.notaAusencia(texto)) return;
     try {
       setGuardando(true);
       setError("");
-      await ponerNota(token, editando, texto);
+      await ponerNota(token, editando, texto.trim());
       setEditando(null);
       await cargar();
     } catch (e) {
@@ -78,10 +81,8 @@ export default function DictadoAlumnoScreen() {
         <Text style={[styles.titulo, { color: theme.text, fontSize: fs(24) }]}>{nombre}</Text>
         <Text style={{ color: theme.muted, fontSize: fs(15) }}>{titulo}</Text>
       </View>
-
       <Tarjeta>
         {!!error && <Text style={{ color: theme.error, fontSize: fs(14) }}>{error}</Text>}
-
         {cargando ? (
           <ActivityIndicator />
         ) : filas.length === 0 ? (
@@ -91,24 +92,24 @@ export default function DictadoAlumnoScreen() {
             <Text style={{ color: theme.text, fontSize: fs(16), fontWeight: "700" }}>
               {presentes}/{filas.length} ({porcentaje(presentes, filas.length)}% de asistencia)
             </Text>
-
             {filas.map((f) => (
               <View key={f.fecha} style={[styles.fila, { borderColor: theme.border }]}>
                 <View style={styles.filaTop}>
                   <Text style={{ color: theme.text, fontSize: fs(15), flex: 1 }}>{fechaLarga(f.fecha)}</Text>
                   <EstadoTexto estado={f.estado} />
                 </View>
-
                 {/* La nota solo se puede poner en inasistencias que tienen registro (id) */}
                 {f.estado === "ausente" && f.id !== null && (
                   editando === f.id ? (
                     <View style={styles.nota}>
                       <Input
-                        label="Nota"
+                        label="Nota (solo letras, opcional)"
                         value={texto}
-                        onChangeText={setTexto}
+                        onChangeText={(v) => setTexto(soloLetras(v))}
                         autoCapitalize="sentences"
                         maxLength={255}
+                        validate={validar.notaAusencia}
+                        submitted={submitted}
                         placeholder="Ej: Justificó con certificado"
                       />
                       <Button title="Guardar nota" onPress={guardarNota} loading={guardando} />

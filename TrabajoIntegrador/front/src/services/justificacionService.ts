@@ -9,6 +9,14 @@ export const pedirJustificacion = (
   datos: { asistenciaId: number; motivo: string; adjuntoBase64?: string; adjuntoMime?: string }
 ) => apiPost<Ok>("/api/justificaciones/pedir", datos, token);
 
+export const editarJustificacion = (
+  token: string,
+  datos: { id: number; motivo: string; adjuntoBase64?: string; adjuntoMime?: string; quitarAdjunto?: boolean }
+) => apiPost<Ok>("/api/justificaciones/editar", datos, token);
+
+export const eliminarJustificacion = (token: string, id: number) =>
+  apiPost<Ok>("/api/justificaciones/eliminar", { id }, token);
+
 export const justificacionesPropias = (token: string) =>
   apiPost<Justificacion[]>("/api/justificaciones/mias", {}, token);
 

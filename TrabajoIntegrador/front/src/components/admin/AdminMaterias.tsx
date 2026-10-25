@@ -17,7 +17,7 @@ import Input from "../ui/Input";
 
 const ANIOS = [1, 2, 3, 4, 5, 6, 7].map((n) => ({ valor: n, label: `${n}°` }));
 
-const validarNombre = (v: string) => (v.trim() ? null : "El nombre es obligatorio");
+const validarNombre = (v: string) => !v.trim() ? "El nombre es obligatorio" : v.trim().length > 100 ? "Máximo 100 caracteres" : null;
 
 export default function AdminMaterias() {
   const theme = useTheme();
@@ -97,6 +97,7 @@ export default function AdminMaterias() {
         <Input
           label="Nombre"
           value={nombre}
+          maxLength={100}
           onChangeText={setNombre}
           autoCapitalize="sentences"
           placeholder="Ej: Matemática"

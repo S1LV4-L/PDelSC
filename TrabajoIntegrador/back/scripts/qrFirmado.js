@@ -30,3 +30,6 @@ export function leerPayloadQr(payload) {
   }
   return { token };
 }
+
+// Fragmento SQL: momento en que vence la toma de una clase (sobre clases_qr)
+export const EXPIRA = "TIMESTAMP(fecha, hora_inicio) + INTERVAL duracion_min MINUTE";

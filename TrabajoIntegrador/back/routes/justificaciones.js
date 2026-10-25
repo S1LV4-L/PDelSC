@@ -14,26 +14,39 @@ const entero = (v) => {
   return Number.isInteger(n) && n > 0 ? n : null;
 };
 
+// Valida motivo y adjunto opcional del body. Devuelve { motivo, adjunto, mime } o { status, error }
+function leerPedido(body) {
+  const motivo = String(body.motivo ?? "").trim().slice(0, 500);
+  if (motivo.length < 5) return { status: 400, error: "Indica el motivo (mínimo 5 caracteres)" };
+  if (!body.adjuntoBase64) return { motivo, adjunto: null, mime: null };
+  const mime = String(body.adjuntoMime ?? "");
+  if (!MIMES.includes(mime)) return { status: 400, error: "La imagen debe ser JPG, PNG o WEBP" };
+  const adjunto = Buffer.from(String(body.adjuntoBase64), "base64");
+  if (!adjunto.length || adjunto.length > MAX_ADJUNTO) {
+    return { status: 400, error: "La imagen debe pesar menos de 4 MB" };
+  }
+  return { motivo, adjunto, mime };
+}
+
+// Estado del pedido si pertenece al alumno (undefined si no existe o es de otro)
+async function pedidoPropio(id, alumnoId) {
+  const [[j]] = await pool.query(
+    `SELECT j.estado FROM justificaciones j JOIN asistencias a ON a.id = j.asistencia_id
+     WHERE j.id = ? AND a.alumno_id = ?`,
+    [id, alumnoId]
+  );
+  return j;
+}
+
 // ---------- Alumno ----------
 
 // Body: { asistenciaId, motivo, adjuntoBase64?, adjuntoMime? }
 router.post("/justificaciones/pedir", verificarToken, verificarPermiso("pedir_justificacion"), async (req, res) => {
   const asistenciaId = entero(req.body.asistenciaId);
-  const motivo = String(req.body.motivo ?? "").trim().slice(0, 500);
-  if (!asistenciaId || motivo.length < 5) {
-    return res.status(400).json({ error: "Indica el motivo (mínimo 5 caracteres)" });
-  }
-
-  let adjunto = null;
-  let mime = null;
-  if (req.body.adjuntoBase64) {
-    mime = String(req.body.adjuntoMime ?? "");
-    if (!MIMES.includes(mime)) return res.status(400).json({ error: "La imagen debe ser JPG, PNG o WEBP" });
-    adjunto = Buffer.from(String(req.body.adjuntoBase64), "base64");
-    if (!adjunto.length || adjunto.length > MAX_ADJUNTO) {
-      return res.status(400).json({ error: "La imagen debe pesar menos de 4 MB" });
-    }
-  }
+  if (!asistenciaId) return res.status(400).json({ error: "asistenciaId es obligatorio" });
+  const pedido = leerPedido(req.body);
+  if (pedido.error) return res.status(pedido.status).json({ error: pedido.error });
+  const { motivo, adjunto, mime } = pedido;
 
   const [[asistencia]] = await pool.query(
     "SELECT id, estado FROM asistencias WHERE id = ? AND alumno_id = ?", [asistenciaId, req.usuarioId]);
@@ -54,8 +67,8 @@ router.post("/justificaciones/pedir", verificarToken, verificarPermiso("pedir_ju
     );
   } else {
     await pool.query(
-      "INSERT INTO justificaciones (asistencia_id, alumno_id, motivo, adjunto, adjunto_mime) VALUES (?, ?, ?, ?, ?)",
-      [asistenciaId, req.usuarioId, motivo, adjunto, mime]
+      "INSERT INTO justificaciones (asistencia_id, motivo, adjunto, adjunto_mime) VALUES (?, ?, ?, ?)",
+      [asistenciaId, motivo, adjunto, mime]
     );
   }
   res.status(201).json({ ok: true });
@@ -71,18 +84,61 @@ router.post("/justificaciones/mias", verificarToken, verificarPermiso("pedir_jus
      JOIN dictados d ON d.id = q.dictado_id
      JOIN materias m ON m.id = d.materia_id
      JOIN cursos c ON c.id = d.curso_id
-     WHERE j.alumno_id = ?
+     WHERE a.alumno_id = ?
      ORDER BY q.fecha DESC, j.id DESC`,
     [req.usuarioId]
   );
   res.json(rows.map((r) => ({ ...r, tiene_adjunto: !!r.tiene_adjunto })));
 });
 
+// Body: { id, motivo, adjuntoBase64?, adjuntoMime?, quitarAdjunto? }. Solo pedidos propios y pendientes.
+// Sin imagen nueva se conserva el certificado actual, salvo que venga quitarAdjunto: true
+router.post("/justificaciones/editar", verificarToken, verificarPermiso("pedir_justificacion"), async (req, res) => {
+  const id = entero(req.body.id);
+  if (!id) return res.status(400).json({ error: "Id inválido" });
+  const pedido = leerPedido(req.body);
+  if (pedido.error) return res.status(pedido.status).json({ error: pedido.error });
+
+  const propio = await pedidoPropio(id, req.usuarioId);
+  if (!propio) return res.status(404).json({ error: "Pedido no encontrado" });
+  if (propio.estado !== "pendiente") {
+    return res.status(409).json({ error: "Solo se pueden modificar pedidos pendientes" });
+  }
+
+  const cambios = ["motivo = ?"];
+  const valores = [pedido.motivo];
+  if (pedido.adjunto) {
+    cambios.push("adjunto = ?", "adjunto_mime = ?");
+    valores.push(pedido.adjunto, pedido.mime);
+  } else if (req.body.quitarAdjunto === true) {
+    cambios.push("adjunto = NULL", "adjunto_mime = NULL");
+  }
+  const [r] = await pool.query(
+    `UPDATE justificaciones SET ${cambios.join(", ")} WHERE id = ? AND estado = 'pendiente'`,
+    [...valores, id]
+  );
+  if (!r.affectedRows) return res.status(409).json({ error: "Solo se pueden modificar pedidos pendientes" });
+  res.json({ ok: true });
+});
+
+// Body: { id }. Solo pedidos propios y pendientes; la falta queda sin justificación y se puede volver a pedir
+router.post("/justificaciones/eliminar", verificarToken, verificarPermiso("pedir_justificacion"), async (req, res) => {
+  const id = entero(req.body.id);
+  if (!id) return res.status(400).json({ error: "Id inválido" });
+
+  const propio = await pedidoPropio(id, req.usuarioId);
+  if (!propio) return res.status(404).json({ error: "Pedido no encontrado" });
+  const [r] = await pool.query("DELETE FROM justificaciones WHERE id = ? AND estado = 'pendiente'", [id]);
+  if (!r.affectedRows) return res.status(409).json({ error: "Solo se pueden eliminar pedidos pendientes" });
+  res.json({ ok: true });
+});
+
 // Body: { id }. El certificado lo ve su dueño o el preceptor
 router.post("/justificaciones/adjunto", verificarToken, async (req, res) => {
   const id = entero(req.body.id);
   if (!id) return res.status(400).json({ error: "Id inválido" });
-  const [[j]] = await pool.query("SELECT alumno_id, adjunto, adjunto_mime FROM justificaciones WHERE id = ?", [id]);
+  const [[j]] = await pool.query(`SELECT a.alumno_id, j.adjunto, j.adjunto_mime
+     FROM justificaciones j JOIN asistencias a ON a.id = j.asistencia_id WHERE j.id = ?`, [id]);
   if (!j?.adjunto) return res.status(404).json({ error: "No hay imagen adjunta" });
 
   const permisos = await obtenerPermisos(req.usuarioId);
@@ -102,8 +158,8 @@ router.post("/justificaciones/pendientes", ...admin, async (req, res) => {
             m.nombre AS materia, c.anio, c.division, j.motivo, j.estado, j.respuesta,
             (j.adjunto IS NOT NULL) AS tiene_adjunto
      FROM justificaciones j
-     JOIN usuarios u ON u.id = j.alumno_id
      JOIN asistencias a ON a.id = j.asistencia_id
+     JOIN usuarios u ON u.id = a.alumno_id
      JOIN clases_qr q ON q.id = a.clase_id
      JOIN dictados d ON d.id = q.dictado_id
      JOIN materias m ON m.id = d.materia_id
@@ -130,7 +186,9 @@ router.post("/justificaciones/resolver", ...admin, async (req, res) => {
   if (!r.affectedRows) return res.status(404).json({ error: "El pedido no existe o ya fue resuelto" });
 
   const [[info]] = await pool.query(
-    "SELECT u.nombre FROM justificaciones j JOIN usuarios u ON u.id = j.alumno_id WHERE j.id = ?", [id]);
+    `SELECT u.nombre FROM justificaciones j
+     JOIN asistencias a ON a.id = j.asistencia_id
+     JOIN usuarios u ON u.id = a.alumno_id WHERE j.id = ?`, [id]);
   await registrarAuditoria(req.usuarioId, "justificacion", { resultado: estado, alumno: info?.nombre, justificacionId: id, respuesta });
   res.json({ ok: true });
 });
@@ -204,11 +262,11 @@ router.post("/admin/asistencias/justificar", ...admin, async (req, res) => {
   if (a.estado !== "ausente") return res.status(400).json({ error: "Solo se justifican ausencias" });
 
   await pool.query(
-    `INSERT INTO justificaciones (asistencia_id, alumno_id, motivo, estado, respuesta, resuelta_por, resuelta_en)
-     VALUES (?, ?, ?, 'aprobada', 'Cargada por preceptoría', ?, NOW())
+    `INSERT INTO justificaciones (asistencia_id, motivo, estado, respuesta, resuelta_por, resuelta_en)
+     VALUES (?, ?, 'aprobada', 'Cargada por preceptoría', ?, NOW())
      ON DUPLICATE KEY UPDATE motivo = VALUES(motivo), estado = 'aprobada',
        respuesta = 'Cargada por preceptoría', resuelta_por = VALUES(resuelta_por), resuelta_en = NOW()`,
-    [asistenciaId, a.alumno_id, motivo, req.usuarioId]
+    [asistenciaId, motivo, req.usuarioId]
   );
   await registrarAuditoria(req.usuarioId, "justificacion", {
     resultado: "aprobada",

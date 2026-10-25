@@ -39,11 +39,14 @@ router.post("/comunicados/enviar", ...enviar, async (req, res) => {
     const [c] = await conn.query(
       "INSERT INTO comunicados (autor_id, titulo, mensaje, alcance) VALUES (?, ?, ?, ?)",
       [req.usuarioId, titulo, mensaje, alcance]);
-    const destinos = [...cursoIds.map((id) => [c.insertId, id, null]), ...usuarioIds.map((id) => [c.insertId, null, id])];
-    if (destinos.length) {
-      await conn.query("INSERT INTO comunicado_destinos (comunicado_id, curso_id, usuario_id) VALUES ?", [destinos]);
+    if (cursoIds.length) {
+      await conn.query("INSERT INTO comunicado_cursos (comunicado_id, curso_id) VALUES ?", [cursoIds.map((id) => [c.insertId, id])]);
     }
-    await registrarAuditoria(req.usuarioId, "comunicado", { titulo, alcance, destinos: destinos.length }, conn);
+    if (usuarioIds.length) {
+      await conn.query("INSERT INTO comunicado_usuarios (comunicado_id, usuario_id) VALUES ?", [usuarioIds.map((id) => [c.insertId, id])]);
+    }
+    const destinos = cursoIds.length + usuarioIds.length;
+    await registrarAuditoria(req.usuarioId, "comunicado", { titulo, alcance, destinos }, conn);
     await conn.commit();
     res.status(201).json({ id: c.insertId });
   } catch (e) {
@@ -57,7 +60,8 @@ router.post("/comunicados/enviar", ...enviar, async (req, res) => {
 router.post("/comunicados/enviados", ...enviar, async (req, res) => {
   const [rows] = await pool.query(
     `SELECT c.id, c.titulo, c.mensaje, c.alcance, DATE_FORMAT(c.creado_en, '%Y-%m-%d %H:%i') AS fecha,
-            (SELECT COUNT(*) FROM comunicado_destinos d WHERE d.comunicado_id = c.id) AS destinos,
+            ((SELECT COUNT(*) FROM comunicado_cursos d WHERE d.comunicado_id = c.id)
+             + (SELECT COUNT(*) FROM comunicado_usuarios d WHERE d.comunicado_id = c.id)) AS destinos,
             (SELECT COUNT(*) FROM comunicado_lecturas l WHERE l.comunicado_id = c.id) AS lecturas
      FROM comunicados c ORDER BY c.creado_en DESC LIMIT 50`);
   res.json(rows);
@@ -81,8 +85,8 @@ router.post("/comunicados/mios", verificarToken, async (req, res) => {
      LEFT JOIN usuarios a ON a.id = c.autor_id
      LEFT JOIN comunicado_lecturas l ON l.comunicado_id = c.id AND l.usuario_id = ?
      WHERE c.alcance = 'global'
-        OR EXISTS (SELECT 1 FROM comunicado_destinos x WHERE x.comunicado_id = c.id AND x.usuario_id = ?)
-        OR EXISTS (SELECT 1 FROM comunicado_destinos x WHERE x.comunicado_id = c.id AND x.curso_id IS NOT NULL
+        OR EXISTS (SELECT 1 FROM comunicado_usuarios x WHERE x.comunicado_id = c.id AND x.usuario_id = ?)
+        OR EXISTS (SELECT 1 FROM comunicado_cursos x WHERE x.comunicado_id = c.id
              AND (x.curso_id = (SELECT curso_id FROM usuarios WHERE id = ?)
                   OR x.curso_id IN (SELECT curso_id FROM dictados WHERE profesor_id = ?)))
      ORDER BY c.creado_en DESC LIMIT 100`,

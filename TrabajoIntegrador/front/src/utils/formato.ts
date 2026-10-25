@@ -39,5 +39,12 @@ export const hoyISO = () => {
   const d = new Date();
   return `${d.getFullYear()}-${dos(d.getMonth() + 1)}-${dos(d.getDate())}`;
 };
+
 export const mesISO = (d: Date) => `${d.getFullYear()}-${dos(d.getMonth() + 1)}`;
-export const fechaValida = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s);
+
+export const fechaValida = (s: string) => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const [a, m, d] = s.split("-").map(Number);
+  const f = new Date(a, m - 1, d);
+  return f.getFullYear() === a && f.getMonth() === m - 1 && f.getDate() === d;
+};

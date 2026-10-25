@@ -5,6 +5,14 @@ import { verificarToken, verificarPermiso } from "../scripts/auth.js";
 
 const router = Router();
 const ver = [verificarToken, verificarPermiso("ver_auditoria")];
+const leerDetalle = (d) => {
+  if (typeof d !== "string") return d ?? null;
+  try {
+    return JSON.parse(d);
+  } catch {
+    return { detalle: d };
+  }
+};
 const limite = (v) => Math.min(Math.max(Number(v) || 100, 1), 500);
 
 // Body: { resultado?: "exitoso" | "fallido", limite? }
@@ -30,7 +38,7 @@ router.post("/auditoria/eventos", ...ver, async (req, res) => {
      ORDER BY a.id DESC LIMIT ?`,
     [accion, accion, limite(req.body.limite)]
   );
-  res.json(rows);
+  res.json(rows.map((r) => ({ ...r, detalle: leerDetalle(r.detalle) })));
 });
 
 export default router;

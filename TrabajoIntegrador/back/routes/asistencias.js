@@ -5,16 +5,12 @@ import {
   verificarToken,
   verificarPermiso,
   verificarProfesorDelDictado,
-  verificarAlumnoDelDictado,
-  alumnoCursaDictado,
 } from "../scripts/auth.js";
-import { crearPayloadQr, leerPayloadQr, VENTANA_QR_SEG } from "../scripts/qrFirmado.js";
+import { crearPayloadQr, VENTANA_QR_SEG, EXPIRA } from "../scripts/qrFirmado.js";
 import { registrarAuditoria, etiquetaDictado } from "../scripts/auditoria.js";
-import { presentismoAlumnos } from "../scripts/presentismo.js";
 
 const router = Router();
 const DURACIONES = [15, 30, 60];
-const EXPIRA = "TIMESTAMP(fecha, hora_inicio) + INTERVAL duracion_min MINUTE";
 
 // ---------- Profesor ----------
 
@@ -242,139 +238,5 @@ router.post("/asistencias/marcar-manual", verificarToken, verificarPermiso("marc
     });
     res.json({ ok: true });
   });
-
-// Body: { dictadoId, umbral? }. Presentismo por clase y por alumno + alumnos en riesgo
-router.post("/estadisticas/materia", verificarToken, verificarPermiso("ver_asistencia"), verificarProfesorDelDictado,
-  async (req, res) => {
-    const umbral = Number(req.body.umbral) || 75;
-    const [porClase] = await pool.query(
-      `SELECT DATE_FORMAT(q.fecha, '%Y-%m-%d') AS fecha,
-              COUNT(i.alumno_id) AS total,
-              CAST(COALESCE(SUM(a.estado = 'presente'), 0) AS UNSIGNED) AS presentes
-       FROM clases_qr q
-       JOIN inscripciones i ON i.dictado_id = q.dictado_id
-       LEFT JOIN asistencias a ON a.clase_id = q.id AND a.alumno_id = i.alumno_id
-       WHERE q.dictado_id = ?
-       GROUP BY q.id, q.fecha ORDER BY q.fecha DESC`,
-      [req.dictadoId]
-    );
-    const porAlumno = await presentismoAlumnos({ dictadoId: req.dictadoId });
-    res.json({
-      umbral,
-      porClase: porClase.map((c) => ({
-        ...c,
-        porcentaje: c.total ? Math.round((100 * c.presentes) / c.total) : 0,
-      })),
-      porAlumno,
-      enRiesgo: porAlumno
-        .filter((a) => a.clases > 0 && a.porcentaje < umbral)
-        .sort((a, b) => a.porcentaje - b.porcentaje),
-    });
-  });
-
-// ---------- Alumno ----------
-
-router.post("/asistencias/escanear", verificarToken, verificarPermiso("leer_qr"), async (req, res) => {
-  const leido = leerPayloadQr(req.body.token);
-  if (leido.error) return res.status(leido.status).json({ error: leido.error });
-
-  const [[clase]] = await pool.query(
-    `SELECT id, dictado_id, ${EXPIRA} > NOW() AS vigente FROM clases_qr WHERE token = ?`, [leido.token]);
-  if (!clase) return res.status(404).json({ error: "QR inválido" });
-  if (!clase.vigente) return res.status(410).json({ error: "La toma de asistencia ya está cerrada o venció" });
-
-  if (!(await alumnoCursaDictado(req.usuarioId, clase.dictado_id))) {
-    return res.status(403).json({ error: "No cursás esta materia" });
-  }
-
-  await pool.query(
-    `INSERT INTO asistencias (clase_id, alumno_id, estado) VALUES (?, ?, 'presente')
-     ON DUPLICATE KEY UPDATE estado = 'presente', nota = NULL`,
-    [clase.id, req.usuarioId]
-  );
-  res.json({ ok: true, dictado_id: clase.dictado_id });
-});
-
-// Body: { dictadoId }. Historial del alumno en una materia (una fila por clase dada)
-router.post("/asistencias/historial", verificarToken, verificarPermiso("leer_qr"), verificarAlumnoDelDictado,
-  async (req, res) => {
-    const [rows] = await pool.query(
-      `SELECT a.id, DATE_FORMAT(c.fecha, '%Y-%m-%d') AS fecha,
-              COALESCE(a.estado, 'ausente') AS estado, a.nota, j.estado AS justificacion
-       FROM clases_qr c
-       LEFT JOIN asistencias a ON a.clase_id = c.id AND a.alumno_id = ?
-       LEFT JOIN justificaciones j ON j.asistencia_id = a.id
-       WHERE c.dictado_id = ?
-       ORDER BY fecha DESC`,
-      [req.usuarioId, req.dictadoId]
-    );
-    res.json(rows);
-  });
-
-// Resumen propio por materia (el global lo suma el front)
-router.post("/asistencias/resumen", verificarToken, verificarPermiso("leer_qr"), async (req, res) => {
-  const filas = await presentismoAlumnos({ alumnoId: req.usuarioId });
-  res.json(filas.map(({ alumno_id, nombre, ...resto }) => resto));
-});
-
-// Body: { mes: "YYYY-MM" }. Por día: clases dadas y a cuántas asistió (ej: 2/3)
-router.post("/asistencias/calendario", verificarToken, verificarPermiso("leer_qr"), async (req, res) => {
-  const mes = String(req.body.mes ?? "");
-  if (!/^\d{4}-\d{2}$/.test(mes)) return res.status(400).json({ error: "El mes debe tener formato YYYY-MM" });
-  const [rows] = await pool.query(
-    `SELECT DATE_FORMAT(q.fecha, '%Y-%m-%d') AS fecha, COUNT(*) AS total,
-            CAST(COALESCE(SUM(a.estado = 'presente'), 0) AS UNSIGNED) AS presentes
-     FROM inscripciones i
-     JOIN clases_qr q ON q.dictado_id = i.dictado_id
-     LEFT JOIN asistencias a ON a.clase_id = q.id AND a.alumno_id = i.alumno_id
-     WHERE i.alumno_id = ? AND q.fecha >= ? AND q.fecha < DATE_ADD(?, INTERVAL 1 MONTH)
-     GROUP BY q.fecha ORDER BY q.fecha`,
-    [req.usuarioId, `${mes}-01`, `${mes}-01`]
-  );
-  res.json(rows);
-});
-
-// ---------- Estadísticas (admin) ----------
-
-router.post("/estadisticas/dictados", verificarToken, verificarPermiso("ver_estadisticas"), async (req, res) => {
-  const [rows] = await pool.query(
-    `SELECT d.id, m.nombre AS materia, c.anio, c.division,
-       COUNT(DISTINCT q.id) AS clases,
-       CAST(COALESCE(SUM(a.estado = 'presente'), 0) AS UNSIGNED) AS presentes,
-       CAST(COALESCE(SUM(a.estado = 'ausente'), 0) AS UNSIGNED) AS ausentes,
-       ROUND(100 * SUM(a.estado = 'presente') / NULLIF(COUNT(a.id), 0), 1) AS porcentaje_presentismo
-     FROM dictados d
-     JOIN materias m ON m.id = d.materia_id
-     JOIN cursos c ON c.id = d.curso_id
-     LEFT JOIN clases_qr q ON q.dictado_id = d.id
-     LEFT JOIN asistencias a ON a.clase_id = q.id
-     GROUP BY d.id, m.nombre, c.anio, c.division
-     ORDER BY c.anio, c.division, m.nombre`
-  );
-  res.json(rows);
-});
-
-// Body: { dictadoId }. Presentismo de cada alumno inscripto en el dictado
-router.post("/estadisticas/dictados/alumnos", verificarToken, verificarPermiso("ver_estadisticas"), async (req, res) => {
-  const dictadoId = Number(req.body.dictadoId);
-  if (!Number.isInteger(dictadoId) || dictadoId < 1) return res.status(400).json({ error: "dictadoId es obligatorio" });
-
-  const [rows] = await pool.query(
-    `SELECT u.id, u.nombre,
-       COUNT(q.id) AS clases,
-       CAST(COALESCE(SUM(a.estado = 'presente'), 0) AS UNSIGNED) AS presentes,
-       COUNT(q.id) - CAST(COALESCE(SUM(a.estado = 'presente'), 0) AS UNSIGNED) AS ausentes,
-       ROUND(100 * COALESCE(SUM(a.estado = 'presente'), 0) / NULLIF(COUNT(q.id), 0), 1) AS porcentaje_presentismo
-     FROM inscripciones i
-     JOIN usuarios u ON u.id = i.alumno_id
-     LEFT JOIN clases_qr q ON q.dictado_id = i.dictado_id
-     LEFT JOIN asistencias a ON a.clase_id = q.id AND a.alumno_id = u.id
-     WHERE i.dictado_id = ?
-     GROUP BY u.id, u.nombre
-     ORDER BY u.nombre`,
-    [dictadoId]
-  );
-  res.json(rows);
-});
 
 export default router;

@@ -60,8 +60,8 @@ CREATE TABLE codigos_recuperacion (
 CREATE TABLE accesos (
   id INT PRIMARY KEY AUTO_INCREMENT,
   usuario_id INT,
-  fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
-  resultado ENUM('exitoso', 'fallido'),
+  fecha DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  resultado ENUM('exitoso', 'fallido') NOT NULL,
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 );
 
@@ -124,57 +124,63 @@ CREATE TABLE auditoria (
   usuario_id INT NULL,
   accion VARCHAR(40) NOT NULL,
   detalle JSON NULL,
-  creado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
+  creado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL,
   INDEX idx_accion_fecha (accion, creado_en)
 );
 
--- Una justificación por falta (si la rechazan, el alumno puede volver a pedirla)
+-- Una justificación por falta (si la rechazan, el alumno puede volver a pedirla).
+-- El alumno no se repite acá: se obtiene de asistencias.alumno_id (3FN)
 CREATE TABLE justificaciones (
   id INT PRIMARY KEY AUTO_INCREMENT,
   asistencia_id INT NOT NULL,
-  alumno_id INT NOT NULL,
   motivo VARCHAR(500) NOT NULL,
   adjunto MEDIUMBLOB NULL,
   adjunto_mime VARCHAR(50) NULL,
   estado ENUM('pendiente', 'aprobada', 'rechazada') NOT NULL DEFAULT 'pendiente',
   respuesta VARCHAR(255) NULL,
-  creada_en DATETIME DEFAULT CURRENT_TIMESTAMP,
+  creada_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   resuelta_por INT NULL,
   resuelta_en DATETIME NULL,
   UNIQUE KEY uq_asistencia (asistencia_id),
   FOREIGN KEY (asistencia_id) REFERENCES asistencias(id) ON DELETE CASCADE,
-  FOREIGN KEY (alumno_id) REFERENCES usuarios(id) ON DELETE CASCADE,
   FOREIGN KEY (resuelta_por) REFERENCES usuarios(id) ON DELETE SET NULL,
   INDEX idx_estado (estado)
 );
 
 -- Comunicados (notificaciones). global = todos los alumnos y profesores
--- curso = alumnos del curso + profesores que dictan en él; usuario = personas puntuales
+-- curso = alumnos del curso + profesores que dictan en él (comunicado_cursos); usuario = personas puntuales (comunicado_usuarios)
 CREATE TABLE comunicados (
   id INT PRIMARY KEY AUTO_INCREMENT,
   autor_id INT NULL,
   titulo VARCHAR(120) NOT NULL,
   mensaje TEXT NOT NULL,
   alcance ENUM('global', 'curso', 'usuario') NOT NULL,
-  creado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
+  creado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (autor_id) REFERENCES usuarios(id) ON DELETE SET NULL
 );
 
-CREATE TABLE comunicado_destinos (
+-- Destinos separados por tipo: sin columnas NULL excluyentes y con clave primaria
+CREATE TABLE comunicado_cursos (
   comunicado_id INT NOT NULL,
-  curso_id INT NULL,
-  usuario_id INT NULL,
+  curso_id INT NOT NULL,
+  PRIMARY KEY (comunicado_id, curso_id),
   FOREIGN KEY (comunicado_id) REFERENCES comunicados(id) ON DELETE CASCADE,
-  FOREIGN KEY (curso_id) REFERENCES cursos(id) ON DELETE CASCADE,
-  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
-  INDEX idx_comunicado (comunicado_id)
+  FOREIGN KEY (curso_id) REFERENCES cursos(id) ON DELETE CASCADE
+);
+
+CREATE TABLE comunicado_usuarios (
+  comunicado_id INT NOT NULL,
+  usuario_id INT NOT NULL,
+  PRIMARY KEY (comunicado_id, usuario_id),
+  FOREIGN KEY (comunicado_id) REFERENCES comunicados(id) ON DELETE CASCADE,
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 );
 
 CREATE TABLE comunicado_lecturas (
   comunicado_id INT NOT NULL,
   usuario_id INT NOT NULL,
-  leido_en DATETIME DEFAULT CURRENT_TIMESTAMP,
+  leido_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (comunicado_id, usuario_id),
   FOREIGN KEY (comunicado_id) REFERENCES comunicados(id) ON DELETE CASCADE,
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE

@@ -3,6 +3,7 @@ import pool from "../db.js";
 import { PERMISOS_POR_PERFIL } from "./permisos.js";
 
 export const normalizarEmail = (email) => String(email ?? "").trim().toLowerCase();
+export const entero = (v, min, max) => Number.isInteger(Number(v)) && Number(v) >= min && Number(v) <= max;
 export const emailValido = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 

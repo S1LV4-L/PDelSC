@@ -65,8 +65,8 @@ function FormularioUsuario({
   const [submitted, setSubmitted] = useState(false);
 
   // Al editar, el email puede quedar vacío (usuarios que entraron por OAuth no tienen)
-  const validarEmailForm = (valor: string) =>
-    editando && valor.trim() === "" ? null : validar.email(valor);
+  const puedeQuedarSinEmail = editando && !usuario?.email;
+  const validarEmailForm = (valor: string) => puedeQuedarSinEmail && valor.trim() === "" ? null : validar.email(valor);
 
   const enviar = () => {
     setSubmitted(true);
