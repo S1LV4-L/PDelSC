@@ -42,6 +42,7 @@ CREATE TABLE usuarios (
   curso_id INT NULL,
   proveedor VARCHAR(20),
   proveedor_id VARCHAR(100),
+  oculto_en DATETIME NULL,
   FOREIGN KEY (perfil_id) REFERENCES perfiles(id) ON DELETE SET NULL,
   FOREIGN KEY (curso_id) REFERENCES cursos(id) ON DELETE SET NULL,
   UNIQUE KEY uq_oauth (proveedor, proveedor_id)

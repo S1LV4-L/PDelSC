@@ -173,7 +173,7 @@ export default function AdminDictados() {
     <View style={styles.bloque}>
       <View style={styles.encabezado}>
         <Text style={[styles.titulo, { color: theme.text, fontSize: fs(20), flex: 1 }]}>Dictados</Text>
-        <Button style={styles.boton} title="+" onPress={() => abrirForm()} />
+        <Button style={styles.boton} title=" + " onPress={() => abrirForm()} />
       </View>
 
       {!!error && <Text style={{ color: theme.error, fontSize: fs(14) }}>{error}</Text>}

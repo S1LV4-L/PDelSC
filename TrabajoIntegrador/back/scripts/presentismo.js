@@ -20,7 +20,7 @@ export async function presentismoAlumnos({
           AND q.fecha >= COALESCE(?, '1000-01-01') AND q.fecha <= COALESCE(?, '9999-12-31')
      LEFT JOIN asistencias a ON a.clase_id = q.id AND a.alumno_id = u.id
      LEFT JOIN justificaciones j ON j.asistencia_id = a.id AND a.estado = 'ausente' AND j.estado = 'aprobada'
-     WHERE (? IS NULL OR d.curso_id = ?) AND (? IS NULL OR d.materia_id = ?)
+     WHERE u.oculto_en IS NULL AND (? IS NULL OR d.curso_id = ?) AND (? IS NULL OR d.materia_id = ?)
        AND (? IS NULL OR d.id = ?) AND (? IS NULL OR u.id = ?)
      GROUP BY u.id, u.nombre, d.id, m.nombre, c.anio, c.division
      ORDER BY c.anio, c.division, m.nombre, u.nombre`,

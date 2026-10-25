@@ -4,18 +4,26 @@ import { obtenerPermisos } from './helpers.js';
 
 // Verifica que el token sea válido. No exige ningún permiso puntual:
 // lo usan tanto rutas de admin como de autoservicio (ej: mi-cuenta).
-export function verificarToken(req, res, next) {
+// Bloquea al instante cualquier sesión de un usuario oculto o inexistente.
+export async function verificarToken(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ error: 'Token no provisto' });
 
   const token = authHeader.split(' ')[1];
+  let payload;
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
-    req.usuarioId = payload.id;
-    next();
+    payload = jwt.verify(token, process.env.JWT_SECRET);
   } catch {
-    res.status(401).json({ error: 'Token inválido o expirado' });
+    return res.status(401).json({ error: 'Token inválido o expirado' });
   }
+
+  const [rows] = await pool.query('SELECT oculto_en FROM usuarios WHERE id = ?', [payload.id]);
+  if (rows.length === 0) return res.status(401).json({ error: 'Token inválido o expirado' });
+  if (rows[0].oculto_en) {
+    return res.status(403).json({ error: 'Tu cuenta está inactiva. Consultá con la administración' });
+  }
+  req.usuarioId = payload.id;
+  next();
 }
 
 // Exige que el perfil del usuario loggeado tenga un permiso puntual.

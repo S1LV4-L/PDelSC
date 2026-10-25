@@ -80,13 +80,17 @@ router.post("/auth/login", async (req, res) => {
         }
 
         const passwordValida = await bcrypt.compare(password ?? "", usuario.password_hash);
+        const inactivo = passwordValida && usuario.oculto_en !== null;
 
         await pool.query(
             "INSERT INTO accesos (usuario_id, resultado) VALUES (?, ?)",
-            [usuario.id, passwordValida ? "exitoso" : "fallido"]
+            [usuario.id, passwordValida && !inactivo ? "exitoso" : "fallido"]
         );
 
         if (!passwordValida) return res.status(401).json({ error: "Credenciales inválidas" });
+        if (inactivo) {
+            return res.status(403).json({ error: "Tu cuenta está inactiva. Consultá con la administración" });
+        }
 
         const token = jwt.sign({ id: usuario.id }, process.env.JWT_SECRET, { expiresIn: "2h" });
         res.json({
@@ -174,6 +178,8 @@ router.get("/auth/:proveedor/callback", async (req, res) => {
             [rows] = await pool.query("SELECT * FROM usuarios WHERE id = ?", [nuevoId]);
             usuario = rows[0];
         }
+
+        if (usuario.oculto_en) return res.redirect(`${process.env.FRONTEND_URL}/?error=inactivo`);
 
         const token = jwt.sign({ id: usuario.id }, process.env.JWT_SECRET, { expiresIn: "2h" });
         res.redirect(`${process.env.FRONTEND_URL}/auth-callback?token=${token}`);

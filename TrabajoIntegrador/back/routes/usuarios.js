@@ -4,19 +4,39 @@ import pool from "../db.js";
 import { verificarToken, verificarPermiso } from "../scripts/auth.js";
 import { crearCodigosRecuperacion, emailValido, normalizarEmail } from "../scripts/helpers.js";
 import { PERMISOS_POR_PERFIL } from "../scripts/permisos.js";
+import { registrarAuditoria } from "../scripts/auditoria.js";
+
+const MAX_IDS = 500;
+
+// Lista de ids enteros positivos sin repetir (o null si es inválida)
+const leerIds = (v) => {
+    if (!Array.isArray(v) || v.length === 0 || v.length > MAX_IDS) return null;
+    const ids = [...new Set(v.map(Number))];
+    return ids.every((i) => Number.isInteger(i) && i > 0) ? ids : null;
+};
+
+const MATERIAS = (desde, donde) => `
+    (SELECT GROUP_CONCAT(CONCAT(m.nombre, ' ', dc.anio, '°', dc.division, '°')
+                         ORDER BY dc.anio, dc.division, m.nombre SEPARATOR ' | ')
+     FROM ${desde}
+     JOIN materias m ON m.id = d.materia_id
+     JOIN cursos dc ON dc.id = d.curso_id
+     WHERE ${donde})`;
 
 const router = Router();
 
-// Sin body. Auth: ver_usuarios. Todos los usuarios con perfil (y permisos) y curso (null si no es alumno).
 // 200 [{ id, nombre, email, perfil: { id, nombre, permisos }, curso: { id, anio, division } | null }]
+// Body opcional: { ocultos: true } lista los ocultos. Por defecto solo los activos
 router.post("/usuarios/listar", verificarToken, verificarPermiso("ver_usuarios"), async (req, res) => {
+    const ocultos = req.body.ocultos === true;
     const [rows] = await pool.query(`
-        SELECT u.id, u.nombre, u.email,
+        SELECT u.id, u.nombre, u.email, DATE_FORMAT(u.oculto_en, '%Y-%m-%d') AS oculto_en,
                p.id AS perfil_id, p.nombre AS perfil_nombre,
                c.id AS curso_id, c.anio AS curso_anio, c.division AS curso_division
         FROM usuarios u
         LEFT JOIN perfiles p ON u.perfil_id = p.id
         LEFT JOIN cursos c ON u.curso_id = c.id
+        WHERE u.oculto_en IS ${ocultos ? "NOT NULL" : "NULL"}
         ORDER BY u.id
     `);
 
@@ -24,6 +44,7 @@ router.post("/usuarios/listar", verificarToken, verificarPermiso("ver_usuarios")
         id: r.id,
         nombre: r.nombre,
         email: r.email,
+        ocultoEn: r.oculto_en,
         perfil: {
             id: r.perfil_id,
             nombre: r.perfil_nombre || "Sin perfil",
@@ -121,19 +142,94 @@ router.post("/usuarios/actualizar", verificarToken, verificarPermiso("editar_usu
     }
 });
 
-// Body: { id }. Auth: eliminar_usuario. No permite eliminar la propia cuenta (usar /usuarios/eliminar-mi-cuenta).
+
 // 200 { mensaje } | 400 propia cuenta | 500
+// Body: { id, confirmado: true }. Solo elimina usuarios ocultos (primero hay que ocultarlos)
 router.post("/usuarios/eliminar", verificarToken, verificarPermiso("eliminar_usuario"), async (req, res) => {
     try {
-        const { id } = req.body;
-        if (Number(id) === req.usuarioId) {
+        const id = Number(req.body.id);
+        if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: "Id inválido" });
+        if (req.body.confirmado !== true) return res.status(400).json({ error: "Falta la confirmación" });
+        if (id === req.usuarioId) {
             return res.status(400).json({ error: "No puedes eliminar tu propia cuenta desde aquí" });
         }
 
+        const [[usuario]] = await pool.query("SELECT nombre FROM usuarios WHERE id = ? AND oculto_en IS NOT NULL", [id]);
+        if (!usuario) {
+            return res.status(409).json({ error: "El usuario no existe o no está oculto. Ocultalo primero" });
+        }
+
         await pool.query("DELETE FROM usuarios WHERE id = ?", [id]);
+        await registrarAuditoria(req.usuarioId, "usuario_eliminado", { id, nombre: usuario.nombre });
         res.json({ mensaje: "Usuario eliminado" });
     } catch {
         res.status(500).json({ error: "Error al eliminar usuario" });
+    }
+});
+
+// Body: { ids }. Oculta usuarios: conservan sus datos, pero no ingresan ni aparecen en listas, estadísticas ni reportes
+router.post("/usuarios/ocultar", verificarToken, verificarPermiso("editar_usuario"), async (req, res) => {
+    try {
+        const ids = leerIds(req.body.ids);
+        if (!ids) return res.status(400).json({ error: `ids debe ser una lista de usuarios (máximo ${MAX_IDS})` });
+        if (ids.includes(req.usuarioId)) return res.status(400).json({ error: "No puedes ocultar tu propia cuenta" });
+
+        const [r] = await pool.query(
+            "UPDATE usuarios SET oculto_en = NOW() WHERE id IN (?) AND oculto_en IS NULL", [ids]);
+        await registrarAuditoria(req.usuarioId, "usuarios_ocultados", { cantidad: r.affectedRows, ids });
+        res.json({ mensaje: "Usuarios ocultados", cantidad: r.affectedRows });
+    } catch {
+        res.status(500).json({ error: "Error al ocultar usuarios" });
+    }
+});
+
+// Body: { ids }. Vuelve a dejar activos a usuarios ocultos
+router.post("/usuarios/reincorporar", verificarToken, verificarPermiso("editar_usuario"), async (req, res) => {
+    try {
+        const ids = leerIds(req.body.ids);
+        if (!ids) return res.status(400).json({ error: `ids debe ser una lista de usuarios (máximo ${MAX_IDS})` });
+
+        const [r] = await pool.query(
+            "UPDATE usuarios SET oculto_en = NULL WHERE id IN (?) AND oculto_en IS NOT NULL", [ids]);
+        await registrarAuditoria(req.usuarioId, "usuarios_reincorporados", { cantidad: r.affectedRows, ids });
+        res.json({ mensaje: "Usuarios reincorporados", cantidad: r.affectedRows });
+    } catch {
+        res.status(500).json({ error: "Error al reincorporar usuarios" });
+    }
+});
+
+// Body: { ids }. Datos de uno o varios usuarios (activos u ocultos) como tabla lista para CSV
+router.post("/usuarios/exportar", verificarToken, verificarPermiso("ver_usuarios"), async (req, res) => {
+    try {
+        const ids = leerIds(req.body.ids);
+        if (!ids) return res.status(400).json({ error: `ids debe ser una lista de usuarios (máximo ${MAX_IDS})` });
+
+        const [rows] = await pool.query(
+            `SELECT u.id, u.nombre, u.email, p.nombre AS perfil, c.anio, c.division,
+                    DATE_FORMAT(u.oculto_en, '%d/%m/%Y') AS oculto_en,
+                    ${MATERIAS("inscripciones i JOIN dictados d ON d.id = i.dictado_id", "i.alumno_id = u.id")} AS cursa,
+                    ${MATERIAS("dictados d", "d.profesor_id = u.id")} AS dicta
+             FROM usuarios u
+             LEFT JOIN perfiles p ON p.id = u.perfil_id
+             LEFT JOIN cursos c ON c.id = u.curso_id
+             WHERE u.id IN (?)
+             ORDER BY u.nombre`,
+            [ids]
+        );
+        res.json({
+            titulo: "Usuarios",
+            subtitulo: `${rows.length} usuario(s)`,
+            columnas: ["ID", "Nombre", "Email", "Perfil", "Curso", "Materias", "Estado", "Oculto desde"],
+            filas: rows.map((r) => [
+                r.id, r.nombre, r.email ?? "", r.perfil ?? "Sin perfil",
+                r.anio ? `${r.anio}°${r.division}°` : "",
+                r.cursa ?? r.dicta ?? "",
+                r.oculto_en ? "Oculto" : "Activo",
+                r.oculto_en ?? "",
+            ]),
+        });
+    } catch {
+        res.status(500).json({ error: "Error al exportar usuarios" });
     }
 });
 

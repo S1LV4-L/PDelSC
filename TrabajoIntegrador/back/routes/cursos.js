@@ -13,7 +13,7 @@ const gestion = [verificarToken, verificarPermiso("gestionar_cursos")];
 router.post("/cursos/listar", ...gestion, async (req, res) => {
   const [rows] = await pool.query(
     `SELECT c.id, c.anio, c.division,
-       (SELECT COUNT(*) FROM usuarios WHERE curso_id = c.id) AS alumnos
+       (SELECT COUNT(*) FROM usuarios WHERE curso_id = c.id AND oculto_en IS NULL) AS alumnos
      FROM cursos c ORDER BY c.anio, c.division`
   );
   res.json(rows);

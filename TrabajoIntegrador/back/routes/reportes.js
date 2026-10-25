@@ -68,7 +68,7 @@ router.post("/reportes/asistencia", verificarToken, verificarPermiso("ver_report
      JOIN usuarios u ON u.id = i.alumno_id
      LEFT JOIN asistencias a ON a.clase_id = q.id AND a.alumno_id = u.id
      LEFT JOIN justificaciones j ON j.asistencia_id = a.id
-     WHERE (? IS NULL OR d.curso_id = ?) AND (? IS NULL OR d.materia_id = ?)
+     WHERE u.oculto_en IS NULL AND (? IS NULL OR d.curso_id = ?) AND (? IS NULL OR d.materia_id = ?)
        AND (? IS NULL OR d.id = ?) AND (? IS NULL OR u.id = ?)
        AND q.fecha >= COALESCE(?, '1000-01-01') AND q.fecha <= COALESCE(?, '9999-12-31')
      ORDER BY q.fecha, c.anio, c.division, m.nombre, u.nombre

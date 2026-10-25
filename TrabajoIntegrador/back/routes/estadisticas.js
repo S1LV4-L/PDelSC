@@ -16,6 +16,7 @@ router.post("/estadisticas/materia", verificarToken, verificarPermiso("ver_asist
               CAST(COALESCE(SUM(a.estado = 'presente'), 0) AS UNSIGNED) AS presentes
        FROM clases_qr q
        JOIN inscripciones i ON i.dictado_id = q.dictado_id
+       JOIN usuarios ua ON ua.id = i.alumno_id AND ua.oculto_en IS NULL
        LEFT JOIN asistencias a ON a.clase_id = q.id AND a.alumno_id = i.alumno_id
        WHERE q.dictado_id = ?
        GROUP BY q.id, q.fecha ORDER BY q.fecha DESC`,
@@ -70,7 +71,7 @@ router.post("/estadisticas/dictados/alumnos", verificarToken, verificarPermiso("
      JOIN usuarios u ON u.id = i.alumno_id
      LEFT JOIN clases_qr q ON q.dictado_id = i.dictado_id
      LEFT JOIN asistencias a ON a.clase_id = q.id AND a.alumno_id = u.id
-     WHERE i.dictado_id = ?
+     WHERE i.dictado_id = ? AND u.oculto_en IS NULL
      GROUP BY u.id, u.nombre
      ORDER BY u.nombre`,
     [dictadoId]

@@ -39,7 +39,7 @@ export default function FilaAcciones({ titulo, subtitulo, onEditar, onEliminar }
         <View style={styles.acciones}>
           {onEditar && <Button style={styles.boton} variant="outline" title="✎" onPress={onEditar} />}
           {onEliminar && (
-            <Button style={styles.boton} variant="outline" title="X" onPress={() => setConfirmando(true)} />
+            <Button style={styles.boton} variant="outline" title="✕" onPress={() => setConfirmando(true)} />
           )}
         </View>
       )}

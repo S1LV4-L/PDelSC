@@ -157,7 +157,7 @@ router.post("/ciclo/promover", ...gate, async (req, res) => {
 
   const [alumnos] = await pool.query(
     `SELECT u.id FROM usuarios u JOIN perfiles p ON p.id = u.perfil_id
-     WHERE u.curso_id = ? AND p.nombre = 'Alumno'`, [cursoId]);
+     WHERE u.curso_id = ? AND p.nombre = 'Alumno' AND u.oculto_en IS NULL`, [cursoId]);
   const egresan = curso.anio === 7;
   let destino = null;
   if (!egresan) {

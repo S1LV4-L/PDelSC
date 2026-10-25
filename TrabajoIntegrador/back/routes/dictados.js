@@ -42,8 +42,8 @@ router.post("/dictados/asignar", ...asignar, async (req, res) => {
 
   const [prof] = await pool.query(
     `SELECT u.id FROM usuarios u JOIN perfiles p ON p.id = u.perfil_id
-     WHERE u.id = ? AND p.nombre = 'Profesor'`, [profesorId]);
-  if (prof.length === 0) return res.status(400).json({ error: "El usuario no tiene el perfil Profesor" });
+     WHERE u.id = ? AND p.nombre = 'Profesor' AND u.oculto_en IS NULL`, [profesorId]);
+  if (prof.length === 0) return res.status(400).json({ error: "El usuario no es un profesor activo" });
 
   await pool.query(
     `INSERT INTO dictados (materia_id, curso_id, profesor_id) VALUES (?, ?, ?)

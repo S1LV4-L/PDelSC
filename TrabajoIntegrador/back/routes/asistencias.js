@@ -58,9 +58,12 @@ router.post("/asistencias/generar-qr", verificarToken, verificarPermiso("generar
          VALUES (?, CURDATE(), CURTIME(), ?, ?)`,
         [req.dictadoId, token, duracion]
       );
-      await conn.query(
+            await conn.query(
         `INSERT INTO asistencias (clase_id, alumno_id, estado)
-         SELECT ?, alumno_id, 'ausente' FROM inscripciones WHERE dictado_id = ?`,
+         SELECT ?, i.alumno_id, 'ausente'
+         FROM inscripciones i
+         JOIN usuarios u ON u.id = i.alumno_id AND u.oculto_en IS NULL
+         WHERE i.dictado_id = ?`,
         [r.insertId, req.dictadoId]
       );
       await conn.commit();
@@ -106,7 +109,7 @@ router.post("/asistencias/alumnos", verificarToken, verificarPermiso("ver_asiste
        JOIN usuarios u ON u.id = i.alumno_id
        LEFT JOIN clases_qr c ON c.dictado_id = i.dictado_id AND c.fecha = CURDATE()
        LEFT JOIN asistencias a ON a.clase_id = c.id AND a.alumno_id = i.alumno_id
-       WHERE i.dictado_id = ?
+       WHERE i.dictado_id = ? AND u.oculto_en IS NULL
        ORDER BY u.nombre`,
       [req.dictadoId]
     );
