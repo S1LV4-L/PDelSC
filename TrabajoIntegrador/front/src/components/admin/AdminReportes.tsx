@@ -57,7 +57,7 @@ export default function AdminReportes() {
   return (
     <Tarjeta>
       <Texto size={20} bold>Planillas de asistencia</Texto>
-      <Texto size={14} color="muted">Para entregar a dirección. Deja los filtros en "Todos" para el reporte completo.</Texto>
+      <Texto size={14} color="muted">Para exportar planillas. Deja los filtros en "Todos" para el reporte completo.</Texto>
       <Chips opciones={TIPOS} valor={tipo} onChange={setTipo} />
       <Texto size={14} bold>Curso</Texto>
       <ChipsFiltro

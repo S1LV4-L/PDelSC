@@ -44,7 +44,7 @@ export const lightTheme: ThemeColors = {
   accent: "#D79922",
   background: "#F0EFEB",
   surface: "#ddddd6",
-  text: "#292A2D",
+  text: "#141414",
   muted: "#6F7075",
   border: "#C5CBE3",
   error: "#D93624",
@@ -54,7 +54,7 @@ export const lightTheme: ThemeColors = {
 };
 
 export const darkTheme: ThemeColors = {
-  primary: "#8E9ED6",
+  primary: "#626b8a",
   primaryDark: "#050005",
   accent: "#D79922",
   background: "#12151D",

@@ -8,10 +8,10 @@ import {
   Manrope_700Bold,
   Manrope_800ExtraBold,
 } from "@expo-google-fonts/manrope";
-
 import { AuthProvider } from "../context/AuthContext";
 import { useAuth } from "../hooks/useAuth";
 import { ThemeProvider } from "../constants/theme";
+import Head from "expo-router/head";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -63,6 +63,9 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <AuthProvider>
+        <Head>
+          <title>Aula+</title>
+        </Head>
         <SplashController />
         <RootNavigator />
       </AuthProvider>

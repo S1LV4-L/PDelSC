@@ -41,7 +41,7 @@ export default function Button({
         isOutline && {
           backgroundColor: pressed ? theme.background : theme.surface,
           borderColor: theme.border,
-          borderWidth: 1,
+          borderWidth: 3,
         },
         !isLink && !isOutline && {
           backgroundColor: pressed ? pressedColor : buttonColor,
