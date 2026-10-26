@@ -48,3 +48,6 @@ export const fechaValida = (s: string) => {
   const f = new Date(a, m - 1, d);
   return f.getFullYear() === a && f.getMonth() === m - 1 && f.getDate() === d;
 };
+
+// Nota mínima para aprobar
+export const APRUEBA = 7;

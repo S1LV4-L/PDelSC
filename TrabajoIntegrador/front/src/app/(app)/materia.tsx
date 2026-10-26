@@ -13,7 +13,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { historialPropio } from "../../services/asistenciaService";
 import { misCalificaciones } from "../../services/calificacionService";
 import { AsistenciaPropia, Calificacion } from "../../types/academico";
-import { fechaLarga, porcentaje } from "../../utils/formato";
+import { fechaLarga, porcentaje, APRUEBA } from "../../utils/formato";
 
 type Pestania = "asistencia" | "calificaciones";
 
@@ -110,7 +110,7 @@ export default function MateriaScreen() {
                   <Texto bold>{n.titulo}</Texto>
                   <Texto size={14} color="muted">{fechaLarga(n.fecha)}</Texto>
                 </View>
-                <Texto size={20} bold color={n.nota >= 6 ? "success" : "error"}>{n.nota}</Texto>
+                <Texto size={20} bold color={n.nota >= APRUEBA ? "success" : "error"}>{n.nota}</Texto>
               </View>
             ))}
           </>

@@ -158,6 +158,7 @@ CREATE TABLE comunicados (
   mensaje TEXT NOT NULL,
   alcance ENUM('global', 'curso', 'usuario') NOT NULL,
   creado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  editado_en DATETIME NULL,
   FOREIGN KEY (autor_id) REFERENCES usuarios(id) ON DELETE SET NULL
 );
 

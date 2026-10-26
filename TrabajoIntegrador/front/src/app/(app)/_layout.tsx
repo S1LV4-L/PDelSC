@@ -19,6 +19,8 @@ const PERFILES_POR_RUTA: Record<string, string[]> = {
     justificaciones: ["Alumno"],
     calendario: ["Alumno"],
     notificaciones: ["Profesor", "Alumno"],
+    notas: ["Alumno"],
+    evaluaciones: ["Profesor"],
 };
 
 export default function AppGroupLayout() {

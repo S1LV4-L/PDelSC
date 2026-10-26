@@ -78,7 +78,11 @@ export default function AdminReportes() {
         </>
       ) : (
         <>
-          <Input label="Alumno (opcional, escribe 2 letras)" value={busqueda} onChangeText={setBusqueda} />
+          <Input label="Filtrar por alumno (opcional)" value={busqueda} onChangeText={setBusqueda}
+            placeholder="Escribe al menos 2 letras del nombre para filtrar" />
+          {q.length >= 2 && coincidencias.length === 0 && (
+            <Texto size={14} color="muted">No hay alumnos que coincidan con esa búsqueda.</Texto>
+          )}
           {coincidencias.map((a) => (
             <FilaItem key={a.id} titulo={a.nombre} subtitulo={a.curso ? cursoLabel(a.curso.anio, a.curso.division) : undefined} onPress={() => setAlumno(a)} />
           ))}

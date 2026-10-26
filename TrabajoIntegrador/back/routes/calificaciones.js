@@ -8,6 +8,8 @@ import {
   verificarAlumnoDelDictado,
   alumnoCursaDictado,
 } from "../scripts/auth.js";
+import { validarTextoLibre } from "../scripts/helpers.js";
+import { hoyDB } from "../scripts/fechas.js";
 
 const router = Router();
 const gestion = [verificarToken, verificarPermiso("gestionar_calificaciones")];
@@ -17,7 +19,8 @@ const leerNota = (v) => {
   return Number.isFinite(n) && n >= 1 && n <= 10 && Math.abs(n * 10 - Math.round(n * 10)) < 1e-9 ? n : null;
 };
 const leerFecha = (v) => (/^\d{4}-\d{2}-\d{2}$/.test(String(v ?? "")) ? String(v) : null);
-const leerTitulo = (v) => String(v ?? "").trim().slice(0, 100);
+const leerTitulo = (v) => String(v ?? "").trim();
+const errorTitulo = (titulo) => validarTextoLibre(titulo, { etiqueta: "El título", minLetras: 2, max: 100 });
 const entero = (v) => {
   const n = Number(v);
   return Number.isInteger(n) && n > 0 ? n : null;
@@ -28,7 +31,7 @@ const entero = (v) => {
 // Body: { dictadoId }
 router.post("/calificaciones/listar", ...gestion, verificarProfesorDelDictado, async (req, res) => {
   const [alumnos] = await pool.query(
-    `SELECT u.id, u.nombre FROM inscripciones i JOIN usuarios u ON u.id = i.alumno_id
+    `SELECT u.id, u.nombre FROM inscripciones i JOIN usuarios u ON u.id = i.alumno_id AND u.oculto_en IS NULL
      WHERE i.dictado_id = ? ORDER BY u.nombre`, [req.dictadoId]);
   const [filas] = await pool.query(
     `SELECT id, alumno_id, titulo, nota, DATE_FORMAT(fecha, '%Y-%m-%d') AS fecha
@@ -41,15 +44,19 @@ router.post("/calificaciones/crear", ...gestion, verificarProfesorDelDictado, as
   const alumnoId = entero(req.body.alumnoId);
   const titulo = leerTitulo(req.body.titulo);
   const nota = leerNota(req.body.nota);
-  if (!alumnoId || !titulo) return res.status(400).json({ error: "Alumno y título son obligatorios" });
+  if (!alumnoId) return res.status(400).json({ error: "Alumno inválido" });
+  const errTitulo = errorTitulo(titulo);
+  if (errTitulo) return res.status(400).json({ error: errTitulo });
   if (nota === null) return res.status(400).json({ error: "La nota debe estar entre 1 y 10" });
+  const fecha = leerFecha(req.body.fecha);
+  if (fecha && fecha > (await hoyDB())) return res.status(400).json({ error: "La fecha no puede ser futura" });
   if (!(await alumnoCursaDictado(alumnoId, req.dictadoId))) {
     return res.status(404).json({ error: "El alumno no cursa esta materia" });
   }
   const [r] = await pool.query(
     `INSERT INTO calificaciones (dictado_id, alumno_id, titulo, nota, fecha, creada_por)
      VALUES (?, ?, ?, ?, COALESCE(?, CURDATE()), ?)`,
-    [req.dictadoId, alumnoId, titulo, nota, leerFecha(req.body.fecha), req.usuarioId]
+    [req.dictadoId, alumnoId, titulo, nota, fecha, req.usuarioId]
   );
   res.status(201).json({ id: r.insertId });
 });
@@ -59,13 +66,17 @@ router.post("/calificaciones/actualizar", ...gestion, async (req, res) => {
   const id = entero(req.body.id);
   const titulo = leerTitulo(req.body.titulo);
   const nota = leerNota(req.body.nota);
-  if (!id || !titulo) return res.status(400).json({ error: "Id y título son obligatorios" });
+  if (!id) return res.status(400).json({ error: "Id inválido" });
+  const errTitulo = errorTitulo(titulo);
+  if (errTitulo) return res.status(400).json({ error: errTitulo });
   if (nota === null) return res.status(400).json({ error: "La nota debe estar entre 1 y 10" });
+  const fecha = leerFecha(req.body.fecha);
+  if (fecha && fecha > (await hoyDB())) return res.status(400).json({ error: "La fecha no puede ser futura" });
   const [r] = await pool.query(
     `UPDATE calificaciones k JOIN dictados d ON d.id = k.dictado_id
      SET k.titulo = ?, k.nota = ?, k.fecha = COALESCE(?, k.fecha)
      WHERE k.id = ? AND d.profesor_id = ?`,
-    [titulo, nota, leerFecha(req.body.fecha), id, req.usuarioId]
+    [titulo, nota, fecha, id, req.usuarioId]
   );
   if (!r.affectedRows) return res.status(404).json({ error: "Calificación no encontrada" });
   res.json({ ok: true });
@@ -90,7 +101,7 @@ router.post("/calificaciones/planilla", ...gestion, verificarProfesorDelDictado,
   const [rows] = await pool.query(
     `SELECT u.nombre AS alumno, DATE_FORMAT(k.fecha, '%d/%m/%Y') AS fecha, k.titulo, k.nota
      FROM inscripciones i
-     JOIN usuarios u ON u.id = i.alumno_id
+     JOIN usuarios u ON u.id = i.alumno_id AND u.oculto_en IS NULL
      LEFT JOIN calificaciones k ON k.alumno_id = u.id AND k.dictado_id = i.dictado_id
      WHERE i.dictado_id = ? ORDER BY u.nombre, k.fecha, k.id`, [req.dictadoId]);
 
@@ -122,6 +133,42 @@ router.post("/calificaciones/mias", verificarToken, verificarPermiso("leer_qr"),
     [req.dictadoId, req.usuarioId]
   );
   res.json(rows.map((c) => ({ ...c, nota: Number(c.nota) })));
+});
+
+// Sin body. Todas las materias del alumno con sus calificaciones (de la más antigua a la más reciente) y promedios
+router.post("/calificaciones/resumen", verificarToken, verificarPermiso("leer_qr"), async (req, res) => {
+  const [rows] = await pool.query(
+    `SELECT d.id AS dictado_id, m.nombre AS materia, c.anio, c.division,
+            k.id, k.titulo, k.nota, DATE_FORMAT(k.fecha, '%Y-%m-%d') AS fecha
+     FROM inscripciones i
+     JOIN dictados d ON d.id = i.dictado_id
+     JOIN materias m ON m.id = d.materia_id
+     JOIN cursos c ON c.id = d.curso_id
+     LEFT JOIN calificaciones k ON k.dictado_id = d.id AND k.alumno_id = i.alumno_id
+     WHERE i.alumno_id = ?
+     ORDER BY c.anio, c.division, m.nombre, k.fecha, k.id`,
+    [req.usuarioId]
+  );
+
+  const porDictado = new Map();
+  for (const r of rows) {
+    if (!porDictado.has(r.dictado_id)) {
+      porDictado.set(r.dictado_id, {
+        dictado_id: r.dictado_id, materia: r.materia, anio: r.anio, division: r.division, notas: [],
+      });
+    }
+    if (r.id) {
+      porDictado.get(r.dictado_id).notas.push({ id: r.id, titulo: r.titulo, nota: Number(r.nota), fecha: r.fecha });
+    }
+  }
+
+  const promedio = (ns) =>
+    ns.length ? Math.round((100 * ns.reduce((a, n) => a + n, 0)) / ns.length) / 100 : null;
+  const materias = [...porDictado.values()].map((m) => ({ ...m, promedio: promedio(m.notas.map((n) => n.nota)) }));
+  res.json({
+    materias,
+    promedioGeneral: promedio(materias.filter((m) => m.promedio !== null).map((m) => m.promedio)),
+  });
 });
 
 export default router;

@@ -10,6 +10,7 @@ import {
 } from "../../services/calificacionService";
 import { Calificacion } from "../../types/academico";
 import { fechaLarga, fechaValida, hoyISO } from "../../utils/formato";
+import { soloTexto, validar } from "../../utils/validaciones";
 import BotonesExportar from "../ui/BotonesExportar";
 import Button from "../ui/Button";
 import FilaAcciones from "../ui/FilaAcciones";
@@ -19,7 +20,6 @@ import Tarjeta from "../ui/Tarjeta";
 import Texto from "../ui/Texto";
 
 type Form = { id: number | null; alumnoId: number; nombre: string; titulo: string; nota: string; fecha: string };
-
 const promedio = (cs: Calificacion[]) =>
   cs.length ? (cs.reduce((a, c) => a + c.nota, 0) / cs.length).toFixed(2) : "—";
 
@@ -30,6 +30,7 @@ export default function DictadoCalificaciones({ dictadoId }: { dictadoId: number
   const [form, setForm] = useState<Form | null>(null);
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [errorForm, setErrorForm] = useState("");
   
@@ -51,14 +52,25 @@ export default function DictadoCalificaciones({ dictadoId }: { dictadoId: number
     cargar();
   }, [cargar]);
   
+  const abrirForm = (f: Form) => {
+    setForm(f);
+    setErrorForm("");
+    setSubmitted(false);
+  };
+  
   const guardar = async () => {
     if (!token || !form) return;
+    setSubmitted(true);
+    if (validar.tituloCalificacion(form.titulo)) return;
+    
     const textoNota = form.nota.trim().replace(",", ".");
     const nota = /^(10(\.0)?|[1-9](\.\d)?)$/.test(textoNota) ? Number(textoNota) : NaN;
+    
     if (Number.isNaN(nota)) return setErrorForm("La nota debe estar entre 1 y 10, con un decimal como máximo");
-    if (!form.titulo.trim()) return setErrorForm("Escribe el título");
     if (!(nota >= 1 && nota <= 10)) return setErrorForm("La nota debe estar entre 1 y 10");
     if (!fechaValida(form.fecha)) return setErrorForm("La fecha debe ser YYYY-MM-DD");
+    if (form.fecha > hoyISO()) return setErrorForm("La fecha no puede ser futura");
+    
     try {
       setGuardando(true);
       setErrorForm("");
@@ -75,7 +87,7 @@ export default function DictadoCalificaciones({ dictadoId }: { dictadoId: number
   };
   
   if (cargando) return <ActivityIndicator />;
-
+  
   return (
     <>
       <Tarjeta>
@@ -85,7 +97,9 @@ export default function DictadoCalificaciones({ dictadoId }: { dictadoId: number
       {form && (
         <Tarjeta>
           <Texto size={18} bold>{form.id === null ? "Nueva calificación" : "Editar calificación"} · {form.nombre}</Texto>
-          <Input label="Título (ej: Parcial 1)" value={form.titulo} onChangeText={(v) => setForm({ ...form, titulo: v })} autoCapitalize="sentences" maxLength={100} />
+          <Input label="Título (solo letras y puntuación, ej: Parcial)" value={form.titulo}
+            onChangeText={(v) => setForm({ ...form, titulo: soloTexto(v) })} autoCapitalize="sentences"
+            maxLength={100} validate={validar.tituloCalificacion} submitted={submitted} />
           <Input label="Nota (1 a 10)" value={form.nota} onChangeText={(v) => setForm({ ...form, nota: v })} keyboardType="decimal-pad" />
           <Input label="Fecha (YYYY-MM-DD)" value={form.fecha} onChangeText={(v) => setForm({ ...form, fecha: v })} />
           {!!errorForm && <Texto size={14} color="error">{errorForm}</Texto>}
@@ -111,7 +125,7 @@ export default function DictadoCalificaciones({ dictadoId }: { dictadoId: number
                       variant="outline"
                       title="+ Agregar"
                       style={{ paddingVertical: 8, paddingHorizontal: 12 }}
-                      onPress={() => { setForm({ id: null, alumnoId: al.id, nombre: al.nombre, titulo: "", nota: "", fecha: hoyISO() }); setErrorForm(""); }}
+                      onPress={() => abrirForm({ id: null, alumnoId: al.id, nombre: al.nombre, titulo: "", nota: "", fecha: hoyISO() })}
                     />
                   }
                 />
@@ -120,7 +134,7 @@ export default function DictadoCalificaciones({ dictadoId }: { dictadoId: number
                     key={c.id}
                     titulo={`${c.titulo}: ${c.nota}`}
                     subtitulo={fechaLarga(c.fecha)}
-                    onEditar={() => { setForm({ id: c.id, alumnoId: al.id, nombre: al.nombre, titulo: c.titulo, nota: String(c.nota), fecha: c.fecha }); setErrorForm(""); }}
+                    onEditar={() => abrirForm({ id: c.id, alumnoId: al.id, nombre: al.nombre, titulo: soloTexto(c.titulo), nota: String(c.nota), fecha: c.fecha })}
                     onEliminar={async () => {
                       if (!token) return;
                       try {

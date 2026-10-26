@@ -43,3 +43,23 @@ export async function obtenerPermisos(usuarioId) {
     );
     return PERMISOS_POR_PERFIL[rows[0]?.nombre] ?? [];
 }
+
+// ---------- Validación de texto libre (comunicados, títulos de calificaciones) ----------
+const LETRAS = "A-Za-zÁÉÍÓÚÜÑáéíóúüñ";
+const PUNTUACION = ".,;:¿?¡!()\\-\"'";
+
+// Devuelve el mensaje de error o null si el texto es válido. Solo admite letras, signos de puntuación
+// y espacios simples (con multilinea también saltos de línea).
+export function validarTextoLibre(valor, { etiqueta, minLetras, max, multilinea = false }) {
+  const texto = String(valor ?? "").trim();
+  if (!texto) return `${etiqueta} es obligatorio`;
+  if (texto.length > max) return `${etiqueta} no puede tener más de ${max} caracteres`;
+  const permitidos = `${LETRAS}${PUNTUACION} ${multilinea ? "\\r\\n" : ""}`;
+  if (!new RegExp(`^[${permitidos}]+$`).test(texto)) {
+    return `${etiqueta} solo puede contener letras y signos de puntuación`;
+  }
+  if (/ {2,}/.test(texto)) return `${etiqueta} no puede contener dos o más espacios juntos`;
+  const letras = texto.match(new RegExp(`[${LETRAS}]`, "g"))?.length ?? 0;
+  if (letras < minLetras) return `${etiqueta} debe tener al menos ${minLetras} letras`;
+  return null;
+}

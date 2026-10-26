@@ -17,6 +17,7 @@ import cicloRoutes from "./routes/ciclo.js";
 import auditoriaRoutes from "./routes/auditoria.js";
 import comunicadosRoutes from "./routes/comunicados.js";
 import calificacionesRoutes from "./routes/calificaciones.js";
+import evaluacionesRoutes from "./routes/evaluaciones.js";
 
 const app = express();
 app.use(cors());
@@ -45,6 +46,7 @@ app.use("/api", cicloRoutes);
 app.use("/api", auditoriaRoutes);
 app.use("/api", comunicadosRoutes);
 app.use("/api", calificacionesRoutes);
+app.use("/api", evaluacionesRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err);

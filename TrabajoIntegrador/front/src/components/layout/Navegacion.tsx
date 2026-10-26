@@ -21,8 +21,15 @@ const ADMIN: Item[] = [
   { ruta: "/mi-cuenta", titulo: "Mi cuenta", icono: "person-circle-outline" },
 ];
 
-const DOCENTE_Y_ALUMNO: Item[] = [
+const PROFESOR: Item[] = [
   { ruta: "/home", titulo: "Inicio", icono: "home-outline" },
+  { ruta: "/evaluaciones", titulo: "Evaluaciones", icono: "clipboard-outline" },
+  { ruta: "/notificaciones", titulo: "Notificaciones", icono: "notifications-outline" },
+  { ruta: "/mi-cuenta", titulo: "Mi cuenta", icono: "person-circle-outline" },
+];
+const ALUMNO: Item[] = [
+  { ruta: "/home", titulo: "Inicio", icono: "home-outline" },
+  { ruta: "/notas", titulo: "Notas", icono: "ribbon-outline" },
   { ruta: "/notificaciones", titulo: "Notificaciones", icono: "notifications-outline" },
   { ruta: "/mi-cuenta", titulo: "Mi cuenta", icono: "person-circle-outline" },
 ];
@@ -35,7 +42,8 @@ export default function Navegacion({ lateral }: { lateral: boolean }) {
   const insets = useSafeAreaInsets();
   const { fs } = useResponsive();
   const { user } = useAuth();
-  const items = user?.perfil.nombre === "Administrador" ? ADMIN : DOCENTE_Y_ALUMNO;
+  const perfil = user?.perfil.nombre;
+  const items = perfil === "Administrador" ? ADMIN : perfil === "Alumno" ? ALUMNO : PROFESOR;
 
   return (
     <View

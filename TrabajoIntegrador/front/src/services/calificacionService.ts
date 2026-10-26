@@ -1,5 +1,5 @@
 import { apiPost } from "./api";
-import { Calificacion, Tabla } from "../types/academico";
+import { Calificacion, ResumenNotas, Tabla } from "../types/academico";
 
 type Ok = { ok: boolean };
 
@@ -28,3 +28,6 @@ export const planillaNotas = (token: string, dictadoId: number) =>
 // ---------- Alumno ----------
 export const misCalificaciones = (token: string, dictadoId: number) =>
   apiPost<Calificacion[]>("/api/calificaciones/mias", { dictadoId }, token);
+
+export const resumenNotas = (token: string) =>
+  apiPost<ResumenNotas>("/api/calificaciones/resumen", {}, token);

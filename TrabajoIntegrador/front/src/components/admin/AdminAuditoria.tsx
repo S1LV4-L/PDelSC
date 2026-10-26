@@ -43,11 +43,13 @@ const NOMBRE_ACCION: Record<string, string> = {
   asistencia_manual: "Asistencia corregida",
   justificacion: "Justificación",
   comunicado: "Comunicado enviado",
+  comunicado_editado: "Comunicado editado",
   importacion: "Importación de alumnos",
   promocion: "Cambio de ciclo",
   usuarios_ocultados: "Usuarios ocultados",
   usuarios_reincorporados: "Usuarios reincorporados",
   usuario_eliminado: "Usuario eliminado",
+  notas_importadas: "Notas importadas",
 };
 
 export default function AdminAuditoria() {

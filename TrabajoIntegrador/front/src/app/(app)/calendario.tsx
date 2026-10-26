@@ -11,7 +11,7 @@ import { calendarioPropio } from "../../services/asistenciaService";
 import { DiaCalendario } from "../../types/academico";
 import { AMARILLO, mesISO } from "../../utils/formato";
 
-const DIAS = ["L", "M", "X", "J", "V", "S", "D"];
+const DIAS = ["D", "L", "M", "X", "J", "V", "S"];
 
 export default function CalendarioScreen() {
   const theme = useTheme();
@@ -36,7 +36,7 @@ export default function CalendarioScreen() {
   );
   
   const celdas = useMemo(() => {
-    const offset = (mes.getDay() + 6) % 7; // semana desde el lunes
+    const offset = mes.getDay(); // semana desde el domingo (getDay(): 0 = domingo)
     const total = new Date(mes.getFullYear(), mes.getMonth() + 1, 0).getDate();
     return [...Array(offset).fill(null), ...Array.from({ length: total }, (_, i) => i + 1)] as (number | null)[];
   }, [mes]);

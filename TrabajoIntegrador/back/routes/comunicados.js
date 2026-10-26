@@ -3,17 +3,23 @@ import { Router } from "express";
 import pool from "../db.js";
 import { verificarToken, verificarPermiso } from "../scripts/auth.js";
 import { registrarAuditoria } from "../scripts/auditoria.js";
+import { validarTextoLibre } from "../scripts/helpers.js";
 
 const router = Router();
 const enviar = [verificarToken, verificarPermiso("enviar_comunicados")];
 const enteros = (v) =>
   [...new Set((Array.isArray(v) ? v : []).map(Number))].filter((n) => Number.isInteger(n) && n > 0);
+const errorTextoComunicado = (titulo, mensaje) =>
+  validarTextoLibre(titulo, { etiqueta: "El título", minLetras: 3, max: 120 }) ||
+  validarTextoLibre(mensaje, { etiqueta: "El mensaje", minLetras: 5, max: 2000, multilinea: true });
 
 // Body: { titulo, mensaje, alcance: "global" | "curso" | "usuario", cursoIds?, usuarioIds? }
 router.post("/comunicados/enviar", ...enviar, async (req, res) => {
-  const titulo = String(req.body.titulo ?? "").trim().slice(0, 120);
-  const mensaje = String(req.body.mensaje ?? "").trim().slice(0, 2000);
+  const titulo = String(req.body.titulo ?? "").trim();
+  const mensaje = String(req.body.mensaje ?? "").trim();
   const alcance = req.body.alcance;
+  const errorTexto = errorTextoComunicado(titulo, mensaje);
+  if (errorTexto) return res.status(400).json({ error: errorTexto });
   if (!titulo || !mensaje) return res.status(400).json({ error: "El título y el mensaje son obligatorios" });
   if (!["global", "curso", "usuario"].includes(alcance)) return res.status(400).json({ error: "Alcance inválido" });
 
@@ -62,6 +68,7 @@ router.post("/comunicados/enviar", ...enviar, async (req, res) => {
 router.post("/comunicados/enviados", ...enviar, async (req, res) => {
   const [rows] = await pool.query(
     `SELECT c.id, c.titulo, c.mensaje, c.alcance, DATE_FORMAT(c.creado_en, '%Y-%m-%d %H:%i') AS fecha,
+            DATE_FORMAT(c.editado_en, '%Y-%m-%d %H:%i') AS editado,
             ((SELECT COUNT(*) FROM comunicado_cursos d WHERE d.comunicado_id = c.id)
              + (SELECT COUNT(*) FROM comunicado_usuarios d WHERE d.comunicado_id = c.id)) AS destinos,
             (SELECT COUNT(*) FROM comunicado_lecturas l WHERE l.comunicado_id = c.id) AS lecturas
@@ -79,11 +86,32 @@ router.post("/comunicados/eliminar", ...enviar, async (req, res) => {
   res.json({ ok: true });
 });
 
+// Body: { id, titulo, mensaje }. Auth: enviar_comunicados. Edita título y mensaje y guarda la fecha de edición.
+// 200 { ok } | 400 Datos inválidos | 404 Comunicado no encontrado
+router.post("/comunicados/editar", ...enviar, async (req, res) => {
+  const id = Number(req.body.id);
+  const titulo = String(req.body.titulo ?? "").trim();
+  const mensaje = String(req.body.mensaje ?? "").trim();
+  if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: "Id inválido" });
+  const errorTexto = errorTextoComunicado(titulo, mensaje);
+  if (errorTexto) return res.status(400).json({ error: errorTexto });
+  if (!titulo || !mensaje) return res.status(400).json({ error: "El título y el mensaje son obligatorios" });
+
+  const [r] = await pool.query(
+    "UPDATE comunicados SET titulo = ?, mensaje = ?, editado_en = NOW() WHERE id = ?",
+    [titulo, mensaje, id]
+  );
+  if (!r.affectedRows) return res.status(404).json({ error: "Comunicado no encontrado" });
+  await registrarAuditoria(req.usuarioId, "comunicado_editado", { id, titulo });
+  res.json({ ok: true });
+});
+
 // Notificaciones del usuario logueado: globales, de su curso (alumno) o de los cursos donde dicta
 // (profesor) y las dirigidas a él.
 router.post("/comunicados/mios", verificarToken, async (req, res) => {
   const [rows] = await pool.query(
     `SELECT c.id, c.titulo, c.mensaje, c.alcance, DATE_FORMAT(c.creado_en, '%Y-%m-%d %H:%i') AS fecha,
+            DATE_FORMAT(c.editado_en, '%Y-%m-%d %H:%i') AS editado,
             a.nombre AS autor, (l.usuario_id IS NOT NULL) AS leido
      FROM comunicados c
      LEFT JOIN usuarios a ON a.id = c.autor_id

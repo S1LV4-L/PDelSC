@@ -66,6 +66,30 @@ const reglasTexto = (etiqueta: string, minLetras: number, max: number) => ({
     maxLength: (v: string) => v.trim().length <= max || `${etiqueta} no puede tener más de ${max} caracteres`,
 });
 
+// Texto libre: letras (con tildes, ñ y ü), signos de puntuación comunes y espacios simples.
+// Con "saltos" también admite saltos de línea (para mensajes largos).
+const PUNTUACION_LIBRE = ".,:()";
+
+export const soloTexto = (valor: string) =>
+    valor.replace(new RegExp(`[^${LETRAS}${PUNTUACION_LIBRE} ]`, "g"), "").replace(/ {2,}/g, " ");
+
+export const soloTextoMultilinea = (valor: string) =>
+    valor.replace(new RegExp(`[^${LETRAS}${PUNTUACION_LIBRE} \\n]`, "g"), "").replace(/ {2,}/g, " ");
+
+const reglasTextoLibre = (etiqueta: string, minLetras: number, max: number, saltos = false) => {
+    const permitidos = `${LETRAS}${PUNTUACION_LIBRE} ${saltos ? "\\n" : ""}`;
+    return {
+        noVacio: (v: string) => v.trim().length > 0 || `${etiqueta} es obligatorio`,
+        soloLetras: (v: string) =>
+            new RegExp(`^[${permitidos}]*$`).test(v) || `${etiqueta} solo puede contener letras y signos de puntuación (.,:())`,
+        sinEspaciosDobles: (v: string) =>
+            !/ {2,}/.test(v) || `${etiqueta} no puede contener dos o más espacios juntos`,
+        minLetras: (v: string) =>
+            contarLetras(v) >= minLetras || `${etiqueta} debe tener al menos ${minLetras} letras`,
+        maxLength: (v: string) => v.trim().length <= max || `${etiqueta} no puede tener más de ${max} caracteres`,
+    };
+};
+
 type Validador = (valor: string) => string | null;
 
 // Convierte tu objeto de reglas en una sola funcion: devuelve el primer error o null
@@ -98,6 +122,9 @@ export const validar = {
     // Nota breve de una ausencia: opcional, solo letras, hasta 255 caracteres
     notaAusencia: ((valor) =>
         valor.trim().length === 0 ? null : combinar(reglasTexto("La nota", 1, 255))(valor.trim())) as Validador,
+    tituloComunicado: ((valor) => combinar(reglasTextoLibre("El título", 3, 120))(valor.trim())) as Validador,
+    mensajeComunicado: ((valor) => combinar(reglasTextoLibre("El mensaje", 5, 2000, true))(valor.trim())) as Validador,
+    tituloCalificacion: ((valor) => combinar(reglasTextoLibre("El título", 2, 100))(valor.trim())) as Validador,
     codigoRecuperacion: ((valor) => /^[A-Za-z0-9]{5}-?[A-Za-z0-9]{5}$/.test(valor.trim()) ? null 
         : "El código tiene el formato ABCDE-FGHJK") as Validador,
 };

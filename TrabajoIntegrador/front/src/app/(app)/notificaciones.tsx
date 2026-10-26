@@ -53,7 +53,11 @@ export default function NotificacionesScreen() {
                 <Texto bold style={{ flex: 1 }}>{c.titulo}</Texto>
                 {!c.leido && <Texto size={12} bold color="primary">NUEVO</Texto>}
               </View>
-              <Texto size={13} color="muted">{c.fecha}{c.autor ? ` · ${c.autor}` : ""}</Texto>
+              
+              <Texto size={13} color="muted">
+                {c.fecha}{c.autor ? ` · ${c.autor}` : ""}{c.editado ? ` · editado el ${c.editado}` : ""}
+              </Texto>
+              
               {abierto === c.id && <Texto>{c.mensaje}</Texto>}
             </Pressable>
           ))

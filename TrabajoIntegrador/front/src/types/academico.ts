@@ -137,6 +137,7 @@ export type Comunicado = {
   mensaje: string;
   alcance: "global" | "curso" | "usuario";
   fecha: string;
+  editado: string | null;
   autor: string | null;
   leido: boolean;
 };
@@ -146,11 +147,25 @@ export type ComunicadoEnviado = {
   mensaje: string;
   alcance: "global" | "curso" | "usuario";
   fecha: string;
+  editado: string | null;
   destinos: number;
   lecturas: number;
 };
 
 export type Calificacion = { id: number; alumno_id: number; titulo: string; nota: number; fecha: string };
+
+export type NotaPropia = { id: number; titulo: string; nota: number; fecha: string };
+
+export type NotasMateria = {
+  dictado_id: number;
+  materia: string;
+  anio: number;
+  division: number;
+  notas: NotaPropia[];
+  promedio: number | null;
+};
+
+export type ResumenNotas = { materias: NotasMateria[]; promedioGeneral: number | null };
 
 export type EventoAuditoria = {
   id: number;
@@ -181,4 +196,13 @@ export type ResultadoPromocion = {
   crearaDestino: boolean;
   egresan: boolean;
   alumnos: number;
+};
+
+export type ResultadoNotas = {
+  simulado: boolean;
+  total: number;
+  validos: number;
+  creadas: number;
+  totalErrores: number;
+  errores: { linea: number; error: string }[];
 };
