@@ -105,6 +105,7 @@ router.post("/auth/login", async (req, res) => {
             },
         });
     } catch {
+        console.error("Error en login:", error);
         res.status(500).json({ error: "Error al iniciar sesión" });
     }
 });
