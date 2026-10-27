@@ -45,3 +45,5 @@ example
 # Repomix bundles
 *-bundle.md
 *-bundle-*.md
+
+.env
