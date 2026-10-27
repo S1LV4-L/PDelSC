@@ -188,6 +188,7 @@ function destinoFrontend(state) {
 router.get("/auth/:proveedor/callback", async (req, res) => {
     const { proveedor } = req.params;
     const { code } = req.query;
+    const destino = destinoFrontend(req.query.state);
 
     try {
         const { proveedorId, nombre } = await obtenerDatosUsuario(proveedor, code);
@@ -214,7 +215,7 @@ router.get("/auth/:proveedor/callback", async (req, res) => {
         res.redirect(`${destino}?token=${token}&refreshToken=${refreshToken}`);
     } catch (error) {
         console.error(error);
-        res.redirect(`${destinoFrontend(req.query.state)}?error=oauth`);
+        res.redirect(`${destino}?error=oauth`);
     }
 });
 
