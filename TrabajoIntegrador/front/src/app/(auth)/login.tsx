@@ -28,7 +28,12 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   const mensajeError =
-    formError || (error === "oauth" ? "No se pudo iniciar sesión con el proveedor" : "");
+  formError ||
+  (error === "oauth"
+    ? "No se pudo iniciar sesión con el proveedor"
+    : error === "inactivo"
+      ? "Tu cuenta está inactiva. Consultá con la administración"
+      : "");
 
   const handleLogin = async () => {
     setSubmitted(true);
@@ -48,8 +53,8 @@ export default function LoginScreen() {
   const handleOAuth = async (proveedor: Proveedor) => {
     setFormError("");
     try {
-      const token = await iniciarOAuth(proveedor);
-      if (token) await signInWithToken(token);
+      const tokens = await iniciarOAuth(proveedor);
+      if (tokens) await signInWithToken(tokens.token, tokens.refreshToken);
     } catch (e) {
       setFormError(e instanceof Error ? e.message : "Error al iniciar sesión");
     }

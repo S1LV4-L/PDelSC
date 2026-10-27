@@ -28,7 +28,7 @@ const CONFIG = {
     },
 };
 
-export function obtenerUrlAutorizacion(proveedor) {
+export function obtenerUrlAutorizacion(proveedor, cliente = "web") {
     const config = CONFIG[proveedor];
     if (!config) throw new Error("Proveedor no soportado");
 
@@ -38,6 +38,7 @@ export function obtenerUrlAutorizacion(proveedor) {
         scope: config.scope,
         response_type: "code",
         prompt: "consent",
+        state: cliente === "app" ? "app" : "web",
     });
     if (proveedor === "jira") params.set("audience", "api.atlassian.com");
 

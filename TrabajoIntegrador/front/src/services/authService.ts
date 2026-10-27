@@ -26,7 +26,8 @@ export const miPerfil = (token: string) =>
 
 export type Proveedor = "google" | "github" | "jira";
 
-export const urlOAuth = (proveedor: Proveedor) => `${API_URL}/api/auth/${proveedor}`;
+export const urlOAuth = (proveedor: Proveedor, cliente: "web" | "app" = "web") =>
+  `${API_URL}/api/auth/${proveedor}${cliente === "app" ? "?cliente=app" : ""}`;
 
 export const actualizarCuenta = (
   token: string,

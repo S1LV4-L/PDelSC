@@ -13,6 +13,9 @@ import {
 } from "../scripts/helpers.js";
 
 const router = Router();
+const firmarAcceso = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "2h" });
+const firmarRenovacion = (id) =>
+    jwt.sign({ id, tipo: "renovacion" }, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d" });
 
 // Body: { nombre, email, password }. Registro público: siempre crea un Alumno.
 // 201 { mensaje, codigosRecuperacion } (los códigos se muestran solo esta vez)
@@ -94,7 +97,8 @@ router.post("/auth/login", async (req, res) => {
 
         const token = jwt.sign({ id: usuario.id }, process.env.JWT_SECRET, { expiresIn: "2h" });
         res.json({
-            token,
+            token: firmarAcceso(usuario.id),
+            refreshToken: firmarRenovacion(usuario.id),
             usuario: {
                 id: usuario.id,
                 nombre: usuario.nombre,
@@ -107,6 +111,23 @@ router.post("/auth/login", async (req, res) => {
     } catch (error) {
         console.error("Error en login:", error);
         res.status(500).json({ error: "Error al iniciar sesión" });
+    }
+});
+
+// Body: { refreshToken } -> 200 { token, refreshToken } | 401
+router.post("/auth/renovar", async (req, res) => {
+    try {
+        const payload = jwt.verify(req.body.refreshToken, process.env.JWT_REFRESH_SECRET);
+        if (payload.tipo !== "renovacion") throw new Error("Tipo inválido");
+
+        const [rows] = await pool.query("SELECT oculto_en FROM usuarios WHERE id = ?", [payload.id]);
+        if (rows.length === 0 || rows[0].oculto_en) {
+            return res.status(401).json({ error: "Sesión inválida" });
+        }
+
+        res.json({ token: firmarAcceso(payload.id), refreshToken: firmarRenovacion(payload.id) });
+    } catch {
+        res.status(401).json({ error: "Token de renovación inválido o vencido" });
     }
 });
 
@@ -149,11 +170,17 @@ router.post("/auth/restablecer", async (req, res) => {
 // 302 redirect | 400 texto plano "Proveedor no soportado"
 router.get("/auth/:proveedor", (req, res) => {
     try {
-        res.redirect(obtenerUrlAutorizacion(req.params.proveedor));
+        const cliente = req.query.cliente === "app" ? "app" : "web";
+        res.redirect(obtenerUrlAutorizacion(req.params.proveedor, cliente));
     } catch {
         res.status(400).send("Proveedor no soportado");
     }
 });
+
+// La URL de destino es fija: nunca se toma de la petición (evita open redirect)
+function destinoFrontend(state) {
+    return state === "app" ? "front://auth-callback" : `${process.env.FRONTEND_URL}/auth-callback`;
+}
 
 // GET /auth/:proveedor/callback?code=... Canjea el code, busca o crea el usuario (perfil Alumno)
 // y redirige al frontend.
@@ -180,13 +207,14 @@ router.get("/auth/:proveedor/callback", async (req, res) => {
             usuario = rows[0];
         }
 
-        if (usuario.oculto_en) return res.redirect(`${process.env.FRONTEND_URL}/?error=inactivo`);
+        if (usuario.oculto_en) return res.redirect(`${destino}?error=inactivo`);
 
-        const token = jwt.sign({ id: usuario.id }, process.env.JWT_SECRET, { expiresIn: "2h" });
-        res.redirect(`${process.env.FRONTEND_URL}/auth-callback?token=${token}`);
+        const token = firmarAcceso(usuario.id);
+        const refreshToken = firmarRenovacion(usuario.id);
+        res.redirect(`${destino}?token=${token}&refreshToken=${refreshToken}`);
     } catch (error) {
         console.error(error);
-        res.redirect(`${process.env.FRONTEND_URL}/?error=oauth`);
+        res.redirect(`${destinoFrontend(req.query.state)}?error=oauth`);
     }
 });
 
