@@ -49,7 +49,7 @@ app.use("/api", calificacionesRoutes);
 app.use("/api", evaluacionesRoutes);
 
 app.use((err, req, res, next) => {
-  console.error(err);
+  console.error(req.method, req.originalUrl, err);
   res.status(500).json({ error: "Error interno del servidor" });
 });
 
