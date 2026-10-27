@@ -104,7 +104,7 @@ router.post("/auth/login", async (req, res) => {
                 perfil: { id: usuario.perfil_id, nombre: usuario.perfil_nombre },
             },
         });
-    } catch {
+    } catch (error) {
         console.error("Error en login:", error);
         res.status(500).json({ error: "Error al iniciar sesión" });
     }
