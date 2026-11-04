@@ -86,54 +86,58 @@ export default function DictadoCalificaciones({ dictadoId }: { dictadoId: number
     }
   };
   
+  const renderForm = () =>
+  form && (
+    <Tarjeta>
+      <Texto size={18} bold>
+        {form.id === null ? "Nueva calificación" : "Editar calificación"} · {form.nombre}
+      </Texto>
+      <Input
+        label="Título (solo letras y puntuación, ej: Parcial)"
+        value={form.titulo}
+        onChangeText={(v) => setForm({ ...form, titulo: soloTexto(v) })}
+        autoCapitalize="sentences"
+        maxLength={100}
+        validate={validar.tituloCalificacion}
+        submitted={submitted}
+      />
+      <Input
+        label="Nota (1 a 10)"
+        value={form.nota}
+        onChangeText={(v) => setForm({ ...form, nota: v })}
+        keyboardType="decimal-pad"
+      />
+      <Input
+        label="Fecha (YYYY-MM-DD)"
+        value={form.fecha}
+        onChangeText={(v) => setForm({ ...form, fecha: v })}
+      />
+      {!!errorForm && <Texto size={14} color="error">{errorForm}</Texto>}
+      <Button title="Guardar" onPress={guardar} loading={guardando} />
+      <Button variant="link" title="Cancelar" onPress={() => setForm(null)} />
+    </Tarjeta>
+  );
+
   if (cargando) return <ActivityIndicator />;
 
-  const renderForm = () =>
-    form && (
-      <Tarjeta>
-        <Texto size={18} bold>
-          {form.id === null ? "Nueva calificación" : "Editar calificación"} · {form.nombre}
-        </Texto>
-        <Input
-          label="Título (solo letras y puntuación, ej: Parcial)"
-          value={form.titulo}
-          onChangeText={(v) => setForm({ ...form, titulo: soloTexto(v) })}
-          autoCapitalize="sentences"
-          maxLength={100}
-          validate={validar.tituloCalificacion}
-          submitted={submitted}
-        />
-        <Input
-          label="Nota (1 a 10)"
-          value={form.nota}
-          onChangeText={(v) => setForm({ ...form, nota: v })}
-          keyboardType="decimal-pad"
-        />
-        <Input
-          label="Fecha (YYYY-MM-DD)"
-          value={form.fecha}
-          onChangeText={(v) => setForm({ ...form, fecha: v })}
-        />
-        {!!errorForm && <Texto size={14} color="error">{errorForm}</Texto>}
-        <Button title="Guardar" onPress={guardar} loading={guardando} />
-        <Button variant="link" title="Cancelar" onPress={() => setForm(null)} />
-      </Tarjeta>
-    );
-  
   return (
     <>
       <Tarjeta>
         <Texto size={18} bold>Planilla de notas</Texto>
         <BotonesExportar obtener={() => planillaNotas(token!, dictadoId)} nombre={`notas-${hoyISO()}`} />
       </Tarjeta>
+
       <Tarjeta>
         <Texto size={18} bold>Calificaciones por alumno</Texto>
         {!!error && <Texto size={14} color="error">{error}</Texto>}
+
         {alumnos.length === 0 ? (
           <Texto color="muted">No hay alumnos inscriptos.</Texto>
         ) : (
           alumnos.map((al) => {
             const propias = califs.filter((c) => c.alumno_id === al.id);
+            const agregandoAca = !!form && form.id === null && form.alumnoId === al.id;
+
             return (
               <View key={al.id} style={{ gap: 8 }}>
                 <FilaItem
@@ -151,7 +155,7 @@ export default function DictadoCalificaciones({ dictadoId }: { dictadoId: number
                   }
                 />
 
-                {form && form.id === null && form.alumnoId === al.id && renderForm()}
+                {agregandoAca && renderForm()}
 
                 {propias.map((c) => (
                   <View key={c.id} style={{ gap: 8 }}>
@@ -179,7 +183,7 @@ export default function DictadoCalificaciones({ dictadoId }: { dictadoId: number
                       }}
                     />
 
-                    {form && form.id === c.id && renderForm()}
+                    {form?.id === c.id && renderForm()}
                   </View>
                 ))}
               </View>
