@@ -185,7 +185,7 @@ export default function DictadoCalificaciones({ dictadoId }: { dictadoId: number
                       }}
                     />
 
-                    {form?.id === c.id && renderForm()}
+                    {form?.id === c.id && form.alumnoId === al.id && renderForm()}
                   </View>
                 ))}
               </View>
