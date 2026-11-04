@@ -87,6 +87,38 @@ export default function DictadoCalificaciones({ dictadoId }: { dictadoId: number
   };
   
   if (cargando) return <ActivityIndicator />;
+
+  const renderForm = () =>
+    form && (
+      <Tarjeta>
+        <Texto size={18} bold>
+          {form.id === null ? "Nueva calificación" : "Editar calificación"} · {form.nombre}
+        </Texto>
+        <Input
+          label="Título (solo letras y puntuación, ej: Parcial)"
+          value={form.titulo}
+          onChangeText={(v) => setForm({ ...form, titulo: soloTexto(v) })}
+          autoCapitalize="sentences"
+          maxLength={100}
+          validate={validar.tituloCalificacion}
+          submitted={submitted}
+        />
+        <Input
+          label="Nota (1 a 10)"
+          value={form.nota}
+          onChangeText={(v) => setForm({ ...form, nota: v })}
+          keyboardType="decimal-pad"
+        />
+        <Input
+          label="Fecha (YYYY-MM-DD)"
+          value={form.fecha}
+          onChangeText={(v) => setForm({ ...form, fecha: v })}
+        />
+        {!!errorForm && <Texto size={14} color="error">{errorForm}</Texto>}
+        <Button title="Guardar" onPress={guardar} loading={guardando} />
+        <Button variant="link" title="Cancelar" onPress={() => setForm(null)} />
+      </Tarjeta>
+    );
   
   return (
     <>
@@ -112,40 +144,44 @@ export default function DictadoCalificaciones({ dictadoId }: { dictadoId: number
                       variant="outline"
                       title="+ Agregar"
                       style={{ paddingVertical: 8, paddingHorizontal: 12 }}
-                      onPress={() => abrirForm({ id: null, alumnoId: al.id, nombre: al.nombre, titulo: "", nota: "", fecha: hoyISO() })}
+                      onPress={() =>
+                        abrirForm({ id: null, alumnoId: al.id, nombre: al.nombre, titulo: "", nota: "", fecha: hoyISO() })
+                      }
                     />
                   }
                 />
+
+                {form && form.id === null && form.alumnoId === al.id && renderForm()}
+
                 {propias.map((c) => (
-                  <FilaAcciones
-                    key={c.id}
-                    titulo={`${c.titulo}: ${c.nota}`}
-                    subtitulo={fechaLarga(c.fecha)}
-                    onEditar={() => abrirForm({ id: c.id, alumnoId: al.id, nombre: al.nombre, titulo: soloTexto(c.titulo), nota: String(c.nota), fecha: c.fecha })}
-                    onEliminar={async () => {
-                      if (!token) return;
-                      try {
-                        await eliminarCalificacion(token, c.id);
-                        await cargar();
-                      } catch (e) {
-                        setError(e instanceof Error ? e.message : "No se pudo eliminar");
+                  <View key={c.id} style={{ gap: 8 }}>
+                    <FilaAcciones
+                      titulo={`${c.titulo}: ${c.nota}`}
+                      subtitulo={fechaLarga(c.fecha)}
+                      onEditar={() =>
+                        abrirForm({
+                          id: c.id,
+                          alumnoId: al.id,
+                          nombre: al.nombre,
+                          titulo: soloTexto(c.titulo),
+                          nota: String(c.nota),
+                          fecha: c.fecha,
+                        })
                       }
-                    }}
-                  />
+                      onEliminar={async () => {
+                        if (!token) return;
+                        try {
+                          await eliminarCalificacion(token, c.id);
+                          await cargar();
+                        } catch (e) {
+                          setError(e instanceof Error ? e.message : "No se pudo eliminar");
+                        }
+                      }}
+                    />
+
+                    {form && form.id === c.id && renderForm()}
+                  </View>
                 ))}
-                {form && (
-                  <Tarjeta>
-                    <Texto size={18} bold>{form.id === null ? "Nueva calificación" : "Editar calificación"} · {form.nombre}</Texto>
-                    <Input label="Título (solo letras y puntuación, ej: Parcial)" value={form.titulo}
-                      onChangeText={(v) => setForm({ ...form, titulo: soloTexto(v) })} autoCapitalize="sentences"
-                      maxLength={100} validate={validar.tituloCalificacion} submitted={submitted} />
-                    <Input label="Nota (1 a 10)" value={form.nota} onChangeText={(v) => setForm({ ...form, nota: v })} keyboardType="decimal-pad" />
-                    <Input label="Fecha (YYYY-MM-DD)" value={form.fecha} onChangeText={(v) => setForm({ ...form, fecha: v })} />
-                    {!!errorForm && <Texto size={14} color="error">{errorForm}</Texto>}
-                    <Button title="Guardar" onPress={guardar} loading={guardando} />
-                    <Button variant="link" title="Cancelar" onPress={() => setForm(null)} />
-                  </Tarjeta>
-                )}
               </View>
             );
           })
