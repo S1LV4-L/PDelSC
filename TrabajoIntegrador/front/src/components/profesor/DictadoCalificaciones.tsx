@@ -33,7 +33,7 @@ export default function DictadoCalificaciones({ dictadoId }: { dictadoId: number
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [errorForm, setErrorForm] = useState("");
-  
+
   const cargar = useCallback(async () => {
     if (!token) return;
     try {
@@ -47,30 +47,30 @@ export default function DictadoCalificaciones({ dictadoId }: { dictadoId: number
       setCargando(false);
     }
   }, [token, dictadoId]);
-  
+
   useEffect(() => {
     cargar();
   }, [cargar]);
-  
+
   const abrirForm = (f: Form) => {
     setForm(f);
     setErrorForm("");
     setSubmitted(false);
   };
-  
+
   const guardar = async () => {
     if (!token || !form) return;
     setSubmitted(true);
     if (validar.tituloCalificacion(form.titulo)) return;
-    
+
     const textoNota = form.nota.trim().replace(",", ".");
     const nota = /^(10(\.0)?|[1-9](\.\d)?)$/.test(textoNota) ? Number(textoNota) : NaN;
-    
+
     if (Number.isNaN(nota)) return setErrorForm("La nota debe estar entre 1 y 10, con un decimal como máximo");
     if (!(nota >= 1 && nota <= 10)) return setErrorForm("La nota debe estar entre 1 y 10");
     if (!fechaValida(form.fecha)) return setErrorForm("La fecha debe ser YYYY-MM-DD");
     if (form.fecha > hoyISO()) return setErrorForm("La fecha no puede ser futura");
-    
+
     try {
       setGuardando(true);
       setErrorForm("");
@@ -85,38 +85,40 @@ export default function DictadoCalificaciones({ dictadoId }: { dictadoId: number
       setGuardando(false);
     }
   };
-  
+
   const renderForm = () =>
-  form && (
-    <Tarjeta>
-      <Texto size={18} bold>
-        {form.id === null ? "Nueva calificación" : "Editar calificación"} · {form.nombre}
-      </Texto>
-      <Input
-        label="Título (solo letras y puntuación, ej: Parcial)"
-        value={form.titulo}
-        onChangeText={(v) => setForm({ ...form, titulo: soloTexto(v) })}
-        autoCapitalize="sentences"
-        maxLength={100}
-        validate={validar.tituloCalificacion}
-        submitted={submitted}
-      />
-      <Input
-        label="Nota (1 a 10)"
-        value={form.nota}
-        onChangeText={(v) => setForm({ ...form, nota: v })}
-        keyboardType="decimal-pad"
-      />
-      <Input
-        label="Fecha (YYYY-MM-DD)"
-        value={form.fecha}
-        onChangeText={(v) => setForm({ ...form, fecha: v })}
-      />
-      {!!errorForm && <Texto size={14} color="error">{errorForm}</Texto>}
-      <Button title="Guardar" onPress={guardar} loading={guardando} />
-      <Button variant="link" title="Cancelar" onPress={() => setForm(null)} />
-    </Tarjeta>
-  );
+    form && (
+      <View style={{ alignSelf: "stretch" }}>
+        <Tarjeta>
+          <Texto size={18} bold>
+            {form.id === null ? "Nueva calificación" : "Editar calificación"} · {form.nombre}
+          </Texto>
+          <Input
+            label="Título (solo letras y puntuación, ej: Parcial)"
+            value={form.titulo}
+            onChangeText={(v) => setForm({ ...form, titulo: soloTexto(v) })}
+            autoCapitalize="sentences"
+            maxLength={100}
+            validate={validar.tituloCalificacion}
+            submitted={submitted}
+          />
+          <Input
+            label="Nota (1 a 10)"
+            value={form.nota}
+            onChangeText={(v) => setForm({ ...form, nota: v })}
+            keyboardType="decimal-pad"
+          />
+          <Input
+            label="Fecha (YYYY-MM-DD)"
+            value={form.fecha}
+            onChangeText={(v) => setForm({ ...form, fecha: v })}
+          />
+          {!!errorForm && <Texto size={14} color="error">{errorForm}</Texto>}
+          <Button title="Guardar" onPress={guardar} loading={guardando} />
+          <Button variant="link" title="Cancelar" onPress={() => setForm(null)} />
+        </Tarjeta>
+      </View>
+    );
 
   if (cargando) return <ActivityIndicator />;
 
