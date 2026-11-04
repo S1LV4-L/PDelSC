@@ -24,6 +24,7 @@
     },
     "plugins": [
       "expo-router",
+      ["expo-camera", { "cameraPermission": "Aula+ necesita la cámara para escanear el QR de asistencia" }],
       [
         "expo-splash-screen",
         {

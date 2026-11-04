@@ -94,19 +94,6 @@ export default function DictadoCalificaciones({ dictadoId }: { dictadoId: number
         <Texto size={18} bold>Planilla de notas</Texto>
         <BotonesExportar obtener={() => planillaNotas(token!, dictadoId)} nombre={`notas-${hoyISO()}`} />
       </Tarjeta>
-      {form && (
-        <Tarjeta>
-          <Texto size={18} bold>{form.id === null ? "Nueva calificación" : "Editar calificación"} · {form.nombre}</Texto>
-          <Input label="Título (solo letras y puntuación, ej: Parcial)" value={form.titulo}
-            onChangeText={(v) => setForm({ ...form, titulo: soloTexto(v) })} autoCapitalize="sentences"
-            maxLength={100} validate={validar.tituloCalificacion} submitted={submitted} />
-          <Input label="Nota (1 a 10)" value={form.nota} onChangeText={(v) => setForm({ ...form, nota: v })} keyboardType="decimal-pad" />
-          <Input label="Fecha (YYYY-MM-DD)" value={form.fecha} onChangeText={(v) => setForm({ ...form, fecha: v })} />
-          {!!errorForm && <Texto size={14} color="error">{errorForm}</Texto>}
-          <Button title="Guardar" onPress={guardar} loading={guardando} />
-          <Button variant="link" title="Cancelar" onPress={() => setForm(null)} />
-        </Tarjeta>
-      )}
       <Tarjeta>
         <Texto size={18} bold>Calificaciones por alumno</Texto>
         {!!error && <Texto size={14} color="error">{error}</Texto>}
@@ -146,6 +133,19 @@ export default function DictadoCalificaciones({ dictadoId }: { dictadoId: number
                     }}
                   />
                 ))}
+                {form && (
+                  <Tarjeta>
+                    <Texto size={18} bold>{form.id === null ? "Nueva calificación" : "Editar calificación"} · {form.nombre}</Texto>
+                    <Input label="Título (solo letras y puntuación, ej: Parcial)" value={form.titulo}
+                      onChangeText={(v) => setForm({ ...form, titulo: soloTexto(v) })} autoCapitalize="sentences"
+                      maxLength={100} validate={validar.tituloCalificacion} submitted={submitted} />
+                    <Input label="Nota (1 a 10)" value={form.nota} onChangeText={(v) => setForm({ ...form, nota: v })} keyboardType="decimal-pad" />
+                    <Input label="Fecha (YYYY-MM-DD)" value={form.fecha} onChangeText={(v) => setForm({ ...form, fecha: v })} />
+                    {!!errorForm && <Texto size={14} color="error">{errorForm}</Texto>}
+                    <Button title="Guardar" onPress={guardar} loading={guardando} />
+                    <Button variant="link" title="Cancelar" onPress={() => setForm(null)} />
+                  </Tarjeta>
+                )}
               </View>
             );
           })
